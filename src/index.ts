@@ -1,7 +1,4 @@
 import Phaser from 'phaser';
-import ComponentMap from './engine/ComponentMap';
-import { Position, Rotation } from './engine/Component';
-import ComponentStore from './engine/ComponentStore';
 
 class MainScene extends Phaser.Scene {
 
@@ -15,15 +12,6 @@ class MainScene extends Phaser.Scene {
 
   create() {
     // Initialize game objects
-
-    const entity = 1;
-    const componentStore = new ComponentStore();
-    const position = new Position(10, 10);
-    componentStore.addComponent(entity, position);
-
-    componentStore.registerComponent(Rotation.type);
-    
-    console.log(componentStore);
   }
 
   update(time: number, delta: number) {
