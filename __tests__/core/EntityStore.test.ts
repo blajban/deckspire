@@ -1,4 +1,5 @@
-import EntityStore from "../src/engine/core/EntityStore";
+import EntityStore from "../../src/engine/core/EntityStore";
+
 
 
 describe('EntityStore', () => {
