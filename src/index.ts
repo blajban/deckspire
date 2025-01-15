@@ -1,4 +1,7 @@
 import Phaser from 'phaser';
+import ComponentStore from './engine/core/ComponentStore';
+import { Position } from './engine/components/Position';
+import { Rotation } from './engine/components/Rotation';
 
 class MainScene extends Phaser.Scene {
 
@@ -12,6 +15,28 @@ class MainScene extends Phaser.Scene {
 
   create() {
     // Initialize game objects
+
+    const componentStore = new ComponentStore();
+
+    componentStore.registerComponent(Position.type);
+    componentStore.registerComponent(Rotation.type);
+
+    componentStore.addComponent(1, new Position(10, 10));
+    componentStore.addComponent(1, new Rotation(10));
+
+    componentStore.addComponent(2, new Position(20, 20));
+
+    
+
+    const retrievedPosition = componentStore.getComponent(1, Position.type);
+    const retrievedRotation = componentStore.getComponent(1, Rotation.type);
+    console.log(retrievedPosition);
+    console.log(retrievedRotation);
+
+    const archetype = componentStore.getEntitiesWithArchetype(Position.type, Rotation.type);
+    console.log(archetype);
+
+    
   }
 
   update(time: number, delta: number) {

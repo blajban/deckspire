@@ -10,6 +10,9 @@ export default class ComponentMap<T extends Component> {
   private cachedEntities: Entity[] | null = null;
 
   constructor(componentType: string) {
+    if (!componentType) {
+      throw new Error('Component type must be defined.');
+    }
     this.componentType = componentType;
   }
 
@@ -21,6 +24,10 @@ export default class ComponentMap<T extends Component> {
    * @throws Will throw an error if the entity already has a component and `allowOverwrite` is false.
    */
   add(entity: Entity, component: T, allowOverwrite: boolean = false) {
+    if (!component) {
+      throw new Error(`Invalid component provided for entity ${entity}.`);
+    }
+
     if (this.has(entity) && !allowOverwrite) {
       throw new Error(`Could not add component to entity ${entity} (entity already has component of type ${this.componentType}).`);
     }

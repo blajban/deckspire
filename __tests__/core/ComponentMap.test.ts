@@ -18,6 +18,15 @@ describe('ComponentMap', () => {
     componentMap = new ComponentMap<MockComponent>(MockComponent.type);
   });
 
+  it("should throw an error if an invalid component is added", () => {
+    const componentMap = new ComponentMap<MockComponent>("MockComponent");
+    const invalidComponent = null as unknown as MockComponent;
+
+    expect(() => {
+      componentMap.add(1, invalidComponent);
+    }).toThrow("Invalid component provided for entity 1.");
+  });
+
   test('adds component to entitiy', () => {
     const entity: Entity = 1;
     const component = new MockComponent(10);
