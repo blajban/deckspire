@@ -2,11 +2,14 @@ import Phaser from 'phaser';
 import ComponentStore from './engine/core/ComponentStore';
 import { Position } from './engine/components/Position';
 import { Rotation } from './engine/components/Rotation';
+import EntityStore from './engine/core/EntityStore';
 
 class MainScene extends Phaser.Scene {
-
+  private entityStore = new EntityStore();
+  private componentStore = new ComponentStore();
   constructor() {
     super('MainScene');
+
   }
 
   preload() {
@@ -16,24 +19,19 @@ class MainScene extends Phaser.Scene {
   create() {
     // Initialize game objects
 
-    const componentStore = new ComponentStore();
+    const entity1 = this.entityStore.newEntity();
+    const entity2 = this.entityStore.newEntity();
 
-    componentStore.registerComponent(Position.type);
-    componentStore.registerComponent(Rotation.type);
+    this.componentStore.registerComponent(Position.type);
+    this.componentStore.registerComponent(Rotation.type);
 
-    componentStore.addComponent(1, new Position(10, 10));
-    componentStore.addComponent(1, new Rotation(10));
+    this.componentStore.addComponent(1, new Position(10, 10));
+    this.componentStore.addComponent(1, new Rotation(10));
 
-    componentStore.addComponent(2, new Position(20, 20));
+    this.componentStore.addComponent(2, new Position(20, 20));
 
+    const archetype = this.componentStore.getEntitiesWithArchetype(Position.type, Rotation.type);
     
-
-    const retrievedPosition = componentStore.getComponent(1, Position.type);
-    const retrievedRotation = componentStore.getComponent(1, Rotation.type);
-    console.log(retrievedPosition);
-    console.log(retrievedRotation);
-
-    const archetype = componentStore.getEntitiesWithArchetype(Position.type, Rotation.type);
     console.log(archetype);
 
     
@@ -48,7 +46,7 @@ const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
-  scene: [MainScene],
+  scene: [ MainScene ],
 };
 
 const game = new Phaser.Game(config);
