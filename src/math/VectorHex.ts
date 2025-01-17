@@ -57,7 +57,7 @@ export class VectorHex {
      * @throws if the coordinates are not integers.
      */
     public constructor(q: number = 0, r: number = 0) {
-        if( ! (Number.isInteger(q) && Number.isInteger(r)) ){
+        if (!(Number.isInteger(q) && Number.isInteger(r))) {
             throw new Error('Hex coordinates must be integers.');
         }
         this.q = q;
@@ -85,11 +85,14 @@ export class VectorHex {
      * @returns {Vector2D} - A vector pointing from the origin to the center of the hex.
      */
     public into_vector2(orientation: HexGridOrientation = HexGridOrientation.Horizontal, size: number = 1): Vector2D {
+        if (size <= 0) {
+            throw new Error("Hex size must be positive.");
+        }
         if (orientation == HexGridOrientation.Horizontal) {
-            return new Vector2D(this.q + 0.5 * this.r, sqrt3over2 * this.r);
+            return new Vector2D(size * sqrt3over2 * this.q, size * (this.r + 0.5 * this.q));
         }
         else {
-            return new Vector2D(sqrt3over2 * this.q, this.r + 0.5 * this.q);
+            return new Vector2D(size * 0.5 * (this.q - this.r), size * sqrt3over2 * (this.q + this.r));
         }
     }
 
@@ -104,20 +107,42 @@ export class VectorHex {
      * Vector subtraction.
      * @param {@this} [vec1] - Starting hex.
      * @param {@this} [vec2] - Ending hex.
-     * @returns {@this} - A @this pointing from hex1 to hex2
+     * @returns {@this} - A vector pointing from hex1 to hex2
      */
-    public difference(vec1: VectorHex, vec2: VectorHex): VectorHex {
+    public static difference(vec1: VectorHex, vec2: VectorHex): VectorHex {
         return new VectorHex(vec2.q - vec1.q, vec2.r - vec1.r);
+    }
+
+    /**
+     * Subtracts a vector.
+     * @param {@this} [hex] - The vector to subtract 
+     * @returns {@this} - The vector after subtraction.
+     */
+    public subtract(hex: VectorHex): VectorHex {
+        this.q -= hex.q;
+        this.r -= hex.r;
+        return this;
     }
 
     /**
      * Vector addition.
      * @param {@this} [origin] - Starting hex.
      * @param {@this} [translation] - Translation to apply.
-     * @returns {@this} - A @this pointing from hex1 to hex2
+     * @returns {@this} - The sum of the vectors.
      */
-    public add(origin: VectorHex, translation: VectorHex): VectorHex {
+    public static add(origin: VectorHex, translation: VectorHex): VectorHex {
         return new VectorHex(origin.q + translation.q, origin.r + translation.r);
+    }
+
+    /**
+     * Translates the vector.
+     * @param {@this} [translation] - Translation to apply. 
+     * @returns {@this} - The vector after translation.
+     */
+    public add(translation: VectorHex): VectorHex {
+        this.q += translation.q;
+        this.r += translation.r;
+        return this;
     }
 
     /**
@@ -180,7 +205,7 @@ export class VectorHex {
         n -= sector_rotations * hexes_per_sector;
         let sector = this.sector();
         let direction = sector % 3;
-        let steps = sector < 3 ? n: -n;
+        let steps = sector < 3 ? n : -n;
         this.step_in_direction(steps, direction);
     }
 
