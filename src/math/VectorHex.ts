@@ -42,7 +42,7 @@ export enum VerticalOrientationEdge {
 }
 
 /**
- * @classdesc A vector pointing at a specific hex identified by the first two cube coordinates: q and r.
+ * A vector pointing at a specific hex identified by the first two cube coordinates: q and r.
  */
 export class VectorHex {
     q: number = 0;
@@ -56,10 +56,9 @@ export class VectorHex {
     }
 
     /**
-     * @constructor
      * @param {number} [q=0] - The first hex coordinate.
      * @param {number} [r=0] - The second hex coordinate.
-     * @returns {VectorHex} - A new @this.
+     * @returns {VectorHex} - A new VectorHex.
      * @throws if the coordinates are not integral.
      */
     public constructor(q: number = 0, r: number = 0) {
@@ -72,14 +71,14 @@ export class VectorHex {
 
     /** 
      * @param {Vector2DLike} vec2 - Any object with a x- and y-coordinate.
-     * @returns {VectorHex} - A @this pointing to the hex identified by (q=x, r=y).
+     * @returns {VectorHex} - A vector pointing to the hex identified by (q=x, r=y).
      */
     public static from_vector2(vec2: Vector2DLike): VectorHex {
         return new VectorHex(vec2.x, vec2.y);
     };
 
     /**
-     * @returns {@this} - A new identical @this.
+     * @returns {VectorHex} - A new identical VectorHex.
      */
     public clone(): VectorHex {
         return new VectorHex(this.q, this.r);
@@ -105,9 +104,9 @@ export class VectorHex {
 
     /**
      * Calculates vector pointing from one hex to another.
-     * @param {@this} [vec1] - Starting hex.
-     * @param {@this} [vec2] - Ending hex.
-     * @returns {@this} - A vector pointing from hex1 to hex2
+     * @param {VectorHex} [vec1] - Starting hex.
+     * @param {VectorHex} [vec2] - Ending hex.
+     * @returns {VectorHex} - A vector pointing from hex1 to hex2
      */
     public static delta(vec1: VectorHex, vec2: VectorHex): VectorHex {
         return new VectorHex(vec2.q - vec1.q, vec2.r - vec1.r);
@@ -115,8 +114,8 @@ export class VectorHex {
 
     /**
      * Subtracts a vector from this one.
-     * @param {@this} [hex] - The vector to subtract 
-     * @returns {@this} - The vector after subtraction.
+     * @param {VectorHex} [hex] - The vector to subtract 
+     * @returns {VectorHex} - The vector after subtraction.
      */
     public subtract(hex: VectorHex): VectorHex {
         this.q -= hex.q;
@@ -126,9 +125,9 @@ export class VectorHex {
 
     /**
      * Vector sum.
-     * @param {@this} [origin] - Starting hex.
-     * @param {@this} [translation] - Translation to apply.
-     * @returns {@this} - The sum of the vectors.
+     * @param {VectorHex} [origin] - Starting hex.
+     * @param {VectorHex} [translation] - Translation to apply.
+     * @returns {VectorHex} - The sum of the vectors.
      */
     public static sum(origin: VectorHex, translation: VectorHex): VectorHex {
         return new VectorHex(origin.q + translation.q, origin.r + translation.r);
@@ -136,8 +135,8 @@ export class VectorHex {
 
     /**
      * Translates the vector.
-     * @param {@this} [translation] - Translation to apply. 
-     * @returns {@this} - The vector after translation.
+     * @param {VectorHex} [translation] - Translation to apply. 
+     * @returns {VectorHex} - The vector after translation.
      */
     public add(translation: VectorHex): VectorHex {
         this.q += translation.q;
