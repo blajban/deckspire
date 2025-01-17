@@ -5,4 +5,5 @@ export interface Vector2DLike {
     y: number;
 }
 
-export class Vector2D extends Phaser.Math.Vector2 {}
+/** @implements {Vector2DLike} */
+export class Vector2D extends Phaser.Math.Vector2 implements Vector2DLike {}
