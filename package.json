@@ -4,9 +4,19 @@
   "main": "webpack.config.js",
   "scripts": {
     "start": "npx webpack serve",
-    "test": "jest",
+    "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "generate-docs": "npx typedoc"
+    "open-coverage": "open coverage/lcov-report/index.html",
+    "docs": "npx typedoc && open docs/index.html",
+    "generate-docs": "npx typedoc",
+    "lint": "eslint src/."
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "printWidth": 80,
+    "tabWidth": 2
   },
   "keywords": [],
   "author": "",
@@ -17,7 +27,14 @@
     "phaser": "^3.87.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.18.0",
     "@types/jest": "^29.5.14",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.2",
+    "globals": "^15.14.0",
+    "prettier": "^3.4.2",
     "jest": "^29.7.0",
     "jest-canvas-mock": "^2.5.2",
     "jest-environment-jsdom": "^29.7.0",
@@ -26,6 +43,7 @@
     "ts-node": "^10.9.2",
     "typedoc": "^0.27.6",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0",
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.0"
