@@ -6,15 +6,39 @@ const sqrt3over2: number = 0.8660254038;
  * @property {Horizontal} - Hexes have horizontal top and bottom edges and the q-axis is aligned with x-axis.
  * @property {Vertical} - Hexes have vertical side edges and the r-axis is aligned with y-axis.
  */
-enum HexGridOrientation {
+export enum HexGridOrientation {
     Horizontal,
     Vertical
+}
+
+export enum HorizontalOrientationAxis {
+    East = 0,
+    NorthWest = 1,
+    SouthWest = 2,
+}
+
+export enum HorizontalOrientationDirection {
+    North = 0,
+    SouthWest = 1,
+    SouthEast = 2,
+}
+
+export enum VerticalOrientationAxis {
+    NorthEast = 0,
+    West = 1,
+    SouthEast = 2
+}
+
+export enum VerticalOrientationDirection {
+    NorthWest = 0,
+    SouthWest = 1,
+    East = 2
 }
 
 /**
  * @classdesc A vector pointing at a specific hex identified by the first two cube coordinates: q and r.
  */
-class VectorHex {
+export class VectorHex {
     q: number = 0;
     r: number = 0;
 
@@ -30,10 +54,22 @@ class VectorHex {
      * @param {number} [q=0] - The first hex coordinate.
      * @param {number} [r=0] - The second hex coordinate.
      * @returns {VectorHex} - A new @this.
+     * @throws if the coordinates are not integers.
      */
     public constructor(q: number = 0, r: number = 0) {
+        if( ! (Number.isInteger(q) && Number.isInteger(r)) ){
+            throw new Error('Hex coordinates must be integers.');
+        }
         this.q = q;
         this.r = r;
+    };
+
+    /** 
+     * @param {Vector2DLike} vec2 - Any object with a x- and y-coordinate.
+     * @returns {VectorHex} - A @this pointing to the hex identified by (q=x, r=y).
+     */
+    public static from_vector2(vec2: Vector2DLike): VectorHex {
+        return new VectorHex(vec2.x, vec2.y);
     };
 
     /**
@@ -42,14 +78,6 @@ class VectorHex {
     public clone(): VectorHex {
         return new VectorHex(this.q, this.r);
     }
-
-    /** 
-     * @param {Vector2DLike} vec2 - Any object with a x- and y-coordinate.
-     * @returns {VectorHex} - A @this pointing to the hex identified by (q=x, r=y).
-     */
-    public from_vector2(vec2: Vector2DLike): VectorHex {
-        return new VectorHex(vec2.x, vec2.y);
-    };
 
     /**
      * @param {HexGridOrientation} orientation - Determines the hex grid axis alignment.
@@ -94,8 +122,7 @@ class VectorHex {
 
     /**
      * Which sector does the vector point to?
-     * Indices start at 0 indicating the east sector (horizontal orientation) or the north-east sector (vertical orientation).
-     * @returns {number} - An index identifying the sector
+     * @returns {number} - An index identifying the sector. Indices start at 0 indicating the east sector (horizontal orientation) or the north-east sector (vertical orientation).
      */
     public sector(): number {
         if (Math.abs(this.q) >= Math.abs(this.r) && Math.abs(this.q) > Math.abs(this.s())) {
@@ -109,26 +136,30 @@ class VectorHex {
         }
     }
 
+    /**
+     * Translates the vector in the specified direction.
+     * @param direction - An index identifying the direction. Indices start at 0 indicating north-east (horizontal orientation) or east (vertical orientation).
+     * @param steps 
+     * @throws if an invalid axis number is found.
+     */
     public step_in_direction(direction: number, steps: number = 1) {
-        if (direction < 0 || direction >= 6) {
-            throw new Error("Invalid direction, must be a positive integer < 6.");
-        }
-        if (direction > 2) {
-            steps *= -1;
+        if (direction < 0 || direction >= 3) {
+            throw new Error("Invalid direction, must be a positive integer < 3.");
         }
         switch (direction) {
+            // North / NorthWest
             case 0:
-            case 3:
                 this.r += steps;
                 break;
+            // SouthWest
             case 1:
-            case 4:
-                this.r += steps;
                 this.q -= steps;
                 break;
+            // SouthEast / East
             case 2:
-            case 5:
-                this.q -= steps;
+                this.q += steps;
+                this.r -= steps;
+                break;
         }
     }
 
@@ -147,8 +178,10 @@ class VectorHex {
         const sector_rotations = (n / hexes_per_sector);
         this.sector_rotation(sector_rotations);
         n -= sector_rotations * hexes_per_sector;
-        let direction = (this.sector() + 1) % 6;
-        this.step_in_direction(n, this.sector());
+        let sector = this.sector();
+        let direction = sector % 3;
+        let steps = sector < 3 ? n: -n;
+        this.step_in_direction(steps, direction);
     }
 
     private rotate_to_corner(): number {
