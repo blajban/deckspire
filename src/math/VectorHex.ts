@@ -1,5 +1,6 @@
 import { Vector2D, Vector2DLike } from './Vector2D';
 
+const sqrt3: number = Math.sqrt(3);
 const sqrt3over2: number = 0.5 * Math.sqrt(3);
 
 /**
@@ -43,6 +44,7 @@ export enum VerticalOrientationEdge {
 
 /**
  * A vector pointing at a specific hex identified by the first two cube coordinates: q and r.
+ * Internally, the VectorHex always assumes as horizontal grid and a unit distance between hexes, only when interacting with outside vectors does the hex grid orientation matter.
  */
 export class VectorHex {
     q: number = 0;
@@ -69,12 +71,29 @@ export class VectorHex {
         this.r = r;
     };
 
+    private static into_horizontal(vec2d: Vector2DLike): Vector2D {
+        return new Vector2D(sqrt3over2 * vec2d.x + 0.5 * vec2d.y, -0.5 * vec2d.x + sqrt3over2 * vec2d.y);
+    };
+
+    private static into_vertical(vec2d: Vector2DLike): Vector2D {
+        return new Vector2D(sqrt3over2 * vec2d.x - 0.5 * vec2d.y, 0.5 * vec2d.x + sqrt3over2 * vec2d.y);
+    };
+
     /** 
-     * @param {Vector2DLike} vec2 - Any object with a x- and y-coordinate.
+     * @param {Vector2DLike} vec2d - Any object with a x- and y-coordinate.
      * @returns {VectorHex} - A vector pointing to the hex identified by (q=x, r=y).
+     * @throws if an invalid hex grid orientation is supplied.
      */
-    public static from_vector2(vec2: Vector2DLike): VectorHex {
-        return new VectorHex(vec2.x, vec2.y);
+    public static from_vector2D(vec2d: Vector2DLike, orientation: HexGridOrientation = HexGridOrientation.Horizontal, size = 1): VectorHex {
+        if (orientation != HexGridOrientation.Horizontal && orientation != HexGridOrientation.Vertical) {
+            throw new Error('Invalid hex grid orientation.');
+        }
+        if (orientation == HexGridOrientation.Vertical) {
+            vec2d = VectorHex.into_horizontal(vec2d);
+        }
+        let q = vec2d.x / sqrt3over2;
+        let r = vec2d.y - 0.5 * q;
+        return new VectorHex(Math.trunc(q / size) >> 0, Math.trunc(r / size) >> 0);
     };
 
     /**
@@ -88,18 +107,20 @@ export class VectorHex {
      * @param {HexGridOrientation} orientation - Determines the hex grid axis alignment.
      * @param {number=1} [size=1] - The distance between two adjacent hexes.
      * @returns {Vector2D} - A vector pointing from the origin to the center of the hex.
-     * @throws if the size is not positive.
+     * @throws if the size is not positive or an invalid orientation is supplied.
      */
-    public into_vector2(orientation: HexGridOrientation = HexGridOrientation.Horizontal, size: number = 1): Vector2D {
+    public into_vector2d(orientation: HexGridOrientation = HexGridOrientation.Horizontal, size: number = 1): Vector2D {
         if (size <= 0) {
             throw new Error("Hex size must be positive.");
         }
+        if (orientation != HexGridOrientation.Horizontal && orientation != HexGridOrientation.Vertical) {
+            throw new Error('Invalid hex grid orientation.');
+        }
+        let horizontal_vec2d = new Vector2D(size * sqrt3over2 * this.q, size * (this.r + 0.5 * this.q));
         if (orientation == HexGridOrientation.Horizontal) {
-            return new Vector2D(size * sqrt3over2 * this.q, size * (this.r + 0.5 * this.q));
+            return horizontal_vec2d;
         }
-        else {
-            return new Vector2D(size * 0.5 * (this.q - this.r), size * sqrt3over2 * (this.q + this.r));
-        }
+        return VectorHex.into_vertical(horizontal_vec2d);
     }
 
     /**
@@ -185,11 +206,11 @@ export class VectorHex {
             direction -= 3;
         }
         switch (direction) {
-            // North / NorthWest
+            // North
             case 0:
                 this.r += steps;
                 break;
-            case 1: // NorthWest / West
+            case 1: // NorthWest
                 this.q -= steps;
                 this.r += steps;
                 break;
