@@ -1,11 +1,11 @@
 import { Component } from "../../src/engine/components/Component";
 
 
-class ValidComponent extends Component {
+class ValidComponent implements Component {
   static type = 'ValidComponent';
 }
 
-class InvalidComponent extends Component {
+class InvalidComponent implements Component {
   // No static type defined
 }
 
@@ -26,7 +26,7 @@ describe('Component Class', () => {
 
   test('should throw a runtime error for direct instantiation of base Component', () => {
     // Create a mock subclass without `type` defined
-    class MockComponent extends Component {}
+    class MockComponent implements Component {}
 
     expect(() => new MockComponent()).toThrow(
       "Static 'type' must be defined in MockComponent."

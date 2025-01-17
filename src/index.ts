@@ -22,15 +22,15 @@ class MainScene extends Phaser.Scene {
     const entity1 = this.entityStore.newEntity();
     const entity2 = this.entityStore.newEntity();
 
-    this.componentStore.registerComponent(Position.type);
-    this.componentStore.registerComponent(Rotation.type);
+    this.componentStore.registerComponent(Position);
+    this.componentStore.registerComponent(Rotation);
 
     this.componentStore.addComponent(1, new Position(10, 10));
     this.componentStore.addComponent(1, new Rotation(10));
 
     this.componentStore.addComponent(2, new Position(20, 20));
 
-    const archetype = this.componentStore.getEntitiesWithArchetype(Position.type, Rotation.type);
+    const archetype = this.componentStore.getEntitiesWithArchetype(Position, Rotation);
     
     console.log(archetype);
 
