@@ -4,3 +4,4 @@ docs/
 coverage/
 .DS_Store
 package-lock.json
+.vscode/
