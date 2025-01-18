@@ -1,8 +1,8 @@
-import Phaser from "phaser";
+import Phaser from 'phaser';
 
 export interface Vector2DLike {
-    x: number;
-    y: number;
+  x: number;
+  y: number;
 }
 
 export class Vector2D extends Phaser.Math.Vector2 implements Vector2DLike {}
