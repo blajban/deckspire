@@ -1,4 +1,4 @@
-import { Vector2D, Vector2DLike } from './Vector2D';
+import { Vector2D, Vector2DLike } from '../Vector2D';
 
 const sqrt3over2 = 0.5 * Math.sqrt(3);
 
@@ -44,6 +44,8 @@ export enum HexDirection {
   }
 }*/
 
+/** Maps the vertical direction to the corresponding direction in the relatively
+ *  rotated horizontal reference frame */
 function vertical_direction_to_horizontal_direction(
   direction: HexDirection,
 ): HexDirection {
@@ -106,8 +108,10 @@ function wedge_edge_direction(wedge: HexDirection): HexDirection {
 }
 
 /**
- * A vector pointing at a specific hex identified by the first two cube coordinates: q and r.
- * Internally, the VectorHex always assumes as horizontal grid and a unit distance between hexes, only when interacting with outside vectors does the hex grid orientation matter.
+ * A vector pointing at a specific hex identified by the first two cube
+ * coordinates: q and r. Internally, the VectorHex always assumes as horizontal
+ * layout and unit distance between hexes, only when interacting with outside
+ * vectors does the hex grid orientation matter.
  */
 export class VectorHex {
   q: number = 0;
@@ -374,6 +378,8 @@ export class VectorHex {
     this.step_in_direction(wedge_edge_direction(this.wedge()), n);
   }
 
+  /** Rotates counter clockwise until either a corner is reached or max_steps
+   * steps has been taken */
   private rotate_to_corner(max_steps: number): number {
     // Rotate hex wise until a corner is reached
     const direction = wedge_edge_direction(this.wedge());

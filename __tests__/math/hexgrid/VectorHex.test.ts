@@ -1,4 +1,8 @@
-import { HexLayout, HexDirection, VectorHex } from '../../src/math/VectorHex';
+import {
+  HexLayout,
+  HexDirection,
+  VectorHex,
+} from '../../../src/math/hexgrid/VectorHex';
 
 const FLOAT_DIGITS: number = 8;
 
