@@ -3,10 +3,12 @@ import ComponentStore from './engine/core/ComponentStore';
 import { Position } from './engine/components/Position';
 import { Rotation } from './engine/components/Rotation';
 import EntityStore from './engine/core/EntityStore';
+import { World } from './engine/core/World';
 
 class MainScene extends Phaser.Scene {
   private entityStore = new EntityStore();
   private componentStore = new ComponentStore();
+  private world =  new World(this.entityStore, this.componentStore);
   constructor() {
     super('MainScene');
 
@@ -19,21 +21,22 @@ class MainScene extends Phaser.Scene {
   create() {
     // Initialize game objects
 
-    const entity1 = this.entityStore.newEntity();
-    const entity2 = this.entityStore.newEntity();
+    const entity1 = this.world.newEntity();
+    const entity2 = this.world.newEntity();
 
-    this.componentStore.registerComponent(Position);
-    this.componentStore.registerComponent(Rotation);
+    this.world.registerComponent(Position);
+    this.world.registerComponent(Rotation);
 
-    this.componentStore.addComponent(1, new Position(10, 10));
-    this.componentStore.addComponent(1, new Rotation(10));
+    this.world.addComponent(1, new Position(10, 10));
+    this.world.addComponent(1, new Rotation(10));
 
-    this.componentStore.addComponent(2, new Position(20, 20));
+    this.world.addComponent(2, new Position(20, 20));
 
-    const archetype = this.componentStore.getEntitiesWithArchetype(Position, Rotation);
+    const archetype = this.world.getEntitiesWithArchetype(Position, Rotation);
     
-    console.log(archetype);
+    //console.log(archetype);
 
+    this.world.removeEntity(1);
     
   }
 
