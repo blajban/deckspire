@@ -1,4 +1,4 @@
-import { Component } from "../components/Component";
+import { Component } from "./Component";
 import ComponentMap from "./ComponentMap";
 import { Entity } from "./EntityStore";
 

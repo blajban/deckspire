@@ -1,4 +1,4 @@
-import { Component } from "../components/Component";
+import { Component } from "./Component";
 import { Entity } from "./EntityStore";
 
 /**
