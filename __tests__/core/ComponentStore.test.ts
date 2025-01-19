@@ -109,9 +109,9 @@ describe("ComponentStore", () => {
     store.addComponent(entity1, new AnotherMockComponent(45));
     store.addComponent(entity2, new MockComponent(30));
 
-    /* const archetypeEntities = store.getEntitiesWithArchetype(MockComponent.type, AnotherMockComponent.type);
+    const archetypeEntities = store.getEntitiesWithArchetype(MockComponent, AnotherMockComponent);
     expect(archetypeEntities).toContain(entity1);
-    expect(archetypeEntities).not.toContain(entity2); */
+    expect(archetypeEntities).not.toContain(entity2);
   });
 
   test("getComponentsForEntity should return all components for an entity", () => {
@@ -131,9 +131,9 @@ describe("ComponentStore", () => {
     expect(components).toContain(anotherMock);
   });
 
-/*   test("getEntitiesWithArchetype should return an empty array for no component types", () => {
+  test("getEntitiesWithArchetype should return an empty array for no component types", () => {
     expect(store.getEntitiesWithArchetype()).toHaveLength(0);
-  }); */
+  });
   
 
   test("clear should remove all components and registered component types", () => {

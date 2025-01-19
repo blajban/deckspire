@@ -12,7 +12,7 @@ export default class ComponentStore {
    /**
    * Registers a new component type.
    * This must be called before adding components of this type.
-   * @param componentClass - The component class.
+   * @param componentClass - The component class to be registered.
    */
    registerComponent<T extends Component>(componentClass: new (...args: any[]) => T) {
     const name = componentClass.name;
@@ -40,7 +40,7 @@ export default class ComponentStore {
   /**
    * Retrieves a component of a specific type for a given entity.
    * @param entity - The entity whose component is being retrieved.
-   * @param componentType - The type of component to retrieve.
+   * @param componentClass - The type of component to retrieve.
    * @returns The component if it exists, otherwise `undefined`.
    * @throws Will throw an error if the component type has not been registered.
    */
@@ -56,7 +56,7 @@ export default class ComponentStore {
   /**
    * Removes a component of a specific type from an entity.
    * @param entity - The entity whose component is being removed.
-   * @param componentType - The type of component to remove.
+   * @param componentClass - The type of component to remove.
    * @throws Will throw an error if the component type has not been registered.
    */
   removeComponent<T extends Component>(entity: Entity, componentClass: new (...args: any[]) => T) {
@@ -71,7 +71,7 @@ export default class ComponentStore {
 
   /**
    * Retrieves all entities that have a specific component type.
-   * @param componentType - The type of the component to query.
+   * @param componentClass - The type of the component to query.
    * @returns An array of entity IDs that have the specified component type.
    * @throws Will throw an error if the component type has not been registered.
    */
@@ -87,7 +87,7 @@ export default class ComponentStore {
 
   /**
    * Retrieves all entities that have all the specified component types.
-   * @param componentTypes - An array of component types to query.
+   * @param componentClasses - Component types to query.
    * @returns An array of entities that have all the specified component types.
    * @throws Will throw an error if any of the component types have not been registered.
    */
