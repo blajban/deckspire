@@ -1,21 +1,18 @@
-import { Component } from '../../src/engine/components/Component';
+import { Component } from '../../src/engine/core/Component';
 import ComponentMap from '../../src/engine/core/ComponentMap';
 import { Entity } from '../../src/engine/core/EntityStore';
 
 
 
-class MockComponent extends Component {
-  static type = 'MockComponent';
-  constructor(public value: number) {
-    super();
-  }
+class MockComponent implements Component {
+  constructor(public value: number) {}
 }
 
 describe('ComponentMap', () => {
   let componentMap: ComponentMap<MockComponent>;
 
   beforeEach(() => {
-    componentMap = new ComponentMap<MockComponent>(MockComponent.type);
+    componentMap = new ComponentMap<MockComponent>(MockComponent.name);
   });
 
   it("should throw an error if an invalid component is added", () => {

@@ -1,9 +1,5 @@
-import { Component } from "./Component";
+import { Component } from "../core/Component";
 
-export class Rotation extends Component {
-  static type = 'Rotation';
-
-  constructor(public rotation: number) {
-    super();
-  }
+export class Rotation implements Component {
+  constructor(public rotation: number) {}
 }
