@@ -61,5 +61,35 @@ export class World {
   getComponentsForEntity(entity: Entity): Component[] {
     return this.componentStore.getComponentsForEntity(entity);
   }
+
+  serialize(): string {
+    const serializedWorld = this.getAllEntities().map((entity) => {
+      const components = this.getComponentsForEntity(entity).map((component) => {
+        return {
+          type: component.constructor.name,
+          data: component.toJSON(),
+        };
+      });
+  
+      return { entity, components };
+    });
+  
+    return JSON.stringify(serializedWorld);
+  }
+
+  deserialize(json: string): void {
+    const parsedWorld = JSON.parse(json);
+  
+    // User provided entity ID:s are not used for now. May be added later.
+    for (const { components } of parsedWorld) {
+      const entity = this.newEntity();
+  
+      for (const { type, data } of components) {
+        const ComponentClass = this.componentStore.getRegisteredComponentClass(type);
+        const component = new ComponentClass(...Object.values(data));
+        this.addComponent(entity, component);
+      }
+    }
+  }
   
 }

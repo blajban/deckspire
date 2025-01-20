@@ -31,7 +31,31 @@ describe("ComponentStore", () => {
       store.registerComponent(MockComponent);
     }).not.toThrow();
   });
-  
+
+  it("should return the registered component class when it exists", () => {
+    store.registerComponent(MockComponent);
+    const componentClass = store.getRegisteredComponentClass("MockComponent");
+
+    expect(componentClass).toBe(MockComponent);
+  });
+
+  it("should throw an error if the component type is not registered", () => {
+    expect(() => {
+      store.getRegisteredComponentClass("NonExistentComponent");
+    }).toThrow("Component type NonExistentComponent is not registered.");
+  });
+
+  it("should work with multiple registered components", () => {
+    store.registerComponent(MockComponent);
+    store.registerComponent(AnotherMockComponent);
+
+    // Retrieve and assert both components
+    const mockComponentClass = store.getRegisteredComponentClass("MockComponent");
+    const anotherMockComponentClass = store.getRegisteredComponentClass("AnotherMockComponent");
+
+    expect(mockComponentClass).toBe(MockComponent);
+    expect(anotherMockComponentClass).toBe(AnotherMockComponent);
+  });  
 
   test("addComponent should add a component to an entity", () => {
     const entity: Entity = 1;
@@ -116,6 +140,17 @@ describe("ComponentStore", () => {
     const archetypeEntities = store.getEntitiesWithArchetype(MockComponent, AnotherMockComponent);
     expect(archetypeEntities).toContain(entity1);
     expect(archetypeEntities).not.toContain(entity2);
+  });
+
+  test("getEntitiesWithArchetype should throw when the component type isn't registered", () => {
+    const entity: Entity = 1;
+
+    store.registerComponent(MockComponent);
+    store.addComponent(entity, new MockComponent(10));
+
+    expect(() => store.getEntitiesWithArchetype(MockComponent, AnotherMockComponent)).toThrow(
+      `Component type AnotherMockComponent must be registered first (get entities with archetype)`
+    );
   });
 
   test("getComponentsForEntity should return all components for an entity", () => {

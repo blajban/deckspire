@@ -8,17 +8,34 @@ import { Entity } from "./EntityStore";
  */
 export default class ComponentStore {
   private componentMaps: Map<string, ComponentMap<Component>> = new Map();
+  private componentRegistry: Map<string, new (...args: any[]) => Component> = new Map();
 
-   /**
+  /**
    * Registers a new component type.
    * This must be called before adding components of this type.
    * @param componentClass - The component class to be registered.
    */
-   registerComponent<T extends Component>(componentClass: new (...args: any[]) => T) {
+  registerComponent<T extends Component>(componentClass: new (...args: any[]) => T) {
     const name = componentClass.name;
-    if (!this.componentMaps.has(name)) {
+
+    if (!this.componentRegistry.has(name) && !this.componentMaps.has(name)) {
+      this.componentRegistry.set(name, componentClass);
       this.componentMaps.set(name, new ComponentMap(name));
     }
+  }
+
+  /**
+   * Retrieves the registered component class for a given type.
+   * @param type - The string identifier of the component type.
+   * @returns The constructor of the registered component class.
+   * @throws Will throw an error if the specified component type is not registered.
+   */
+  getRegisteredComponentClass(type: string): new (...args: any[]) => Component {
+    const componentClass = this.componentRegistry.get(type);
+    if (!componentClass) {
+      throw new Error(`Component type ${type} is not registered.`);
+    }
+    return componentClass;
   }
   
   /**

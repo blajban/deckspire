@@ -21,13 +21,13 @@ class MainScene extends Phaser.Scene {
   create() {
     // Initialize game objects
 
-    const entity1 = this.world.newEntity();
-    const entity2 = this.world.newEntity();
+    /* const entity1 = this.world.newEntity();
+    const entity2 = this.world.newEntity(); */
 
     this.world.registerComponent(Position);
     this.world.registerComponent(Rotation);
 
-    this.world.addComponent(entity1, new Position(10, 10));
+    /* this.world.addComponent(entity1, new Position(10, 10));
     this.world.addComponent(entity1, new Rotation(10));
 
     this.world.addComponent(entity2, new Position(20, 20));
@@ -41,8 +41,48 @@ class MainScene extends Phaser.Scene {
     const jsonString = JSON.stringify(compJson);
     console.log(jsonString);
 
+    console.log(this.world.serialize());
 
-    this.world.removeEntity(1);
+
+    this.world.removeEntity(1); */
+
+    const jsonData = `
+    [
+      {
+        "entity": 1,
+        "components": [
+          { "type": "Position", "data": { "x": 10, "y": 20 } },
+          { "type": "Rotation", "data": { "angle": 45 } }
+        ]
+      },
+      {
+        "entity": 2,
+        "components": [
+          { "type": "Position", "data": { "x": 30, "y": 40 } }
+        ]
+      }
+    ]`;
+
+    const jsonData2 = `
+    [
+      {
+        "components": [
+          { "type": "Position", "data": { "x": 10, "y": 20 } },
+          { "type": "Rotation", "data": { "angle": 45 } }
+        ]
+      },
+      {
+        "components": [
+          { "type": "Position", "data": { "x": 30, "y": 40 } }
+        ]
+      }
+    ]`;
+
+    this.world.deserialize(jsonData);
+
+    console.log(this.world.getEntitiesWithArchetype(Position));
+
+    //console.log(this.world.getAllEntities());
     
   }
 
