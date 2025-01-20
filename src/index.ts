@@ -82,7 +82,7 @@ class MainScene extends Phaser.Scene {
 
     console.log(this.world.getEntitiesWithArchetype(Position));
 
-    //console.log(this.world.getAllEntities());
+    console.log(this.world.getAllEntities());
     
   }
 

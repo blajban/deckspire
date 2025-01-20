@@ -71,7 +71,7 @@ export class World {
         };
       });
   
-      return { entity, components };
+      return { components };
     });
   
     return JSON.stringify(serializedWorld);
@@ -80,12 +80,16 @@ export class World {
   deserialize(json: string): void {
     const parsedWorld = JSON.parse(json);
   
-    // User provided entity ID:s are not used for now. May be added later.
     for (const { components } of parsedWorld) {
       const entity = this.newEntity();
   
       for (const { type, data } of components) {
         const ComponentClass = this.componentStore.getRegisteredComponentClass(type);
+        
+        // Add validation(?). Proposed solution:
+        // Add an optional static validate function on components.
+        // The validate function throws error if invalid data.
+        // Deserialize function could handle the error by logging and skipping component. 
         const component = new ComponentClass(...Object.values(data));
         this.addComponent(entity, component);
       }
