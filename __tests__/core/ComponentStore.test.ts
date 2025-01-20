@@ -2,12 +2,16 @@ import { Component } from "../../src/engine/core/Component";
 import ComponentStore from "../../src/engine/core/ComponentStore";
 import { Entity } from "../../src/engine/core/EntityStore";
 
-class MockComponent implements Component {
-  constructor(public value: number) {}
+class MockComponent extends Component {
+  constructor(public value: number) {
+    super();
+  }
 }
 
-class AnotherMockComponent implements Component {
-  constructor(public value: number) {}
+class AnotherMockComponent extends Component {
+  constructor(public value: number) {
+    super();
+  }
 }
 
 describe("ComponentStore", () => {

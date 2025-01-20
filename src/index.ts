@@ -27,14 +27,20 @@ class MainScene extends Phaser.Scene {
     this.world.registerComponent(Position);
     this.world.registerComponent(Rotation);
 
-    this.world.addComponent(1, new Position(10, 10));
-    this.world.addComponent(1, new Rotation(10));
+    this.world.addComponent(entity1, new Position(10, 10));
+    this.world.addComponent(entity1, new Rotation(10));
 
-    this.world.addComponent(2, new Position(20, 20));
+    this.world.addComponent(entity2, new Position(20, 20));
 
     const archetype = this.world.getEntitiesWithArchetype(Position, Rotation);
     
-    //console.log(archetype);
+    console.log(archetype);
+
+    const component = this.world.getComponent(entity1, Position);
+    const compJson = component?.toJSON();
+    const jsonString = JSON.stringify(compJson);
+    console.log(jsonString);
+
 
     this.world.removeEntity(1);
     

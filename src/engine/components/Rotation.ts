@@ -1,5 +1,7 @@
 import { Component } from "../core/Component";
 
-export class Rotation implements Component {
-  constructor(public rotation: number) {}
+export class Rotation extends Component {
+  constructor(public rotation: number) {
+    super();
+  }
 }
