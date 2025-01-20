@@ -4,6 +4,7 @@ import { Position } from './engine/components/Position';
 import { Rotation } from './engine/components/Rotation';
 import EntityStore from './engine/core/EntityStore';
 import { World } from './engine/core/World';
+import { loadJsonFile } from './engine/util/file';
 
 class MainScene extends Phaser.Scene {
   private entityStore = new EntityStore();
@@ -46,48 +47,25 @@ class MainScene extends Phaser.Scene {
 
     this.world.removeEntity(1); */
 
-    const jsonData = `
-    [
-      {
-        "entity": 1,
-        "components": [
-          { "type": "Position", "data": { "x": 10, "y": 20 } },
-          { "type": "Rotation", "data": { "angle": 45 } }
-        ]
-      },
-      {
-        "entity": 2,
-        "components": [
-          { "type": "Position", "data": { "x": 30, "y": 40 } }
-        ]
-      }
-    ]`;
+    
+    //this.world.deserialize(jsonData);
 
-    const jsonData2 = `
-    [
-      {
-        "components": [
-          { "type": "Position", "data": { "x": 10, "y": 20 } },
-          { "type": "Rotation", "data": { "angle": 45 } }
-        ]
-      },
-      {
-        "components": [
-          { "type": "Position", "data": { "x": 30, "y": 40 } }
-        ]
-      }
-    ]`;
+    
 
-    this.world.deserialize(jsonData);
+    loadJsonFile('/world.json')
+    .then((data) => {
+      console.log('Loaded JSON:', data);
+      this.world.deserialize(JSON.stringify(data));
+    })
+    .catch((error) => console.error('Error:', error));
+    
 
-    console.log(this.world.getEntitiesWithArchetype(Position));
-
-    console.log(this.world.getAllEntities());
+    
     
   }
 
   update(time: number, delta: number) {
-
+    //console.log(this.world.getEntitiesWithArchetype(Position));
   }
 }
 

@@ -1,0 +1,13 @@
+[
+    {
+      "components": [
+        { "type": "Position", "data": { "x": 10, "y": 20 } },
+        { "type": "Rotation", "data": { "angle": 45 } }
+      ]
+    },
+    {
+      "components": [
+        { "type": "Position", "data": { "x": 30, "y": 40 } }
+      ]
+    }
+]
