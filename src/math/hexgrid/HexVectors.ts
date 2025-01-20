@@ -11,6 +11,20 @@ export enum HexLayout {
   Vertical,
 }
 
+function from_vertical_into_horizontal_vector2d(vec2d: Vector2DLike): Vector2D {
+  return new Vector2D(
+    sqrt3over2 * vec2d.x + 0.5 * vec2d.y,
+    -0.5 * vec2d.x + sqrt3over2 * vec2d.y,
+  );
+}
+
+function from_horizontal_into_vertical_vector2d(vec2d: Vector2DLike): Vector2D {
+  return new Vector2D(
+    sqrt3over2 * vec2d.x - 0.5 * vec2d.y,
+    0.5 * vec2d.x + sqrt3over2 * vec2d.y,
+  );
+}
+
 export enum HexDirection {
   East,
   NorthEast,
@@ -113,88 +127,54 @@ function wedge_edge_direction(wedge: HexDirection): HexDirection {
  * layout and unit distance between hexes, only when interacting with outside
  * vectors does the hex grid orientation matter.
  */
-export class VectorHex {
+class HexGeneric {
   q: number = 0;
   r: number = 0;
 
   /**
    * @returns {number} - The coordinate of the third axis, which is inferred from the first two coordinates.
    */
-  private s(): number {
+  protected s(): number {
     return -this.q - this.r;
   }
 
   /**
    * @param {number} [q=0] - The first hex coordinate.
    * @param {number} [r=0] - The second hex coordinate.
-   * @returns {VectorHex} - A new VectorHex.
+   * @returns {HexGeneric} - A new VectorHex.
    * @throws if the coordinates are not integral.
    */
-  public constructor(q: number = 0, r: number = 0) {
+  public constructor(q: number, r: number) {
     if (!(Number.isInteger(q) && Number.isInteger(r))) {
       throw new Error('Hex coordinates must be integers.');
     }
     this.q = q;
     this.r = r;
   }
+}
 
-  private static into_horizontal(vec2d: Vector2DLike): Vector2D {
-    return new Vector2D(
-      sqrt3over2 * vec2d.x + 0.5 * vec2d.y,
-      -0.5 * vec2d.x + sqrt3over2 * vec2d.y,
-    );
-  }
-
-  private static into_vertical(vec2d: Vector2DLike): Vector2D {
-    return new Vector2D(
-      sqrt3over2 * vec2d.x - 0.5 * vec2d.y,
-      0.5 * vec2d.x + sqrt3over2 * vec2d.y,
-    );
+export class HexDistance extends HexGeneric {
+  /**
+   * Calculates vector pointing from one hex to another.
+   * @param {HexPosition} [vec1] - Starting hex.
+   * @param {HexPosition} [vec2] - Ending hex.
+   * @returns {HexDistance} - A vector pointing from hex1 to hex2
+   */
+  public constructor(q: number, r: number);
+  public constructor(vec1: HexPosition, vec2: HexPosition);
+  public constructor(arg1: HexPosition | number, arg2: HexPosition | number) {
+    if (arg1 instanceof HexPosition && arg2 instanceof HexPosition) {
+      super(arg2.q - arg1.q, arg2.r - arg1.r);
+    } else if (typeof arg1 === 'number' && typeof arg2 === 'number') {
+      super(arg1, arg2);
+    }
   }
 
   /**
-   * @param {Vector2DLike} vec - Any object with a x- and y-coordinate.
-   * @returns {VectorHex} - A vector pointing to the hex identified by (q=x, r=y).
-   * @throws if an invalid hex grid orientation is supplied.
+   * @returns {HexDistance} - A new identical VectorHex.
    */
-  public static from_vector2D(
-    vec: Vector2DLike,
-    orientation: HexLayout = HexLayout.Horizontal,
-    size = 1,
-  ): VectorHex {
-    let vec_horizontal = new Vector2D(vec.x / size, vec.y / size);
-    if (orientation === HexLayout.Vertical) {
-      vec_horizontal = VectorHex.into_horizontal(vec_horizontal);
-    }
-    const fractional_q = vec_horizontal.x / sqrt3over2;
-    const fractional_r = vec_horizontal.y - 0.5 * fractional_q;
-    return VectorHex.from_fractional_coordinates(fractional_q, fractional_r);
-  }
-
-  private static from_fractional_coordinates(
-    fractional_q: number,
-    fractional_r: number,
-  ): VectorHex {
-    const fractional_s = -fractional_q - fractional_r;
-    let q = Math.round(fractional_q) >> 0;
-    let r = Math.round(fractional_r) >> 0;
-    const s = Math.round(fractional_s) >> 0;
-    const delta_q = Math.abs(fractional_q - q);
-    const delta_r = Math.abs(fractional_r - r);
-    const delta_s = Math.abs(fractional_s - s);
-    if (delta_q > delta_r && delta_q > delta_s) {
-      q = -r - s;
-    } else if (delta_r > delta_s) {
-      r = -q - s;
-    }
-    return new VectorHex(q, r);
-  }
-
-  /**
-   * @returns {VectorHex} - A new identical VectorHex.
-   */
-  public clone(): VectorHex {
-    return new VectorHex(this.q, this.r);
+  public clone(): HexDistance {
+    return new HexDistance(this.q, this.r);
   }
 
   /**
@@ -215,58 +195,129 @@ export class VectorHex {
       size * (0.5 * this.q + this.r),
     );
     if (layout === HexLayout.Vertical) {
-      vec2d = VectorHex.into_vertical(vec2d);
+      vec2d = from_horizontal_into_vertical_vector2d(vec2d);
     }
     return vec2d;
   }
 
   /**
-   * Calculates vector pointing from one hex to another.
-   * @param {VectorHex} [vec1] - Starting hex.
-   * @param {VectorHex} [vec2] - Ending hex.
-   * @returns {VectorHex} - A vector pointing from hex1 to hex2
+   * Adds two distances.
+   * @param {HexDistance} [dist1] - A distance.
+   * @param {HexDistance} [dist2] - Another distance.
+   * @returns {HexDistance} - The total distance.
    */
-  public static delta(vec1: VectorHex, vec2: VectorHex): VectorHex {
-    return new VectorHex(vec2.q - vec1.q, vec2.r - vec1.r);
+  public static sum(dist1: HexDistance, dist2: HexDistance): HexDistance {
+    return new HexDistance(dist1.q + dist2.q, dist1.r + dist2.r);
   }
 
   /**
-   * Subtracts a vector from this one.
-   * @param {VectorHex} [hex] - The vector to subtract
-   * @returns {VectorHex} - The vector after subtraction.
+   * Subtracts two distances.
+   * @param {HexDistance} [dist1] - A distance.
+   * @param {HexDistance} [dist2] - Another distance.
+   * @returns {HexDistance} - The total distance.
    */
-  public subtract(hex: VectorHex): VectorHex {
-    this.q -= hex.q;
-    this.r -= hex.r;
+  public static difference(
+    dist1: HexDistance,
+    dist2: HexDistance,
+  ): HexDistance {
+    return new HexDistance(dist1.q - dist2.q, dist1.r - dist2.r);
+  }
+
+  /**
+   * Adds another distance to the vector.
+   * @param {HexDistance} [distance] - Distance to add.
+   * @returns {HexPosition} - The vector after the addition.
+   */
+  public add(distance: HexDistance): HexDistance {
+    this.q += distance.q;
+    this.r += distance.r;
     return this;
   }
 
   /**
-   * Vector sum.
-   * @param {VectorHex} [origin] - Starting hex.
-   * @param {VectorHex} [translation] - Translation to apply.
-   * @returns {VectorHex} - The sum of the vectors.
+   * Subtracts another distance from the vector.
+   * @param {HexDistance} [distance] - Distance to add.
+   * @returns {HexPosition} - The vector after the addition.
    */
-  public static sum(origin: VectorHex, translation: VectorHex): VectorHex {
-    return new VectorHex(origin.q + translation.q, origin.r + translation.r);
-  }
-
-  /**
-   * Translates the vector.
-   * @param {VectorHex} [translation] - Translation to apply.
-   * @returns {VectorHex} - The vector after translation.
-   */
-  public add(translation: VectorHex): VectorHex {
-    this.q += translation.q;
-    this.r += translation.r;
+  public subtract(distance: HexDistance): HexDistance {
+    this.q -= distance.q;
+    this.r -= distance.r;
     return this;
   }
 
   /**
-   * @returns {number} - The number of steps, from the origin, needed to reach the hex pointed to by this.
+   * @returns {number} - The number of steps needed to traverse the represented distance.
    */
   public manhattan(): number {
     return Math.max(Math.abs(this.q), Math.abs(this.r), Math.abs(this.s()));
+  }
+}
+
+export class HexPosition extends HexGeneric {
+  public constructor(q: number, r: number) {
+    super(q, r);
+  }
+
+  /**
+   * @returns {HexPosition} - A new identical VectorHex.
+   */
+  public clone(): HexPosition {
+    return new HexPosition(this.q, this.r);
+  }
+
+  /**
+   * @param {Vector2DLike} vec - Any object with a x- and y-coordinate.
+   * @returns {HexPosition} - Hex coordinates of the hex that (x,y) is inside.
+   * @throws if an invalid hex grid orientation is supplied.
+   */
+  public static from_vector2D(
+    vec: Vector2DLike,
+    orientation: HexLayout = HexLayout.Horizontal,
+    size = 1,
+  ): HexPosition {
+    let vec_horizontal = new Vector2D(vec.x / size, vec.y / size);
+    if (orientation === HexLayout.Vertical) {
+      vec_horizontal = from_vertical_into_horizontal_vector2d(vec_horizontal);
+    }
+    const fractional_q = vec_horizontal.x / sqrt3over2;
+    const fractional_r = vec_horizontal.y - 0.5 * fractional_q;
+    return HexPosition.from_fractional_coordinates(fractional_q, fractional_r);
+  }
+
+  private static from_fractional_coordinates(
+    fractional_q: number,
+    fractional_r: number,
+  ): HexPosition {
+    const fractional_s = -fractional_q - fractional_r;
+    let q = Math.round(fractional_q) >> 0;
+    let r = Math.round(fractional_r) >> 0;
+    const s = Math.round(fractional_s) >> 0;
+    const delta_q = Math.abs(fractional_q - q);
+    const delta_r = Math.abs(fractional_r - r);
+    const delta_s = Math.abs(fractional_s - s);
+    if (delta_q > delta_r && delta_q > delta_s) {
+      q = -r - s;
+    } else if (delta_r > delta_s) {
+      r = -q - s;
+    }
+    return new HexPosition(q, r);
+  }
+
+  /**
+   * Calculates vector pointing from this hex to another hex.
+   * @param {HexPosition} [hex] - The other hex.
+   * @returns {HexDistance} - A vector pointing from this hex to the other.
+   */
+  public distance_to(hex: HexPosition): HexDistance {
+    return new HexDistance(hex.q - this.q, hex.r - this.r);
+  }
+
+  /**
+   * Calculates vector pointing from the origin hex to this one.
+   * @returns {HexDistance} - A vector pointing from hex1 to hex2
+   */
+  public distance_from_origin(): HexDistance {
+    return new HexDistance(this.q, this.r);
   }
 
   /**
@@ -294,15 +345,16 @@ export class VectorHex {
 
   /**
    * Translates the vector in the specified direction.
-   * @param direction - An index identifying the direction. Indices start at 0 indicating north-east (horizontal orientation) or east (vertical orientation).
-   * @param steps
+   * @param {HexDirection} [direction] - An index identifying the direction. Indices start at 0 indicating north-east (horizontal orientation) or east (vertical orientation).
+   * @param {number} [number] - The number of steps to take.
+   * @returns {HexPosition} - The vector after stepping.
    * @throws if an invalid axis number is found.
    */
   public step_in_direction(
     direction: HexDirection,
     steps: number = 1,
     layout: HexLayout = HexLayout.Horizontal,
-  ): VectorHex {
+  ): HexPosition {
     if (!Number.isInteger(steps)) {
       throw new Error('Number of steps must be integral.');
     }
@@ -339,9 +391,10 @@ export class VectorHex {
   /**
    * Rotates the vector n times 60 degrees counter clockwise.
    * @param {number} [n] - The number of 60 degree rotations (can be negative).
+   * @returns {HexPosition} - The vector after rotation.
    * @throws if the number of sector rotations is not integral.
    */
-  public wedge_rotation(n: number): VectorHex {
+  public wedge_rotation(n: number): HexPosition {
     if (!Number.isInteger(n)) {
       throw new Error('Number of wedges must be integral.');
     }
@@ -359,6 +412,7 @@ export class VectorHex {
   /**
    * Rotates the vector n hexes counter clockwise.
    * @param {number} [n] - The number of counter clockwise steps (can be negative).
+   * @returns {HexPosition} - The vector after rotation.
    * @throws if the number of steps is not integral.
    */
   public step_rotation(n: number) {
@@ -366,7 +420,7 @@ export class VectorHex {
       throw new Error('Number of steps must be integral.');
     }
     if (n === 0) return;
-    const hexes_per_sector = this.manhattan();
+    const hexes_per_sector = this.distance_from_origin().manhattan();
     if (hexes_per_sector === 0) return;
     const circumference = 6 * hexes_per_sector;
     n %= circumference;
