@@ -1,7 +1,4 @@
-/**
- * Represents a unique identifier for an entity.
- */
-export type Entity = number;
+import { Entity } from "./Entity";
 
 /**
  * Manages creation, validation, and removal of entities.
