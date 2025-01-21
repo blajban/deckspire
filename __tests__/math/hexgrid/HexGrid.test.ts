@@ -24,3 +24,29 @@ describe('HexGrid boundaries', () => {
     expect(grid.is_hex_in_grid(new HexCoordinates(-1, -1))).toBe(true);
   });
 });
+
+describe('Find hexes in grid', () => {
+  it('should find hexes within radius', () => {
+    const grid = new HexGrid();
+    const center = new HexCoordinates(0, 0);
+    const range = 1;
+    const hexes = grid.hexes_within_manhattan_radius(center, range);
+    expect(hexes.length).toBe(7);
+  });
+
+  it('should find non-excluded hexes within radius', () => {
+    const grid = new HexGrid((hex) => hex.q != 1 || hex.r != 1);
+    const center = new HexCoordinates(2, 0);
+    const range = 2;
+    const hexes = grid.hexes_within_manhattan_radius(center, range);
+    expect(hexes.length).toBe(18);
+  });
+
+  it('should find hexes within radius in a finite grid', () => {
+    const grid = new HexGrid((hex) => hex.q >= 0 && hex.r >= 0);
+    const center = new HexCoordinates(0, 0);
+    const range = 1;
+    const hexes = grid.hexes_within_manhattan_radius(center, range);
+    expect(hexes.length).toBe(3);
+  });
+});
