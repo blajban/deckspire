@@ -4,8 +4,10 @@ import { Entity } from '../../src/engine/core/EntityStore';
 
 
 
-class MockComponent implements Component {
-  constructor(public value: number) {}
+class MockComponent extends Component {
+  constructor(public value: number) {
+    super();
+  }
 }
 
 describe('ComponentMap', () => {
