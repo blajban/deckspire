@@ -201,6 +201,23 @@ export class HexDistance extends HexGeneric {
   }
 
   /**
+   * @param {HexDistance} dist - Distance to negate.
+   * @returns - minus the distance.
+   */
+  public static neg(dist: HexDistance): HexDistance {
+    return new HexDistance(-dist.q, -dist.r);
+  }
+  
+  /**
+   * @returns {HexDistance} - The distance after negation.
+   */
+  public neg(): HexDistance {
+    this.q = -this.q;
+    this.r = -this.r;
+    return this;
+  }
+
+  /**
    * Adds two distances.
    * @param {HexDistance} [dist1] - A distance.
    * @param {HexDistance} [dist2] - Another distance.
@@ -301,6 +318,26 @@ export class HexCoordinates extends HexGeneric {
       r = -q - s;
     }
     return new HexCoordinates(q, r);
+  }
+  
+  /**
+   * @param {HexDistance} [translation] - How far to move the hex.
+   * @returns {HexCoordinates} - The hex after translation.
+   */
+  public translate(translation: HexDistance): HexCoordinates {
+    this.q += translation.q;
+    this.r += translation.r;
+    return this;
+  }
+
+  /**
+   * Returns a new hex, translated a distance from the original hex.
+   * @param {HexCoordinates} [center] - A distance.
+   * @param {HexDistance} [translation] - Another distance.
+   * @returns {HexCoordinates} - A new translated hex.
+   */
+  public static translate(center: HexCoordinates, translation: HexDistance): HexCoordinates {
+    return center.clone().translate(translation);
   }
 
   /**

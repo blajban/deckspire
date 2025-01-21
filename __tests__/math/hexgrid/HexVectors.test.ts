@@ -174,6 +174,18 @@ describe('Converting HexDistance into Vector2D', () => {
 });
 
 describe('Arithmetics', () => {
+  it('should negate a distance using static method', () => {
+    const hex = new HexDistance(3, 5);
+    const neg = HexDistance.neg(hex);
+    expect(neg.q).toBe(-3);
+    expect(neg.r).toBe(-5);
+  });
+  it('should negate a distance using non-static method', () => {
+    const hex = new HexDistance(3, 5);
+    hex.neg();
+    expect(hex.q).toBe(-3);
+    expect(hex.r).toBe(-5);
+  });
   test('Addition of distances using static method', () => {
     const hex1 = new HexDistance(3, 5);
     const hex2 = new HexDistance(4, 7);
@@ -235,6 +247,20 @@ describe('Arithmetics', () => {
       hex1.into_vector2d().y - hex2.into_vector2d().y,
       FLOAT_DIGITS,
     );
+  });
+  it('should translate a hex by a distance using static method', () => {
+    const hex = new HexCoordinates(1, 2);
+    const distance = new HexDistance(3, 4);
+    const result = HexCoordinates.translate(hex, distance);
+    expect(result.q).toBe(4);
+    expect(result.r).toBe(6);
+  });
+  it('should translate a hex by a distance using non-static method', () => {
+    const hex = new HexCoordinates(1, 2);
+    const distance = new HexDistance(3, 4);
+    hex.translate(distance);
+    expect(hex.q).toBe(4);
+    expect(hex.r).toBe(6);
   });
 });
 
