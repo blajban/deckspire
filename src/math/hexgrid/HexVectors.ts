@@ -26,98 +26,74 @@ function from_horizontal_into_vertical_vector2d(vec2d: Vector2DLike): Vector2D {
 }
 
 export enum HexDirection {
-  East,
-  NorthEast,
-  North,
-  NorthWest,
-  West,
-  SouthWest,
-  South,
-  SouthEast,
-}
-
-// Currently not needed
-/*function horizontal_direction_to_vertical_direction(
-  direction: HexDirection,
-): HexDirection {
-  switch (direction) {
-    case HexDirection.NorthEast:
-      return HexDirection.NorthEast;
-    case HexDirection.North:
-      return HexDirection.NorthWest;
-    case HexDirection.NorthWest:
-      return HexDirection.West;
-    case HexDirection.SouthWest:
-      return HexDirection.SouthWest;
-    case HexDirection.South:
-      return HexDirection.SouthEast;
-    case HexDirection.SouthEast:
-      return HexDirection.East;
-    default:
-      throw new Error('Invalid direction for horizontal layout.');
-  }
-}*/
-
-/** Maps the vertical direction to the corresponding direction in the relatively
- *  rotated horizontal reference frame */
-function vertical_direction_to_horizontal_direction(
-  direction: HexDirection,
-): HexDirection {
-  switch (direction) {
-    case HexDirection.East:
-      return HexDirection.SouthEast;
-    case HexDirection.NorthEast:
-      return HexDirection.NorthEast;
-    case HexDirection.NorthWest:
-      return HexDirection.North;
-    case HexDirection.West:
-      return HexDirection.NorthWest;
-    case HexDirection.SouthWest:
-      return HexDirection.SouthWest;
-    case HexDirection.SouthEast:
-      return HexDirection.South;
-    default:
-      throw new Error('Invalid direction for vertical layout.');
-  }
-}
-
-function horizontal_wedge_to_vertical_wedge(
-  direction: HexDirection,
-): HexDirection {
-  switch (direction) {
-    case HexDirection.East:
-      return HexDirection.NorthEast;
-    case HexDirection.NorthEast:
-      return HexDirection.North;
-    case HexDirection.NorthWest:
-      return HexDirection.NorthWest;
-    case HexDirection.West:
-      return HexDirection.SouthWest;
-    case HexDirection.SouthWest:
-      return HexDirection.South;
-    case HexDirection.SouthEast:
-      return HexDirection.SouthEast;
-    default:
-      throw new Error('Invalid direction for horizontal wedge.');
-  }
+  E,
+  NE,
+  N,
+  NW,
+  W,
+  SW,
+  S,
+  SE,
 }
 
 function wedge_edge_direction(wedge: HexDirection): HexDirection {
   switch (wedge) {
-    case HexDirection.SouthEast:
-      return HexDirection.NorthEast;
-    case HexDirection.East:
-      return HexDirection.North;
-    case HexDirection.NorthEast:
-      return HexDirection.NorthWest;
-    case HexDirection.NorthWest:
-      return HexDirection.SouthWest;
-    case HexDirection.West:
-      return HexDirection.South;
-    case HexDirection.SouthWest:
-      return HexDirection.SouthEast;
+    case HexDirection.SE:
+      return HexDirection.NE;
+    case HexDirection.E:
+      return HexDirection.N;
+    case HexDirection.NE:
+      return HexDirection.NW;
+    case HexDirection.NW:
+      return HexDirection.SW;
+    case HexDirection.W:
+      return HexDirection.S;
+    case HexDirection.SW:
+      return HexDirection.SE;
     default:
       throw new Error('Invalid horizontal wedge.');
+  }
+}
+
+function horizontal_direction_to_hex_distance(
+  direction: HexDirection,
+): HexDistance {
+  switch (direction) {
+    case HexDirection.NE:
+      return new HexDistance(1, 0);
+    case HexDirection.N:
+      return new HexDistance(0, 1);
+    case HexDirection.NW:
+      return new HexDistance(-1, 1);
+    case HexDirection.SW:
+      return new HexDistance(-1, 0);
+    case HexDirection.S:
+      return new HexDistance(0, -1);
+    case HexDirection.SE:
+      return new HexDistance(1, -1);
+    default:
+      throw new Error('Invalid horizontal direction');
+  }
+}
+
+function vertical_direction_to_hex_distance(
+  direction: HexDirection,
+): HexDistance {
+  switch (direction) {
+    case HexDirection.E:
+      return new HexDistance(1, -1);
+    case HexDirection.NE:
+      return new HexDistance(1, 0);
+    case HexDirection.NW:
+      return new HexDistance(0, 1);
+    case HexDirection.W:
+      return new HexDistance(-1, 1);
+    case HexDirection.SW:
+      return new HexDistance(-1, 0);
+    case HexDirection.SE:
+      return new HexDistance(0, -1);
+    default:
+      throw new Error('Invalid vertical direction');
   }
 }
 
@@ -178,6 +154,22 @@ export class HexDistance extends HexGeneric {
   }
 
   /**
+   * @param direction - A direction on the hex grid.
+   * @param layout - The orientation of the hex grid.
+   * @returns a distance of one hex corresponding to the direction.
+   * @throws if the direction is invalid.
+   */
+  public static from_direction(
+    direction: HexDirection,
+    layout: HexLayout,
+  ): HexDistance {
+    if (layout === HexLayout.Vertical) {
+      return vertical_direction_to_hex_distance(direction);
+    }
+    return horizontal_direction_to_hex_distance(direction);
+  }
+
+  /**
    * @param {HexLayout} layout - Determines the hex grid axis alignment.
    * @param {number=1} [size=1] - The distance between two adjacent hexes.
    * @returns {Vector2D} - A vector pointing from the origin to the center of the hex.
@@ -207,7 +199,7 @@ export class HexDistance extends HexGeneric {
   public static neg(dist: HexDistance): HexDistance {
     return new HexDistance(-dist.q, -dist.r);
   }
-  
+
   /**
    * @returns {HexDistance} - The distance after negation.
    */
@@ -225,6 +217,19 @@ export class HexDistance extends HexGeneric {
    */
   public static sum(dist1: HexDistance, dist2: HexDistance): HexDistance {
     return new HexDistance(dist1.q + dist2.q, dist1.r + dist2.r);
+  }
+
+  /**
+   * Multiplies a distance by a factor.
+   * @param {HexDistance} [distance] - The distance to multiply.
+   * @param {number} [factor] - The factor to multiply the distance by.
+   * @returns {HexDistance} - A new distance.
+   */
+  public static multiply(distance: HexDistance, factor: number): HexDistance {
+    if (!Number.isInteger(factor)) {
+      throw new Error('Factor must be integral.');
+    }
+    return new HexDistance(distance.q * factor, distance.r * factor);
   }
 
   /**
@@ -259,6 +264,20 @@ export class HexDistance extends HexGeneric {
   public subtract(distance: HexDistance): HexDistance {
     this.q -= distance.q;
     this.r -= distance.r;
+    return this;
+  }
+
+  /**
+   * Multiplies the distance by a factor.
+   * @param {number} [factor] - The factor to multiply the distance by.
+   * @returns {HexDistance} - The distance after multiplication.
+   */
+  public multiply(factor: number): HexDistance {
+    if (!Number.isInteger(factor)) {
+      throw new Error('Factor must be integral.');
+    }
+    this.q *= factor;
+    this.r *= factor;
     return this;
   }
 
@@ -319,7 +338,7 @@ export class HexCoordinates extends HexGeneric {
     }
     return new HexCoordinates(q, r);
   }
-  
+
   /**
    * @param {HexDistance} [translation] - How far to move the hex.
    * @returns {HexCoordinates} - The hex after translation.
@@ -336,7 +355,10 @@ export class HexCoordinates extends HexGeneric {
    * @param {HexDistance} [translation] - Another distance.
    * @returns {HexCoordinates} - A new translated hex.
    */
-  public static translate(center: HexCoordinates, translation: HexDistance): HexCoordinates {
+  public static translate(
+    center: HexCoordinates,
+    translation: HexDistance,
+  ): HexCoordinates {
     return center.clone().translate(translation);
   }
 
@@ -361,77 +383,29 @@ export class HexCoordinates extends HexGeneric {
    * Which wedge does the hex belong in?
    * @returns {HexDirection} - The direction of the wedge.
    */
-  public wedge(layout: HexLayout = HexLayout.Horizontal): HexDirection {
+  private wedge(): HexDirection {
     let hex_wedge;
     if (
       Math.abs(this.q) >= Math.abs(this.r) &&
       Math.abs(this.q) > Math.abs(this.s())
     ) {
-      hex_wedge = this.q >= 0 ? HexDirection.East : HexDirection.West;
+      hex_wedge = this.q >= 0 ? HexDirection.E : HexDirection.W;
     } else if (Math.abs(this.r) >= Math.abs(this.s())) {
-      hex_wedge = this.r > 0 ? HexDirection.NorthWest : HexDirection.SouthEast;
+      hex_wedge = this.r > 0 ? HexDirection.NW : HexDirection.SE;
     } else {
       hex_wedge =
-        this.s() > 0 ? HexDirection.SouthWest : HexDirection.NorthEast;
-    }
-    if (layout === HexLayout.Vertical) {
-      hex_wedge = horizontal_wedge_to_vertical_wedge(hex_wedge);
+        this.s() > 0 ? HexDirection.SW : HexDirection.NE;
     }
     return hex_wedge;
   }
 
   /**
-   * Translates the vector in the specified direction.
-   * @param {HexDirection} [direction] - An index identifying the direction. Indices start at 0 indicating north-east (horizontal orientation) or east (vertical orientation).
-   * @param {number} [number] - The number of steps to take.
-   * @returns {HexCoordinates} - The vector after stepping.
-   * @throws if an invalid axis number is found.
-   */
-  public step_in_direction(
-    direction: HexDirection,
-    steps: number = 1,
-    layout: HexLayout = HexLayout.Horizontal,
-  ): HexCoordinates {
-    if (!Number.isInteger(steps)) {
-      throw new Error('Number of steps must be integral.');
-    }
-    if (layout === HexLayout.Vertical) {
-      direction = vertical_direction_to_horizontal_direction(direction);
-    }
-    switch (direction) {
-      case HexDirection.North:
-        this.r += steps;
-        break;
-      case HexDirection.South:
-        this.r -= steps;
-        break;
-      case HexDirection.NorthWest:
-        this.q -= steps;
-        this.r += steps;
-        break;
-      case HexDirection.SouthEast:
-        this.q += steps;
-        this.r -= steps;
-        break;
-      case HexDirection.NorthEast:
-        this.q += steps;
-        break;
-      case HexDirection.SouthWest:
-        this.q -= steps;
-        break;
-      default:
-        throw new Error('Invalid horizontal direction');
-    }
-    return this;
-  }
-
-  /**
-   * Rotates the vector n times 60 degrees counter clockwise.
+   * Rotates the hex around the origin n times 60 degrees counter clockwise.
    * @param {number} [n] - The number of 60 degree rotations (can be negative).
-   * @returns {HexCoordinates} - The vector after rotation.
+   * @returns {HexCoordinates} - The hex after rotation.
    * @throws if the number of sector rotations is not integral.
    */
-  public wedge_rotation(n: number): HexCoordinates {
+  public hex_sector_rotation(n: number): HexCoordinates {
     if (!Number.isInteger(n)) {
       throw new Error('Number of wedges must be integral.');
     }
@@ -464,9 +438,13 @@ export class HexCoordinates extends HexGeneric {
     n = n < 0 ? n + circumference : n; // 0 <= n < circumference
     n -= this.rotate_to_corner(n);
     const sector_rotations = Math.trunc(n / hexes_per_sector);
-    this.wedge_rotation(sector_rotations);
+    this.hex_sector_rotation(sector_rotations);
     n -= sector_rotations * hexes_per_sector;
-    this.step_in_direction(wedge_edge_direction(this.wedge()), n);
+    this.translate(
+      horizontal_direction_to_hex_distance(
+        wedge_edge_direction(this.wedge()),
+      ).multiply(n),
+    );
   }
 
   /** Rotates counter clockwise until either a corner is reached or max_steps
@@ -476,22 +454,22 @@ export class HexCoordinates extends HexGeneric {
     const direction = wedge_edge_direction(this.wedge());
     let steps_taken: number = 0;
     switch (direction) {
-      case HexDirection.NorthEast:
-      case HexDirection.SouthWest:
+      case HexDirection.NE:
+      case HexDirection.SW:
         steps_taken = Math.min(Math.abs(this.s()), max_steps);
-        this.step_in_direction(direction, steps_taken);
         break;
-      case HexDirection.North:
-      case HexDirection.South:
+      case HexDirection.N:
+      case HexDirection.S:
         steps_taken = Math.min(Math.abs(this.r), max_steps);
-        this.step_in_direction(direction, steps_taken);
         break;
-      case HexDirection.NorthWest:
-      case HexDirection.SouthEast:
+      case HexDirection.NW:
+      case HexDirection.SE:
         steps_taken = Math.min(Math.abs(this.q), max_steps);
-        this.step_in_direction(direction, steps_taken);
         break;
     }
+    this.translate(
+      horizontal_direction_to_hex_distance(direction).multiply(steps_taken),
+    );
     return steps_taken;
   }
 }
