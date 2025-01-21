@@ -17,6 +17,16 @@ class MainScene extends Phaser.Scene {
 
   preload() {
     // Load assets
+
+    this.world.registerComponent(Position);
+    this.world.registerComponent(Rotation);
+
+    loadJsonFile('/world.json')
+    .then((data) => {
+      console.log('Loaded JSON:', data);
+      this.world.deserialize(JSON.stringify(data));
+    })
+    .catch((error) => console.error('Error:', error));
   }
 
   create() {
@@ -25,8 +35,7 @@ class MainScene extends Phaser.Scene {
     /* const entity1 = this.world.newEntity();
     const entity2 = this.world.newEntity(); */
 
-    this.world.registerComponent(Position);
-    this.world.registerComponent(Rotation);
+    
 
     /* this.world.addComponent(entity1, new Position(10, 10));
     this.world.addComponent(entity1, new Rotation(10));
@@ -52,12 +61,7 @@ class MainScene extends Phaser.Scene {
 
     
 
-    loadJsonFile('/world.json')
-    .then((data) => {
-      console.log('Loaded JSON:', data);
-      this.world.deserialize(JSON.stringify(data));
-    })
-    .catch((error) => console.error('Error:', error));
+    
     
 
     
@@ -65,7 +69,7 @@ class MainScene extends Phaser.Scene {
   }
 
   update(time: number, delta: number) {
-    //console.log(this.world.getEntitiesWithArchetype(Position));
+    console.log(this.world.getEntitiesWithArchetype(Position));
   }
 }
 
