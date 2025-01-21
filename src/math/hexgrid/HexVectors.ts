@@ -156,14 +156,14 @@ class HexGeneric {
 export class HexDistance extends HexGeneric {
   /**
    * Calculates vector pointing from one hex to another.
-   * @param {HexPosition} [vec1] - Starting hex.
-   * @param {HexPosition} [vec2] - Ending hex.
+   * @param {HexCoordinates} [vec1] - Starting hex.
+   * @param {HexCoordinates} [vec2] - Ending hex.
    * @returns {HexDistance} - A vector pointing from hex1 to hex2
    */
   public constructor(q: number, r: number);
-  public constructor(vec1: HexPosition, vec2: HexPosition);
-  public constructor(arg1: HexPosition | number, arg2: HexPosition | number) {
-    if (arg1 instanceof HexPosition && arg2 instanceof HexPosition) {
+  public constructor(vec1: HexCoordinates, vec2: HexCoordinates);
+  public constructor(arg1: HexCoordinates | number, arg2: HexCoordinates | number) {
+    if (arg1 instanceof HexCoordinates && arg2 instanceof HexCoordinates) {
       super(arg2.q - arg1.q, arg2.r - arg1.r);
     } else if (typeof arg1 === 'number' && typeof arg2 === 'number') {
       super(arg1, arg2);
@@ -226,7 +226,7 @@ export class HexDistance extends HexGeneric {
   /**
    * Adds another distance to the vector.
    * @param {HexDistance} [distance] - Distance to add.
-   * @returns {HexPosition} - The vector after the addition.
+   * @returns {HexCoordinates} - The vector after the addition.
    */
   public add(distance: HexDistance): HexDistance {
     this.q += distance.q;
@@ -237,7 +237,7 @@ export class HexDistance extends HexGeneric {
   /**
    * Subtracts another distance from the vector.
    * @param {HexDistance} [distance] - Distance to add.
-   * @returns {HexPosition} - The vector after the addition.
+   * @returns {HexCoordinates} - The vector after the addition.
    */
   public subtract(distance: HexDistance): HexDistance {
     this.q -= distance.q;
@@ -253,41 +253,41 @@ export class HexDistance extends HexGeneric {
   }
 }
 
-export class HexPosition extends HexGeneric {
+export class HexCoordinates extends HexGeneric {
   public constructor(q: number, r: number) {
     super(q, r);
   }
 
   /**
-   * @returns {HexPosition} - A new identical VectorHex.
+   * @returns {HexCoordinates} - A new identical VectorHex.
    */
-  public clone(): HexPosition {
-    return new HexPosition(this.q, this.r);
+  public clone(): HexCoordinates {
+    return new HexCoordinates(this.q, this.r);
   }
 
   /**
    * @param {Vector2DLike} vec - Any object with a x- and y-coordinate.
-   * @returns {HexPosition} - Hex coordinates of the hex that (x,y) is inside.
+   * @returns {HexCoordinates} - Hex coordinates of the hex that (x,y) is inside.
    * @throws if an invalid hex grid orientation is supplied.
    */
   public static from_vector2D(
     vec: Vector2DLike,
     orientation: HexLayout = HexLayout.Horizontal,
     size = 1,
-  ): HexPosition {
+  ): HexCoordinates {
     let vec_horizontal = new Vector2D(vec.x / size, vec.y / size);
     if (orientation === HexLayout.Vertical) {
       vec_horizontal = from_vertical_into_horizontal_vector2d(vec_horizontal);
     }
     const fractional_q = vec_horizontal.x / sqrt3over2;
     const fractional_r = vec_horizontal.y - 0.5 * fractional_q;
-    return HexPosition.from_fractional_coordinates(fractional_q, fractional_r);
+    return HexCoordinates.from_fractional_coordinates(fractional_q, fractional_r);
   }
 
   private static from_fractional_coordinates(
     fractional_q: number,
     fractional_r: number,
-  ): HexPosition {
+  ): HexCoordinates {
     const fractional_s = -fractional_q - fractional_r;
     let q = Math.round(fractional_q) >> 0;
     let r = Math.round(fractional_r) >> 0;
@@ -300,15 +300,15 @@ export class HexPosition extends HexGeneric {
     } else if (delta_r > delta_s) {
       r = -q - s;
     }
-    return new HexPosition(q, r);
+    return new HexCoordinates(q, r);
   }
 
   /**
    * Calculates vector pointing from this hex to another hex.
-   * @param {HexPosition} [hex] - The other hex.
+   * @param {HexCoordinates} [hex] - The other hex.
    * @returns {HexDistance} - A vector pointing from this hex to the other.
    */
-  public distance_to(hex: HexPosition): HexDistance {
+  public distance_to(hex: HexCoordinates): HexDistance {
     return new HexDistance(hex.q - this.q, hex.r - this.r);
   }
 
@@ -347,14 +347,14 @@ export class HexPosition extends HexGeneric {
    * Translates the vector in the specified direction.
    * @param {HexDirection} [direction] - An index identifying the direction. Indices start at 0 indicating north-east (horizontal orientation) or east (vertical orientation).
    * @param {number} [number] - The number of steps to take.
-   * @returns {HexPosition} - The vector after stepping.
+   * @returns {HexCoordinates} - The vector after stepping.
    * @throws if an invalid axis number is found.
    */
   public step_in_direction(
     direction: HexDirection,
     steps: number = 1,
     layout: HexLayout = HexLayout.Horizontal,
-  ): HexPosition {
+  ): HexCoordinates {
     if (!Number.isInteger(steps)) {
       throw new Error('Number of steps must be integral.');
     }
@@ -391,10 +391,10 @@ export class HexPosition extends HexGeneric {
   /**
    * Rotates the vector n times 60 degrees counter clockwise.
    * @param {number} [n] - The number of 60 degree rotations (can be negative).
-   * @returns {HexPosition} - The vector after rotation.
+   * @returns {HexCoordinates} - The vector after rotation.
    * @throws if the number of sector rotations is not integral.
    */
-  public wedge_rotation(n: number): HexPosition {
+  public wedge_rotation(n: number): HexCoordinates {
     if (!Number.isInteger(n)) {
       throw new Error('Number of wedges must be integral.');
     }
@@ -412,7 +412,7 @@ export class HexPosition extends HexGeneric {
   /**
    * Rotates the vector n hexes counter clockwise.
    * @param {number} [n] - The number of counter clockwise steps (can be negative).
-   * @returns {HexPosition} - The vector after rotation.
+   * @returns {HexCoordinates} - The vector after rotation.
    * @throws if the number of steps is not integral.
    */
   public step_rotation(n: number) {
