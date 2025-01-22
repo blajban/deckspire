@@ -22,7 +22,35 @@ export class World {
     return this.entityStore.entityExists(entity);
   }
 
-  removeEntity(entity: Entity) {
+  removeEntity(entity: Entity, removeChildren: boolean = true) {
+    const parentComp = this.getComponent(entity, CompParent);
+
+    // Handle children
+    if (parentComp) {
+      for (const child of parentComp.children) {
+        const childComp = this.getComponent(child, CompChild);
+        if (childComp && childComp.parent === entity) {
+          if (removeChildren) {
+            this.removeEntity(child, true); // Remove the child
+            continue;
+          }
+
+          this.removeComponent(child, CompChild); // Orphan the child.
+        }
+      }
+    }
+
+    // Remove the parent from its own parent's child list if it is a child.
+    const childComp = this.getComponent(entity, CompChild);
+    if (childComp) {
+      const parent = childComp.parent;
+      const parentComp = this.getComponent(parent, CompParent);
+      if (parentComp) {
+        parentComp.children = parentComp.children.filter((e) => e !== entity);
+      }
+    }
+  
+    // Remove all components
     const components = this.componentStore.getComponentsForEntity(entity);
 
     for (const component of components) {
@@ -60,6 +88,31 @@ export class World {
     entity: Entity,
     componentClass: new (...args: any[]) => T,
   ) {
+    const componentType = this.componentStore.getRegisteredComponentClass(componentClass.name);
+    
+    if (componentType == CompParent) {
+      const parentComp = this.getComponent(entity, CompParent);
+      if (parentComp) {
+        for (const child of parentComp.children) {
+          const childComp = this.getComponent(child, CompChild);
+          if (childComp && childComp.parent === entity) {
+            this.removeComponent(child, CompChild); // Orphan the child.
+          }
+        }
+      }
+    }
+    
+    if (componentType == CompChild) {
+      const childComp = this.getComponent(entity, CompChild);
+      if (childComp) {
+        const parent = childComp.parent;
+        const parentComp = this.getComponent(parent, CompParent);
+        if (parentComp) {
+          parentComp.children = parentComp.children.filter((e) => e !== entity);
+        }
+      }
+    }
+    
     this.componentStore.removeComponent(entity, componentClass);
   }
 
@@ -79,7 +132,25 @@ export class World {
     return this.componentStore.getComponentsForEntity(entity);
   }
 
+  /**
+   * Adds a parent-child relationship between two entities.
+   * - Adds the `childEntity` as a child of the `parentEntity`.
+   * - Ensures no cyclic relationships are created in the hierarchy.
+   * - Automatically adds the required `CompParent` and `CompChild` components if they don't exist.
+   * 
+   * @param parentEntity - The entity to become the parent.
+   * @param childEntity - The entity to become the child.
+   * @throws Will throw an error if:
+   * - Adding the relationship would create a cycle in the hierarchy.
+   * - The `childEntity` already has a parent.
+   */
   addParentChildRelationship(parentEntity: Entity, childEntity: Entity) {
+    if (this.isAncestor(childEntity, parentEntity)) {
+      throw new Error(
+        `Cannot add Entity ${childEntity} as a child of Entity ${parentEntity}: it would create a cyclic relationship.`
+      );
+    }
+
     let parentComp = this.getComponent(parentEntity, CompParent);
     if (!parentComp) {
       parentComp = new CompParent([]);
@@ -94,6 +165,27 @@ export class World {
     }
 
     this.addComponent(childEntity, new CompChild(parentEntity));
+  }
+
+  /**
+   * Checks if `potentialAncestor` is an ancestor of `entity`.
+   * @param entity - The entity being checked.
+   * @param potentialAncestor - The potential ancestor entity.
+   * @returns True if `potentialAncestor` is an ancestor of `entity`, false otherwise.
+   */
+  isAncestor(entity: Entity, potentialAncestor: Entity): boolean {
+    let currentEntity: Entity | null = entity;
+
+    while (currentEntity !== null) {
+      const childComp: CompChild | undefined = this.getComponent(currentEntity, CompChild);
+      if (!childComp) return false;
+
+      if (childComp.parent === potentialAncestor) return true;
+
+      currentEntity = childComp.parent;
+    }
+
+    return false;
   }
 
   serialize(): string {

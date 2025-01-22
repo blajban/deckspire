@@ -83,8 +83,15 @@ class MainScene extends Phaser.Scene {
     this.world.addParentChildRelationship(parent, child3);
     this.world.addParentChildRelationship(parent, child4);
 
+    //this.world.removeComponent(child1, CompChild);
+    //this.world.removeComponent(parent, CompParent);
+    //this.world.removeComponent(child2, CompChild);
     
+    this.world.removeEntity(child1);
+    this.world.removeEntity(child2);
     
+    this.world.removeEntity(parent, true);
+    console.log(this.world.getAllEntities());
   }
 
   update(time: number, delta: number) {
