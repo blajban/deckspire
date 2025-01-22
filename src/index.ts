@@ -1,23 +1,24 @@
 import Phaser from 'phaser';
 import ComponentStore from './engine/core/ComponentStore';
 import EntityStore from './engine/core/EntityStore';
-import { World } from './engine/core/World';
+import World from './engine/core/World';
 import { loadJsonFile } from './engine/util/file';
-import { CompParent } from './engine/components/CompParent';
-import { CompChild } from './engine/components/CompChild';
 import ParentChildExampleSystem from './systems/ParentChildExampleSystem';
 import CompDrawable from './engine/components/CompDrawable';
-import { CompHex } from './engine/components/CompHex';
-import { CompHexGrid } from './engine/components/CompHexGrid';
+import CompHex from './engine/components/CompHex';
+import CompHexGrid from './engine/components/CompHexGrid';
 import CompTransform from './engine/components/CompTransform';
 import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
 import { HexCoordinates } from './math/hexgrid/HexVectors';
 import Vector2D from './math/Vector2D';
+import CompChild from './engine/components/CompChild';
+import CompParent from './engine/components/CompParent';
 
 class MainScene extends Phaser.Scene {
   private entityStore = new EntityStore();
   private componentStore = new ComponentStore();
   private world = new World(this.entityStore, this.componentStore);
+  private parentChildExampleSystem = new ParentChildExampleSystem();
   constructor() {
     super('MainScene');
   }
@@ -29,6 +30,8 @@ class MainScene extends Phaser.Scene {
     this.world.registerComponent(CompHex);
     this.world.registerComponent(CompHexGrid);
     this.world.registerComponent(CompTransform);
+    this.world.registerComponent(CompChild);
+    this.world.registerComponent(CompParent)
 
     loadJsonFile('/world.json')
       .then((data) => {
@@ -72,18 +75,7 @@ class MainScene extends Phaser.Scene {
   }
 
   update(time: number, delta: number) {
-    //console.log(this.world.getEntitiesWithArchetype(CompPosition));
-
-   /*  this.parentChildExampleSystem.update(this.world, time, delta);
-
-    const children = this.world.getEntitiesWithComponent(CompChild);
-
-    for (const child of children) {
-      const childComp = this.world.getComponent(child, CompChild);
-
-      console.log(`Child #${child} has parent ${childComp?.parent}`);
-    } */
-
+    this.parentChildExampleSystem.update(this.world, time, delta);
   }
 }
 
