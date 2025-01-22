@@ -74,6 +74,12 @@ export class World {
   }
 
   addComponent<T extends Component>(entity: Entity, component: T) {
+    const componentType = component.constructor.name;
+
+    if (componentType === CompParent.name || componentType === CompChild.name) {
+      throw new Error(`Add ${componentType} through the addParentChildRelationship() function.`)
+    }
+  
     this.componentStore.addComponent(entity, component);
   }
 
@@ -154,7 +160,7 @@ export class World {
     let parentComp = this.getComponent(parentEntity, CompParent);
     if (!parentComp) {
       parentComp = new CompParent([]);
-      this.addComponent(parentEntity, parentComp);
+      this.componentStore.addComponent(parentEntity, parentComp);
     }
 
     parentComp.children.push(childEntity);
@@ -166,7 +172,7 @@ export class World {
 
     
 
-    this.addComponent(childEntity, new CompChild(parentEntity));
+    this.componentStore.addComponent(childEntity, new CompChild(parentEntity));
   }
 
   /**
@@ -222,7 +228,7 @@ export class World {
         // The validate function throws error if invalid data.
         // Deserialize function could handle the error by logging and skipping component.
         const component = new ComponentClass(...Object.values(data));
-        this.addComponent(entity, component);
+        this.componentStore.addComponent(entity, component);
       }
     }
   }

@@ -60,10 +60,9 @@ describe('World', () => {
     const parentEntity = world.newEntity();
     const childEntity1 = world.newEntity();
     const childEntity2 = world.newEntity();
-  
-    world.addComponent(parentEntity, new CompParent([childEntity1, childEntity2]));
-    world.addComponent(childEntity1, new CompChild(parentEntity));
-    world.addComponent(childEntity2, new CompChild(parentEntity));
+
+    world.addParentChildRelationship(parentEntity, childEntity1);
+    world.addParentChildRelationship(parentEntity, childEntity2);
   
     world.removeEntity(parentEntity, true);
   
@@ -76,8 +75,7 @@ describe('World', () => {
     const parentEntity = world.newEntity();
     const childEntity = world.newEntity();
   
-    world.addComponent(parentEntity, new CompParent([childEntity]));
-    world.addComponent(childEntity, new CompChild(parentEntity));
+    world.addParentChildRelationship(parentEntity, childEntity);
   
     world.removeEntity(parentEntity, false);
   
@@ -91,8 +89,7 @@ describe('World', () => {
     const parentEntity = world.newEntity();
     const childEntity = world.newEntity();
   
-    world.addComponent(parentEntity, new CompParent([childEntity]));
-    world.addComponent(childEntity, new CompChild(parentEntity));
+    world.addParentChildRelationship(parentEntity, childEntity);
   
     world.removeEntity(childEntity);
   
@@ -123,13 +120,28 @@ describe('World', () => {
     expect(world.getComponent(entity, MockComponent)).toBeUndefined();
   });
 
+  test('should throw when adding a parent or child component directly', () => {
+    const entity = world.newEntity();
+
+    expect(() => {
+      world.addComponent(entity, new CompParent([1]))
+    }).toThrow(
+      `Add CompParent through the addParentChildRelationship() function.`
+    );
+
+    expect(() => {
+      world.addComponent(entity, new CompChild(1))
+    }).toThrow(
+      `Add CompChild through the addParentChildRelationship() function.`
+    );
+  });
+
   test('removes parent component and orphans its children', () => {
     const parentEntity = world.newEntity();
     const childEntity = world.newEntity();
-  
-    world.addComponent(parentEntity, new CompParent([childEntity]));
-    world.addComponent(childEntity, new CompChild(parentEntity));
-  
+
+    world.addParentChildRelationship(parentEntity, childEntity);
+    
     world.removeComponent(parentEntity, CompParent);
   
     const parentComp = world.getComponent(parentEntity, CompParent);
@@ -142,9 +154,8 @@ describe('World', () => {
   test('removes child component but keeps child entity intact', () => {
     const parentEntity = world.newEntity();
     const childEntity = world.newEntity();
-  
-    world.addComponent(parentEntity, new CompParent([childEntity]));
-    world.addComponent(childEntity, new CompChild(parentEntity));
+
+    world.addParentChildRelationship(parentEntity, childEntity);
   
     world.removeComponent(childEntity, CompChild);
   

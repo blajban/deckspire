@@ -94,11 +94,11 @@ class MainScene extends Phaser.Scene {
     console.log(this.world.getAllEntities()); */
 
     // cyclic relations
-    const entity1 = this.world.newEntity();
+    /* const entity1 = this.world.newEntity();
     const entity2 = this.world.newEntity();
   
     this.world.addParentChildRelationship(entity1, entity2);
-    this.world.addParentChildRelationship(entity2, entity1);
+    this.world.addParentChildRelationship(entity2, entity1); */
   }
 
   update(time: number, delta: number) {
