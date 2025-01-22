@@ -1,4 +1,4 @@
-import { Vector2D, Vector2DLike } from '../Vector2D';
+import Vector2D, { Vector2DLike } from '../Vector2D';
 
 const sqrt3over2 = 0.5 * Math.sqrt(3);
 

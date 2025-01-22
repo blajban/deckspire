@@ -1,4 +1,4 @@
-import { HexDistance, HexDirection, HexCoordinates } from './HexVectors';
+import { HexDistance, HexCoordinates } from './HexVectors';
 
 export type HexGridGuard = (hex: HexCoordinates) => boolean;
 

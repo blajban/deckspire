@@ -1,4 +1,4 @@
-import { Component } from '../../src/engine/core/Component';
+import Component from '../../src/engine/core/Component';
 import ComponentStore from '../../src/engine/core/ComponentStore';
 import { Entity } from '../../src/engine/core/Entity';
 
