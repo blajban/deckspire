@@ -1,8 +1,6 @@
 import { Component } from '../../src/engine/core/Component';
 import ComponentMap from '../../src/engine/core/ComponentMap';
-import { Entity } from '../../src/engine/core/EntityStore';
-
-
+import { Entity } from '../../src/engine/core/Entity';
 
 class MockComponent extends Component {
   constructor(public value: number) {
@@ -17,13 +15,13 @@ describe('ComponentMap', () => {
     componentMap = new ComponentMap<MockComponent>(MockComponent.name);
   });
 
-  it("should throw an error if an invalid component is added", () => {
-    const componentMap = new ComponentMap<MockComponent>("MockComponent");
+  it('should throw an error if an invalid component is added', () => {
+    const componentMap = new ComponentMap<MockComponent>('MockComponent');
     const invalidComponent = null as unknown as MockComponent;
 
     expect(() => {
       componentMap.add(1, invalidComponent);
-    }).toThrow("Invalid component provided for entity 1.");
+    }).toThrow('Invalid component provided for entity 1.');
   });
 
   test('adds component to entitiy', () => {
@@ -55,7 +53,7 @@ describe('ComponentMap', () => {
     expect(() => {
       componentMap.add(entity, new MockComponent(20));
     }).toThrow(
-      `Could not add component to entity ${entity} (entity already has component of type MockComponent).`
+      `Could not add component to entity ${entity} (entity already has component of type MockComponent).`,
     );
   });
 
@@ -96,7 +94,7 @@ describe('ComponentMap', () => {
     expect(() => {
       componentMap.delete(entity);
     }).toThrow(
-      `Could not delete component of type MockComponent for entity ${entity} (component does not exist).`
+      `Could not delete component of type MockComponent for entity ${entity} (component does not exist).`,
     );
   });
 

@@ -302,7 +302,7 @@ describe('Arithmetics', () => {
     hex.multiply(2);
     expect(hex.q).toBe(6);
     expect(hex.r).toBe(10);
-    expect(()=>hex.multiply(0.5)).toThrow('must be integral');
+    expect(() => hex.multiply(0.5)).toThrow('must be integral');
   });
 });
 

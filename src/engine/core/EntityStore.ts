@@ -1,7 +1,4 @@
-/**
- * Represents a unique identifier for an entity.
- */
-export type Entity = number;
+import { Entity } from './Entity';
 
 /**
  * Manages creation, validation, and removal of entities.
@@ -10,7 +7,7 @@ export default class EntityStore {
   private entities: Set<Entity> = new Set();
   private currentId: Entity = 0;
 
-   /**
+  /**
    * Generates the next entity ID.
    * @returns The next available entity ID.
    */

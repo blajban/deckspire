@@ -25,6 +25,9 @@ function from_horizontal_into_vertical_vector2d(vec2d: Vector2DLike): Vector2D {
   );
 }
 
+/**
+ * Enum of all possible directions.
+ */
 export enum HexDirection {
   E,
   NE,
@@ -128,11 +131,19 @@ class HexGeneric {
     this.r = r;
   }
 
+  /**
+   * Compares hexes by value.
+   * @param hex - the other hex.
+   * @returns - true if the coordinates are equal, false otherwise.
+   */
   public equals(hex: HexGeneric): boolean {
     return this.q === hex.q && this.r === hex.r;
   }
 }
 
+/**
+ * Coordinates pointing to a hex in a hex grid.
+ */
 export class HexCoordinates extends HexGeneric {
   public constructor(q: number, r: number) {
     super(q, r);
@@ -320,16 +331,21 @@ export class HexCoordinates extends HexGeneric {
   }
 }
 
+/**
+ * A vector pointing from one hex to another.
+ */
 export class HexDistance extends HexGeneric {
   /**
-   * Calculates vector pointing from one hex to another.
    * @param {HexCoordinates} [vec1] - Starting hex.
    * @param {HexCoordinates} [vec2] - Ending hex.
    * @returns {HexDistance} - A vector pointing from hex1 to hex2
    */
   public constructor(q: number, r: number);
   public constructor(vec1: HexCoordinates, vec2: HexCoordinates);
-  public constructor(arg1: HexCoordinates | number, arg2: HexCoordinates | number) {
+  public constructor(
+    arg1: HexCoordinates | number,
+    arg2: HexCoordinates | number,
+  ) {
     if (arg1 instanceof HexCoordinates && arg2 instanceof HexCoordinates) {
       super(arg2.q - arg1.q, arg2.r - arg1.r);
     } else if (typeof arg1 === 'number' && typeof arg2 === 'number') {
@@ -337,6 +353,7 @@ export class HexDistance extends HexGeneric {
     }
   }
 
+  /** One step in all possible directions in a hex grid. */
   public static readonly ALL_UNIT_DISTANCES: HexDistance[] = [
     horizontal_direction_to_hex_distance(HexDirection.NE),
     horizontal_direction_to_hex_distance(HexDirection.N),
