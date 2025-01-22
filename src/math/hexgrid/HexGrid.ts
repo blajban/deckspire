@@ -2,7 +2,7 @@ import { HexDistance, HexDirection, HexCoordinates } from './HexVectors';
 
 export type HexGridGuard = (hex: HexCoordinates) => boolean;
 
-export class HexGrid{
+export default class HexGrid{
   /**
    * Represents a hex grid.
    * @param grid_guard - A function that returns true if a hex is part of the grid. Default is an infinite grid.
