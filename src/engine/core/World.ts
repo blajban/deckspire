@@ -1,3 +1,5 @@
+import { CompChild } from '../components/CompChild';
+import { CompParent } from '../components/CompParent';
 import { Component } from './Component';
 import ComponentStore from './ComponentStore';
 import { Entity } from './Entity';
@@ -75,6 +77,23 @@ export class World {
 
   getComponentsForEntity(entity: Entity): Component[] {
     return this.componentStore.getComponentsForEntity(entity);
+  }
+
+  addParentChildRelationship(parentEntity: Entity, childEntity: Entity) {
+    let parentComp = this.getComponent(parentEntity, CompParent);
+    if (!parentComp) {
+      parentComp = new CompParent([]);
+      this.addComponent(parentEntity, parentComp);
+    }
+
+    parentComp.children.push(childEntity);
+
+    const childComp = this.getComponent(childEntity, CompChild);
+    if (childComp) {
+      throw new Error(`Entity ${childEntity} already has a parent.`)
+    }
+
+    this.addComponent(childEntity, new CompChild(parentEntity));
   }
 
   serialize(): string {

@@ -69,25 +69,19 @@ class MainScene extends Phaser.Scene {
     
     //this.world.deserialize(jsonData);
 
+    // Need a convenience function to make sure we make a pair!
+
     const parent = this.world.newEntity();
   
     const child1 = this.world.newEntity();
-    this.world.addComponent(child1, new CompChild(parent));
     const child2 = this.world.newEntity();
-    this.world.addComponent(child2, new CompChild(parent));
     const child3 = this.world.newEntity();
-    this.world.addComponent(child3, new CompChild(parent));
     const child4 = this.world.newEntity();
-    this.world.addComponent(child4, new CompChild(parent));
 
-    
-    this.world.addComponent(parent, new CompParent([
-      child1,
-      child2,
-      child3,
-      child4
-    ]));
-
+    this.world.addParentChildRelationship(parent, child1);
+    this.world.addParentChildRelationship(parent, child2);
+    this.world.addParentChildRelationship(parent, child3);
+    this.world.addParentChildRelationship(parent, child4);
 
     
     
