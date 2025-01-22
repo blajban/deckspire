@@ -49,4 +49,28 @@ describe('Find hexes in grid', () => {
     const hexes = grid.hexes_within_manhattan_radius(center, range);
     expect(hexes.length).toBe(3);
   });
+  it('should find hexes within steps', () => {
+    const grid = new HexGrid();
+    const center = new HexCoordinates(0, 0);
+    const range = 1;
+    const hexes = grid.hexes_within_steps(center, range);
+    expect(hexes.length).toBe(7);
+  });
+
+  it('should find non-excluded hexes within steps', () => {
+    const grid = new HexGrid((hex) => hex.q != 0 || hex.r != 1);
+    const center = new HexCoordinates(0, 0);
+    const range = 2;
+    const hexes = grid.hexes_within_steps(center, range);
+    expect(hexes.length).toBe(17);
+  });
+
+  it('should find hexes within steps in a finite grid', () => {
+    const grid = new HexGrid((hex) => hex.q >= 0 && hex.r >= 0);
+    const center = new HexCoordinates(0, 0);
+    const range = 2;
+    const hexes = grid.hexes_within_steps(center, range);
+    console.log("test: ", hexes);
+    expect(hexes.length).toBe(6);
+  });
 });
