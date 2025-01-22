@@ -3,10 +3,12 @@ import ComponentStore from './engine/core/ComponentStore';
 import EntityStore from './engine/core/EntityStore';
 import { World } from './engine/core/World';
 import { loadJsonFile } from './engine/util/file';
+import { CompParent } from './engine/components/CompParent';
+import { CompChild } from './engine/components/CompChild';
+import ParentChildExampleSystem from './systems/ParentChildExampleSystem';
 import CompDrawable from './engine/components/CompDrawable';
 import { CompHex } from './engine/components/CompHex';
 import { CompHexGrid } from './engine/components/CompHexGrid';
-import CompScale from './engine/components/CompScale';
 import CompTransform from './engine/components/CompTransform';
 import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
 import { HexCoordinates } from './math/hexgrid/HexVectors';
@@ -70,7 +72,18 @@ class MainScene extends Phaser.Scene {
   }
 
   update(time: number, delta: number) {
-    console.log(this.world.getEntitiesWithArchetype(CompPosition));
+    //console.log(this.world.getEntitiesWithArchetype(CompPosition));
+
+   /*  this.parentChildExampleSystem.update(this.world, time, delta);
+
+    const children = this.world.getEntitiesWithComponent(CompChild);
+
+    for (const child of children) {
+      const childComp = this.world.getComponent(child, CompChild);
+
+      console.log(`Child #${child} has parent ${childComp?.parent}`);
+    } */
+
   }
 }
 

@@ -58,14 +58,8 @@ export default class ComponentMap<T extends Component> {
   /**
    * Removes the component associated with an entity.
    * @param entity - The entity.
-   * @throws Will throw an error if the entity does not have this component type.
    */
   delete(entity: Entity) {
-    if (!this.has(entity)) {
-      throw new Error(
-        `Could not delete component of type ${this.componentType} for entity ${entity} (component does not exist).`,
-      );
-    }
     this.components.delete(entity);
     this.cachedEntities = null;
   }

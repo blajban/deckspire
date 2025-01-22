@@ -88,16 +88,6 @@ describe('ComponentMap', () => {
     expect(componentMap.has(entity)).toBe(false);
   });
 
-  test('throws error when deleting a nonexistent component', () => {
-    const entity: Entity = 1;
-
-    expect(() => {
-      componentMap.delete(entity);
-    }).toThrow(
-      `Could not delete component of type MockComponent for entity ${entity} (component does not exist).`,
-    );
-  });
-
   test('clears all components', () => {
     componentMap.add(1, new MockComponent(10));
     componentMap.add(2, new MockComponent(20));
