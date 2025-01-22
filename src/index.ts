@@ -1,71 +1,72 @@
 import Phaser from 'phaser';
 import ComponentStore from './engine/core/ComponentStore';
-import { CompPosition } from './engine/components/CompPosition';
-import { CompRotation } from './engine/components/CompRotation';
 import EntityStore from './engine/core/EntityStore';
 import { World } from './engine/core/World';
 import { loadJsonFile } from './engine/util/file';
+import CompDrawable from './engine/components/CompDrawable';
+import { CompHex } from './engine/components/CompHex';
+import { CompHexGrid } from './engine/components/CompHexGrid';
+import CompScale from './engine/components/CompScale';
+import CompTransform from './engine/components/CompTransform';
+import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
+import { HexCoordinates } from './math/hexgrid/HexVectors';
+import Vector2D from './math/Vector2D';
 
 class MainScene extends Phaser.Scene {
   private entityStore = new EntityStore();
   private componentStore = new ComponentStore();
-  private world =  new World(this.entityStore, this.componentStore);
+  private world = new World(this.entityStore, this.componentStore);
   constructor() {
     super('MainScene');
-
   }
 
   preload() {
     // Load assets
 
-    this.world.registerComponent(CompPosition);
-    this.world.registerComponent(CompRotation);
+    this.world.registerComponent(CompDrawable);
+    this.world.registerComponent(CompHex);
+    this.world.registerComponent(CompHexGrid);
+    this.world.registerComponent(CompTransform);
 
     loadJsonFile('/world.json')
-    .then((data) => {
-      console.log('Loaded JSON:', data);
-      this.world.deserialize(JSON.stringify(data));
-    })
-    .catch((error) => console.error('Error:', error));
+      .then((data) => {
+        console.log('Loaded JSON:', data);
+        this.world.deserialize(JSON.stringify(data));
+      })
+      .catch((error) => console.error('Error:', error));
   }
 
   create() {
     // Initialize game objects
 
-    /* const entity1 = this.world.newEntity();
-    const entity2 = this.world.newEntity(); */
+    const hex_grid = this.world.newEntity();
+    const selected_hex = this.world.newEntity();
+    this.world.addComponent(
+      hex_grid,
+      new CompHexGrid(
+        new HexGrid(
+          (hex) => hex.distance_from_origin().manhattan() <= 3,
+          HorizontalLayout,
+        ),
+      ),
+    );
+    this.world.addComponent(
+      hex_grid,
+      new CompTransform(new Vector2D(0, 0), 0, 50),
+    );
+    this.world.addComponent(hex_grid, new CompDrawable(-1));
+    this.world.addComponent(
+      selected_hex,
+      new CompHex(new HexCoordinates(0, 0)),
+    );
+    this.world.addComponent(selected_hex, new CompDrawable(1));
+    this.world.addParentChildRelationship(hex_grid, selected_hex);
 
-    
-
-    /* this.world.addComponent(entity1, new Position(10, 10));
-    this.world.addComponent(entity1, new Rotation(10));
-
-    this.world.addComponent(entity2, new Position(20, 20));
-
-    const archetype = this.world.getEntitiesWithArchetype(Position, Rotation);
-    
+    const archetype = this.world.getEntitiesWithArchetype(
+      CompHexGrid,
+      CompTransform,
+    );
     console.log(archetype);
-
-    const component = this.world.getComponent(entity1, Position);
-    const compJson = component?.toJSON();
-    const jsonString = JSON.stringify(compJson);
-    console.log(jsonString);
-
-    console.log(this.world.serialize());
-
-
-    this.world.removeEntity(1); */
-
-    
-    //this.world.deserialize(jsonData);
-
-    
-
-    
-    
-
-    
-    
   }
 
   update(time: number, delta: number) {
@@ -77,7 +78,7 @@ const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
-  scene: [ MainScene ],
+  scene: [MainScene],
 };
 
 const game = new Phaser.Game(config);
