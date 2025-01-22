@@ -70,7 +70,6 @@ describe('Find hexes in grid', () => {
     const center = new HexCoordinates(0, 0);
     const range = 2;
     const hexes = grid.hexes_within_steps(center, range);
-    console.log("test: ", hexes);
     expect(hexes.length).toBe(6);
   });
 });
