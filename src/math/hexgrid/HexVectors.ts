@@ -127,6 +127,197 @@ class HexGeneric {
     this.q = q;
     this.r = r;
   }
+
+  public equals(hex: HexGeneric): boolean {
+    return this.q === hex.q && this.r === hex.r;
+  }
+}
+
+export class HexCoordinates extends HexGeneric {
+  public constructor(q: number, r: number) {
+    super(q, r);
+  }
+
+  /**
+   * @returns {HexCoordinates} - A new identical VectorHex.
+   */
+  public clone(): HexCoordinates {
+    return new HexCoordinates(this.q, this.r);
+  }
+
+  /**
+   * @param {Vector2DLike} vec - Any object with a x- and y-coordinate.
+   * @returns {HexCoordinates} - Hex coordinates of the hex that (x,y) is inside.
+   * @throws if an invalid hex grid orientation is supplied.
+   */
+  public static from_vector2D(
+    vec: Vector2DLike,
+    orientation: HexLayout = HexLayout.Horizontal,
+    size = 1,
+  ): HexCoordinates {
+    let vec_horizontal = new Vector2D(vec.x / size, vec.y / size);
+    if (orientation === HexLayout.Vertical) {
+      vec_horizontal = from_vertical_into_horizontal_vector2d(vec_horizontal);
+    }
+    const fractional_q = vec_horizontal.x / sqrt3over2;
+    const fractional_r = vec_horizontal.y - 0.5 * fractional_q;
+    return HexCoordinates.from_fractional_coordinates(
+      fractional_q,
+      fractional_r,
+    );
+  }
+
+  private static from_fractional_coordinates(
+    fractional_q: number,
+    fractional_r: number,
+  ): HexCoordinates {
+    const fractional_s = -fractional_q - fractional_r;
+    let q = Math.round(fractional_q) >> 0;
+    let r = Math.round(fractional_r) >> 0;
+    const s = Math.round(fractional_s) >> 0;
+    const delta_q = Math.abs(fractional_q - q);
+    const delta_r = Math.abs(fractional_r - r);
+    const delta_s = Math.abs(fractional_s - s);
+    if (delta_q > delta_r && delta_q > delta_s) {
+      q = -r - s;
+    } else if (delta_r > delta_s) {
+      r = -q - s;
+    }
+    return new HexCoordinates(q, r);
+  }
+
+  /**
+   * @param {HexDistance} [translation] - How far to move the hex.
+   * @returns {HexCoordinates} - The hex after translation.
+   */
+  public translate(translation: HexDistance): HexCoordinates {
+    this.q += translation.q;
+    this.r += translation.r;
+    return this;
+  }
+
+  /**
+   * Returns a new hex, translated a distance from the original hex.
+   * @param {HexCoordinates} [center] - A distance.
+   * @param {HexDistance} [translation] - Another distance.
+   * @returns {HexCoordinates} - A new translated hex.
+   */
+  public static translate(
+    center: HexCoordinates,
+    translation: HexDistance,
+  ): HexCoordinates {
+    return center.clone().translate(translation);
+  }
+
+  /**
+   * Calculates vector pointing from this hex to another hex.
+   * @param {HexCoordinates} [hex] - The other hex.
+   * @returns {HexDistance} - A vector pointing from this hex to the other.
+   */
+  public distance_to(hex: HexCoordinates): HexDistance {
+    return new HexDistance(hex.q - this.q, hex.r - this.r);
+  }
+
+  /**
+   * Calculates vector pointing from the origin hex to this one.
+   * @returns {HexDistance} - A vector pointing from hex1 to hex2
+   */
+  public distance_from_origin(): HexDistance {
+    return new HexDistance(this.q, this.r);
+  }
+
+  /**
+   * Which wedge does the hex belong in?
+   * @returns {HexDirection} - The direction of the wedge.
+   */
+  private wedge(): HexDirection {
+    let hex_wedge;
+    if (
+      Math.abs(this.q) >= Math.abs(this.r) &&
+      Math.abs(this.q) > Math.abs(this.s())
+    ) {
+      hex_wedge = this.q >= 0 ? HexDirection.E : HexDirection.W;
+    } else if (Math.abs(this.r) >= Math.abs(this.s())) {
+      hex_wedge = this.r > 0 ? HexDirection.NW : HexDirection.SE;
+    } else {
+      hex_wedge = this.s() > 0 ? HexDirection.SW : HexDirection.NE;
+    }
+    return hex_wedge;
+  }
+
+  /**
+   * Rotates the hex around the origin n times 60 degrees counter clockwise.
+   * @param {number} [n] - The number of 60 degree rotations (can be negative).
+   * @returns {HexCoordinates} - The hex after rotation.
+   * @throws if the number of sector rotations is not integral.
+   */
+  public hex_sector_rotation(n: number): HexCoordinates {
+    if (!Number.isInteger(n)) {
+      throw new Error('Number of wedges must be integral.');
+    }
+    n %= 6;
+    if (n === 0) return this;
+    n = n < 0 ? n + 6 : n;
+    const sign_shift = 1 - (n % 2) * 2;
+    const coordinate_shift = n % 3;
+    const coordinates: number[] = [this.q, this.r, this.s()];
+    this.q = sign_shift * coordinates[coordinate_shift];
+    this.r = sign_shift * coordinates[(1 + coordinate_shift) % 3];
+    return this;
+  }
+
+  /**
+   * Rotates the vector n hexes counter clockwise.
+   * @param {number} [n] - The number of counter clockwise steps (can be negative).
+   * @returns {HexCoordinates} - The vector after rotation.
+   * @throws if the number of steps is not integral.
+   */
+  public step_rotation(n: number) {
+    if (!Number.isInteger(n)) {
+      throw new Error('Number of steps must be integral.');
+    }
+    if (n === 0) return;
+    const hexes_per_sector = this.distance_from_origin().manhattan();
+    if (hexes_per_sector === 0) return;
+    const circumference = 6 * hexes_per_sector;
+    n %= circumference;
+    n = n < 0 ? n + circumference : n; // 0 <= n < circumference
+    n -= this.rotate_to_corner(n);
+    const sector_rotations = Math.trunc(n / hexes_per_sector);
+    this.hex_sector_rotation(sector_rotations);
+    n -= sector_rotations * hexes_per_sector;
+    this.translate(
+      horizontal_direction_to_hex_distance(
+        wedge_edge_direction(this.wedge()),
+      ).multiply(n),
+    );
+  }
+
+  /** Rotates counter clockwise until either a corner is reached or max_steps
+   * steps has been taken */
+  private rotate_to_corner(max_steps: number): number {
+    // Rotate hex wise until a corner is reached
+    const direction = wedge_edge_direction(this.wedge());
+    let steps_taken: number = 0;
+    switch (direction) {
+      case HexDirection.NE:
+      case HexDirection.SW:
+        steps_taken = Math.min(Math.abs(this.s()), max_steps);
+        break;
+      case HexDirection.N:
+      case HexDirection.S:
+        steps_taken = Math.min(Math.abs(this.r), max_steps);
+        break;
+      case HexDirection.NW:
+      case HexDirection.SE:
+        steps_taken = Math.min(Math.abs(this.q), max_steps);
+        break;
+    }
+    this.translate(
+      horizontal_direction_to_hex_distance(direction).multiply(steps_taken),
+    );
+    return steps_taken;
+  }
 }
 
 export class HexDistance extends HexGeneric {
@@ -145,6 +336,15 @@ export class HexDistance extends HexGeneric {
       super(arg1, arg2);
     }
   }
+
+  public static readonly ALL_UNIT_DISTANCES: HexDistance[] = [
+    horizontal_direction_to_hex_distance(HexDirection.NE),
+    horizontal_direction_to_hex_distance(HexDirection.N),
+    horizontal_direction_to_hex_distance(HexDirection.NW),
+    horizontal_direction_to_hex_distance(HexDirection.SW),
+    horizontal_direction_to_hex_distance(HexDirection.S),
+    horizontal_direction_to_hex_distance(HexDirection.SE),
+  ];
 
   /**
    * @returns {HexDistance} - A new identical VectorHex.
@@ -286,190 +486,5 @@ export class HexDistance extends HexGeneric {
    */
   public manhattan(): number {
     return Math.max(Math.abs(this.q), Math.abs(this.r), Math.abs(this.s()));
-  }
-}
-
-export class HexCoordinates extends HexGeneric {
-  public constructor(q: number, r: number) {
-    super(q, r);
-  }
-
-  /**
-   * @returns {HexCoordinates} - A new identical VectorHex.
-   */
-  public clone(): HexCoordinates {
-    return new HexCoordinates(this.q, this.r);
-  }
-
-  /**
-   * @param {Vector2DLike} vec - Any object with a x- and y-coordinate.
-   * @returns {HexCoordinates} - Hex coordinates of the hex that (x,y) is inside.
-   * @throws if an invalid hex grid orientation is supplied.
-   */
-  public static from_vector2D(
-    vec: Vector2DLike,
-    orientation: HexLayout = HexLayout.Horizontal,
-    size = 1,
-  ): HexCoordinates {
-    let vec_horizontal = new Vector2D(vec.x / size, vec.y / size);
-    if (orientation === HexLayout.Vertical) {
-      vec_horizontal = from_vertical_into_horizontal_vector2d(vec_horizontal);
-    }
-    const fractional_q = vec_horizontal.x / sqrt3over2;
-    const fractional_r = vec_horizontal.y - 0.5 * fractional_q;
-    return HexCoordinates.from_fractional_coordinates(fractional_q, fractional_r);
-  }
-
-  private static from_fractional_coordinates(
-    fractional_q: number,
-    fractional_r: number,
-  ): HexCoordinates {
-    const fractional_s = -fractional_q - fractional_r;
-    let q = Math.round(fractional_q) >> 0;
-    let r = Math.round(fractional_r) >> 0;
-    const s = Math.round(fractional_s) >> 0;
-    const delta_q = Math.abs(fractional_q - q);
-    const delta_r = Math.abs(fractional_r - r);
-    const delta_s = Math.abs(fractional_s - s);
-    if (delta_q > delta_r && delta_q > delta_s) {
-      q = -r - s;
-    } else if (delta_r > delta_s) {
-      r = -q - s;
-    }
-    return new HexCoordinates(q, r);
-  }
-
-  /**
-   * @param {HexDistance} [translation] - How far to move the hex.
-   * @returns {HexCoordinates} - The hex after translation.
-   */
-  public translate(translation: HexDistance): HexCoordinates {
-    this.q += translation.q;
-    this.r += translation.r;
-    return this;
-  }
-
-  /**
-   * Returns a new hex, translated a distance from the original hex.
-   * @param {HexCoordinates} [center] - A distance.
-   * @param {HexDistance} [translation] - Another distance.
-   * @returns {HexCoordinates} - A new translated hex.
-   */
-  public static translate(
-    center: HexCoordinates,
-    translation: HexDistance,
-  ): HexCoordinates {
-    return center.clone().translate(translation);
-  }
-
-  /**
-   * Calculates vector pointing from this hex to another hex.
-   * @param {HexCoordinates} [hex] - The other hex.
-   * @returns {HexDistance} - A vector pointing from this hex to the other.
-   */
-  public distance_to(hex: HexCoordinates): HexDistance {
-    return new HexDistance(hex.q - this.q, hex.r - this.r);
-  }
-
-  /**
-   * Calculates vector pointing from the origin hex to this one.
-   * @returns {HexDistance} - A vector pointing from hex1 to hex2
-   */
-  public distance_from_origin(): HexDistance {
-    return new HexDistance(this.q, this.r);
-  }
-
-  /**
-   * Which wedge does the hex belong in?
-   * @returns {HexDirection} - The direction of the wedge.
-   */
-  private wedge(): HexDirection {
-    let hex_wedge;
-    if (
-      Math.abs(this.q) >= Math.abs(this.r) &&
-      Math.abs(this.q) > Math.abs(this.s())
-    ) {
-      hex_wedge = this.q >= 0 ? HexDirection.E : HexDirection.W;
-    } else if (Math.abs(this.r) >= Math.abs(this.s())) {
-      hex_wedge = this.r > 0 ? HexDirection.NW : HexDirection.SE;
-    } else {
-      hex_wedge =
-        this.s() > 0 ? HexDirection.SW : HexDirection.NE;
-    }
-    return hex_wedge;
-  }
-
-  /**
-   * Rotates the hex around the origin n times 60 degrees counter clockwise.
-   * @param {number} [n] - The number of 60 degree rotations (can be negative).
-   * @returns {HexCoordinates} - The hex after rotation.
-   * @throws if the number of sector rotations is not integral.
-   */
-  public hex_sector_rotation(n: number): HexCoordinates {
-    if (!Number.isInteger(n)) {
-      throw new Error('Number of wedges must be integral.');
-    }
-    n %= 6;
-    if (n === 0) return this;
-    n = n < 0 ? n + 6 : n;
-    const sign_shift = 1 - (n % 2) * 2;
-    const coordinate_shift = n % 3;
-    const coordinates: number[] = [this.q, this.r, this.s()];
-    this.q = sign_shift * coordinates[coordinate_shift];
-    this.r = sign_shift * coordinates[(1 + coordinate_shift) % 3];
-    return this;
-  }
-
-  /**
-   * Rotates the vector n hexes counter clockwise.
-   * @param {number} [n] - The number of counter clockwise steps (can be negative).
-   * @returns {HexCoordinates} - The vector after rotation.
-   * @throws if the number of steps is not integral.
-   */
-  public step_rotation(n: number) {
-    if (!Number.isInteger(n)) {
-      throw new Error('Number of steps must be integral.');
-    }
-    if (n === 0) return;
-    const hexes_per_sector = this.distance_from_origin().manhattan();
-    if (hexes_per_sector === 0) return;
-    const circumference = 6 * hexes_per_sector;
-    n %= circumference;
-    n = n < 0 ? n + circumference : n; // 0 <= n < circumference
-    n -= this.rotate_to_corner(n);
-    const sector_rotations = Math.trunc(n / hexes_per_sector);
-    this.hex_sector_rotation(sector_rotations);
-    n -= sector_rotations * hexes_per_sector;
-    this.translate(
-      horizontal_direction_to_hex_distance(
-        wedge_edge_direction(this.wedge()),
-      ).multiply(n),
-    );
-  }
-
-  /** Rotates counter clockwise until either a corner is reached or max_steps
-   * steps has been taken */
-  private rotate_to_corner(max_steps: number): number {
-    // Rotate hex wise until a corner is reached
-    const direction = wedge_edge_direction(this.wedge());
-    let steps_taken: number = 0;
-    switch (direction) {
-      case HexDirection.NE:
-      case HexDirection.SW:
-        steps_taken = Math.min(Math.abs(this.s()), max_steps);
-        break;
-      case HexDirection.N:
-      case HexDirection.S:
-        steps_taken = Math.min(Math.abs(this.r), max_steps);
-        break;
-      case HexDirection.NW:
-      case HexDirection.SE:
-        steps_taken = Math.min(Math.abs(this.q), max_steps);
-        break;
-    }
-    this.translate(
-      horizontal_direction_to_hex_distance(direction).multiply(steps_taken),
-    );
-    return steps_taken;
   }
 }
