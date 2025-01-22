@@ -1,105 +1,3 @@
-import Vector2D, { Vector2DLike } from '../Vector2D';
-
-const sqrt3over2 = 0.5 * Math.sqrt(3);
-
-/**
- * @property {Horizontal} - Hexes have horizontal top and bottom edges and the r-axis is aligned with the y-axis.
- * @property {Vertical} - Hexes have vertical side edges and the q-axis is aligned with the x-axis.
- */
-export enum HexLayout {
-  Horizontal,
-  Vertical,
-}
-
-function from_vertical_into_horizontal_vector2d(vec2d: Vector2DLike): Vector2D {
-  return new Vector2D(
-    sqrt3over2 * vec2d.x + 0.5 * vec2d.y,
-    -0.5 * vec2d.x + sqrt3over2 * vec2d.y,
-  );
-}
-
-function from_horizontal_into_vertical_vector2d(vec2d: Vector2DLike): Vector2D {
-  return new Vector2D(
-    sqrt3over2 * vec2d.x - 0.5 * vec2d.y,
-    0.5 * vec2d.x + sqrt3over2 * vec2d.y,
-  );
-}
-
-/**
- * Enum of all possible directions.
- */
-export enum HexDirection {
-  E,
-  NE,
-  N,
-  NW,
-  W,
-  SW,
-  S,
-  SE,
-}
-
-function wedge_edge_direction(wedge: HexDirection): HexDirection {
-  switch (wedge) {
-    case HexDirection.SE:
-      return HexDirection.NE;
-    case HexDirection.E:
-      return HexDirection.N;
-    case HexDirection.NE:
-      return HexDirection.NW;
-    case HexDirection.NW:
-      return HexDirection.SW;
-    case HexDirection.W:
-      return HexDirection.S;
-    case HexDirection.SW:
-      return HexDirection.SE;
-    default:
-      throw new Error('Invalid horizontal wedge.');
-  }
-}
-
-function horizontal_direction_to_hex_distance(
-  direction: HexDirection,
-): HexDistance {
-  switch (direction) {
-    case HexDirection.NE:
-      return new HexDistance(1, 0);
-    case HexDirection.N:
-      return new HexDistance(0, 1);
-    case HexDirection.NW:
-      return new HexDistance(-1, 1);
-    case HexDirection.SW:
-      return new HexDistance(-1, 0);
-    case HexDirection.S:
-      return new HexDistance(0, -1);
-    case HexDirection.SE:
-      return new HexDistance(1, -1);
-    default:
-      throw new Error('Invalid horizontal direction');
-  }
-}
-
-function vertical_direction_to_hex_distance(
-  direction: HexDirection,
-): HexDistance {
-  switch (direction) {
-    case HexDirection.E:
-      return new HexDistance(1, -1);
-    case HexDirection.NE:
-      return new HexDistance(1, 0);
-    case HexDirection.NW:
-      return new HexDistance(0, 1);
-    case HexDirection.W:
-      return new HexDistance(-1, 1);
-    case HexDirection.SW:
-      return new HexDistance(-1, 0);
-    case HexDirection.SE:
-      return new HexDistance(0, -1);
-    default:
-      throw new Error('Invalid vertical direction');
-  }
-}
-
 /**
  * A vector pointing at a specific hex identified by the first two cube
  * coordinates: q and r. Internally, the VectorHex always assumes as horizontal
@@ -156,29 +54,7 @@ export class HexCoordinates extends HexGeneric {
     return new HexCoordinates(this.q, this.r);
   }
 
-  /**
-   * @param {Vector2DLike} vec - Any object with a x- and y-coordinate.
-   * @returns {HexCoordinates} - Hex coordinates of the hex that (x,y) is inside.
-   * @throws if an invalid hex grid orientation is supplied.
-   */
-  public static from_vector2D(
-    vec: Vector2DLike,
-    orientation: HexLayout = HexLayout.Horizontal,
-    size = 1,
-  ): HexCoordinates {
-    let vec_horizontal = new Vector2D(vec.x / size, vec.y / size);
-    if (orientation === HexLayout.Vertical) {
-      vec_horizontal = from_vertical_into_horizontal_vector2d(vec_horizontal);
-    }
-    const fractional_q = vec_horizontal.x / sqrt3over2;
-    const fractional_r = vec_horizontal.y - 0.5 * fractional_q;
-    return HexCoordinates.from_fractional_coordinates(
-      fractional_q,
-      fractional_r,
-    );
-  }
-
-  private static from_fractional_coordinates(
+  public static from_fractional_coordinates(
     fractional_q: number,
     fractional_r: number,
   ): HexCoordinates {
@@ -236,24 +112,28 @@ export class HexCoordinates extends HexGeneric {
   public distance_from_origin(): HexDistance {
     return new HexDistance(this.q, this.r);
   }
-
   /**
-   * Which wedge does the hex belong in?
-   * @returns {HexDirection} - The direction of the wedge.
+   * Which direction does the current wedge's edge go in?
+   * @returns {[HexDistance, number]} - The direction of the wedge edge and how many steps are left to reach the next corner counter clockwise.
    */
-  private wedge(): HexDirection {
+  private wedge_edge(): [HexDistance, number] {
     let hex_wedge;
+    let steps_left_to_corner;
     if (
       Math.abs(this.q) >= Math.abs(this.r) &&
       Math.abs(this.q) > Math.abs(this.s())
     ) {
-      hex_wedge = this.q >= 0 ? HexDirection.E : HexDirection.W;
+      hex_wedge = this.q >= 0 ? new HexDistance(0, 1) : new HexDistance(0, -1);
+      steps_left_to_corner = Math.abs(this.r);
     } else if (Math.abs(this.r) >= Math.abs(this.s())) {
-      hex_wedge = this.r > 0 ? HexDirection.NW : HexDirection.SE;
+      hex_wedge = this.r > 0 ? new HexDistance(-1, 0) : new HexDistance(1, 0);
+      steps_left_to_corner = Math.abs(this.s());
     } else {
-      hex_wedge = this.s() > 0 ? HexDirection.SW : HexDirection.NE;
+      hex_wedge =
+        this.s() > 0 ? new HexDistance(1, -1) : new HexDistance(-1, 1);
+      steps_left_to_corner = Math.abs(this.q);
     }
-    return hex_wedge;
+    return [hex_wedge, steps_left_to_corner];
   }
 
   /**
@@ -283,13 +163,13 @@ export class HexCoordinates extends HexGeneric {
    * @returns {HexCoordinates} - The vector after rotation.
    * @throws if the number of steps is not integral.
    */
-  public step_rotation(n: number) {
+  public step_rotation(n: number): HexCoordinates {
     if (!Number.isInteger(n)) {
       throw new Error('Number of steps must be integral.');
     }
-    if (n === 0) return;
+    if (n === 0) return this;
     const hexes_per_sector = this.distance_from_origin().manhattan();
-    if (hexes_per_sector === 0) return;
+    if (hexes_per_sector === 0) return this;
     const circumference = 6 * hexes_per_sector;
     n %= circumference;
     n = n < 0 ? n + circumference : n; // 0 <= n < circumference
@@ -297,37 +177,20 @@ export class HexCoordinates extends HexGeneric {
     const sector_rotations = Math.trunc(n / hexes_per_sector);
     this.hex_sector_rotation(sector_rotations);
     n -= sector_rotations * hexes_per_sector;
-    this.translate(
-      horizontal_direction_to_hex_distance(
-        wedge_edge_direction(this.wedge()),
-      ).multiply(n),
-    );
+    let [wedge_edge, steps] = this.wedge_edge();
+    this.translate(wedge_edge.multiply(n));
+    return this;
   }
 
   /** Rotates counter clockwise until either a corner is reached or max_steps
    * steps has been taken */
   private rotate_to_corner(max_steps: number): number {
     // Rotate hex wise until a corner is reached
-    const direction = wedge_edge_direction(this.wedge());
-    let steps_taken: number = 0;
-    switch (direction) {
-      case HexDirection.NE:
-      case HexDirection.SW:
-        steps_taken = Math.min(Math.abs(this.s()), max_steps);
-        break;
-      case HexDirection.N:
-      case HexDirection.S:
-        steps_taken = Math.min(Math.abs(this.r), max_steps);
-        break;
-      case HexDirection.NW:
-      case HexDirection.SE:
-        steps_taken = Math.min(Math.abs(this.q), max_steps);
-        break;
-    }
-    this.translate(
-      horizontal_direction_to_hex_distance(direction).multiply(steps_taken),
-    );
-    return steps_taken;
+    const [direction, steps_left_to_corner] = this.wedge_edge();
+    const steps = Math.min(max_steps, steps_left_to_corner);
+    direction.multiply(steps);
+    this.translate(direction);
+    return steps;
   }
 }
 
@@ -353,60 +216,11 @@ export class HexDistance extends HexGeneric {
     }
   }
 
-  /** One step in all possible directions in a hex grid. */
-  public static readonly ALL_UNIT_DISTANCES: HexDistance[] = [
-    horizontal_direction_to_hex_distance(HexDirection.NE),
-    horizontal_direction_to_hex_distance(HexDirection.N),
-    horizontal_direction_to_hex_distance(HexDirection.NW),
-    horizontal_direction_to_hex_distance(HexDirection.SW),
-    horizontal_direction_to_hex_distance(HexDirection.S),
-    horizontal_direction_to_hex_distance(HexDirection.SE),
-  ];
-
   /**
    * @returns {HexDistance} - A new identical VectorHex.
    */
   public clone(): HexDistance {
     return new HexDistance(this.q, this.r);
-  }
-
-  /**
-   * @param direction - A direction on the hex grid.
-   * @param layout - The orientation of the hex grid.
-   * @returns a distance of one hex corresponding to the direction.
-   * @throws if the direction is invalid.
-   */
-  public static from_direction(
-    direction: HexDirection,
-    layout: HexLayout,
-  ): HexDistance {
-    if (layout === HexLayout.Vertical) {
-      return vertical_direction_to_hex_distance(direction);
-    }
-    return horizontal_direction_to_hex_distance(direction);
-  }
-
-  /**
-   * @param {HexLayout} layout - Determines the hex grid axis alignment.
-   * @param {number=1} [size=1] - The distance between two adjacent hexes.
-   * @returns {Vector2D} - A vector pointing from the origin to the center of the hex.
-   * @throws if the size is not positive or an invalid orientation is supplied.
-   */
-  public into_vector2d(
-    layout: HexLayout = HexLayout.Horizontal,
-    size: number = 1,
-  ): Vector2D {
-    if (size <= 0) {
-      throw new Error('Hex size must be positive.');
-    }
-    let vec2d = new Vector2D(
-      size * sqrt3over2 * this.q,
-      size * (0.5 * this.q + this.r),
-    );
-    if (layout === HexLayout.Vertical) {
-      vec2d = from_horizontal_into_vertical_vector2d(vec2d);
-    }
-    return vec2d;
   }
 
   /**

@@ -1,14 +1,46 @@
 import { HexDistance, HexCoordinates } from './HexVectors';
+import Vector2D, { Vector2DLike } from '../Vector2D';
+
+const sqrt3over2 = 0.5 * Math.sqrt(3);
 
 export type HexGridGuard = (hex: HexCoordinates) => boolean;
 
+/** One step in all possible directions in a horizontal hex grid. */
+export class HorizontalLayout {
+  public static readonly NE = new HexDistance(1, 0);
+  public static readonly N = new HexDistance(0, 1);
+  public static readonly NW = new HexDistance(-1, 1);
+  public static readonly SW = new HexDistance(-1, 0);
+  public static readonly S = new HexDistance(0, -1);
+  public static readonly SE = new HexDistance(1, -1);
+}
+/** One step in all possible directions in a vertical hex grid. */
+export class VerticalLayout {
+  public static readonly E = new HexDistance(1, -1);
+  public static readonly NE = new HexDistance(1, 0);
+  public static readonly NW = new HexDistance(0, 1);
+  public static readonly S = new HexDistance(-1, 1);
+  public static readonly SW = new HexDistance(-1, 0);
+  public static readonly SE = new HexDistance(0, -1);
+}
+
 export default class HexGrid {
+  public readonly ALL_UNIT_DISTANCES = [
+    HorizontalLayout.NE,
+    HorizontalLayout.N,
+    HorizontalLayout.NW,
+    HorizontalLayout.SW,
+    HorizontalLayout.S,
+    HorizontalLayout.SE,
+  ];
+
   /**
    * Represents a hex grid.
    * @param grid_guard - A function that returns true if a hex is part of the grid. Default is an infinite grid.
    */
   constructor(
     public grid_guard: HexGridGuard = (hex: HexCoordinates) => true,
+    public layout: HorizontalLayout | VerticalLayout = HorizontalLayout,
   ) {}
 
   /**
@@ -18,6 +50,59 @@ export default class HexGrid {
    */
   public is_hex_in_grid(hex: HexCoordinates): boolean {
     return this.grid_guard(hex);
+  }
+
+  /**
+   * @param {Vector2DLike} vec - Vector pointing from the origin.
+   * @param {number} [scale=1] - The distance between two adjacent hexes.
+   * @returns {HexCoordinates} - Hex coordinates of the hex that (x,y) is inside.
+   * @throws if an invalid hex grid orientation is supplied.
+   */
+  public hex_coordinates_from_vector2d(
+    vec: Vector2DLike,
+    scale = 1,
+  ): HexCoordinates {
+    let vec2d = new Vector2D(vec.x / scale, vec.y / scale);
+
+    if (this.layout === VerticalLayout) {
+      vec2d = new Vector2D(
+        sqrt3over2 * vec2d.x + 0.5 * vec2d.y,
+        -0.5 * vec2d.x + sqrt3over2 * vec2d.y,
+      );
+    }
+    const fractional_q = vec2d.x / sqrt3over2;
+    const fractional_r = vec2d.y - 0.5 * fractional_q;
+    return HexCoordinates.from_fractional_coordinates(
+      fractional_q,
+      fractional_r,
+    );
+  }
+
+  /**
+   * Calculates a normal vector from a distance given in hex coordinates
+   * @param {HexDistance} distance - Distance in hex coordinates.
+   * @param {number} [scale=1] - The distance between two adjacent hexes.
+   * @returns {Vector2D} - A vector pointing from the origin to the center of the hex.
+   * @throws if the size is not positive or an invalid orientation is supplied.
+   */
+  public vector2d_from_hex_distance(
+    distance: HexDistance,
+    scale: number = 1,
+  ): Vector2D {
+    if (scale <= 0) {
+      throw new Error('Hex size must be positive.');
+    }
+    let vec2d = new Vector2D(
+      scale * sqrt3over2 * distance.q,
+      scale * (0.5 * distance.q + distance.r),
+    );
+    if (this.layout === VerticalLayout) {
+      vec2d = new Vector2D(
+        sqrt3over2 * vec2d.x - 0.5 * vec2d.y,
+        0.5 * vec2d.x + sqrt3over2 * vec2d.y,
+      );
+    }
+    return vec2d;
   }
 
   /**
@@ -64,7 +149,7 @@ export default class HexGrid {
     while (steps-- > 0) {
       path_heads.push([]);
       for (const path_head of path_heads[path_heads.length - 2]) {
-        for (const direction of HexDistance.ALL_UNIT_DISTANCES) {
+        for (const direction of this.ALL_UNIT_DISTANCES) {
           let hex = HexCoordinates.translate(path_head, direction);
           if (visited.some((h) => h.equals(hex))) {
             continue;
