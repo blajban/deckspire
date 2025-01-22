@@ -49,7 +49,7 @@ export class World {
         parentComp.children = parentComp.children.filter((e) => e !== entity);
       }
     }
-  
+
     // Remove all components
     const components = this.componentStore.getComponentsForEntity(entity);
 
@@ -77,9 +77,11 @@ export class World {
     const componentType = component.constructor.name;
 
     if (componentType === CompParent.name || componentType === CompChild.name) {
-      throw new Error(`Add ${componentType} through the addParentChildRelationship() function.`)
+      throw new Error(
+        `Add ${componentType} through the addParentChildRelationship() function.`,
+      );
     }
-  
+
     this.componentStore.addComponent(entity, component);
   }
 
@@ -94,8 +96,10 @@ export class World {
     entity: Entity,
     componentClass: new (...args: any[]) => T,
   ) {
-    const componentType = this.componentStore.getRegisteredComponentClass(componentClass.name);
-    
+    const componentType = this.componentStore.getRegisteredComponentClass(
+      componentClass.name,
+    );
+
     if (componentType == CompParent) {
       const parentComp = this.getComponent(entity, CompParent);
       if (parentComp) {
@@ -107,7 +111,7 @@ export class World {
         }
       }
     }
-    
+
     if (componentType == CompChild) {
       const childComp = this.getComponent(entity, CompChild);
       if (childComp) {
@@ -118,7 +122,7 @@ export class World {
         }
       }
     }
-    
+
     this.componentStore.removeComponent(entity, componentClass);
   }
 
@@ -143,7 +147,7 @@ export class World {
    * - Adds the `childEntity` as a child of the `parentEntity`.
    * - Ensures no cyclic relationships are created in the hierarchy.
    * - Automatically adds the required `CompParent` and `CompChild` components if they don't exist.
-   * 
+   *
    * @param parentEntity - The entity to become the parent.
    * @param childEntity - The entity to become the child.
    * @throws Will throw an error if:
@@ -153,7 +157,7 @@ export class World {
   addParentChildRelationship(parentEntity: Entity, childEntity: Entity) {
     if (this.isAncestor(parentEntity, childEntity)) {
       throw new Error(
-        `Cannot add Entity ${childEntity} as a child of Entity ${parentEntity}: it would create a cyclic relationship.`
+        `Cannot add Entity ${childEntity} as a child of Entity ${parentEntity}: it would create a cyclic relationship.`,
       );
     }
 
@@ -167,10 +171,8 @@ export class World {
 
     const childComp = this.getComponent(childEntity, CompChild);
     if (childComp) {
-      throw new Error(`Entity ${childEntity} already has a parent.`)
+      throw new Error(`Entity ${childEntity} already has a parent.`);
     }
-
-    
 
     this.componentStore.addComponent(childEntity, new CompChild(parentEntity));
   }
@@ -185,7 +187,10 @@ export class World {
     let currentEntity: Entity | null = entity;
 
     while (currentEntity !== null) {
-      const childComp: CompChild | undefined = this.getComponent(currentEntity, CompChild);
+      const childComp: CompChild | undefined = this.getComponent(
+        currentEntity,
+        CompChild,
+      );
       if (!childComp) return false;
 
       if (childComp.parent === potentialAncestor) return true;

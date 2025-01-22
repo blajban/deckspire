@@ -5,7 +5,7 @@ import { World } from '../engine/core/World';
 export default class ParentChildExampleSystem extends System {
   update(world: World, time: number, delta: number) {
     const parents = world.getEntitiesWithComponent(CompParent);
-    
+
     for (const parent of parents) {
       const parentComp = world.getComponent(parent, CompParent);
 
