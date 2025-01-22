@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import ComponentStore from './engine/core/ComponentStore';
-import { Position } from './engine/components/Position';
-import { Rotation } from './engine/components/Rotation';
+import { CompPosition } from './engine/components/CompPosition';
+import { CompRotation } from './engine/components/CompRotation';
 import EntityStore from './engine/core/EntityStore';
 import { World } from './engine/core/World';
 import { loadJsonFile } from './engine/util/file';
@@ -18,8 +18,8 @@ class MainScene extends Phaser.Scene {
   preload() {
     // Load assets
 
-    this.world.registerComponent(Position);
-    this.world.registerComponent(Rotation);
+    this.world.registerComponent(CompPosition);
+    this.world.registerComponent(CompRotation);
 
     loadJsonFile('/world.json')
     .then((data) => {
@@ -69,7 +69,7 @@ class MainScene extends Phaser.Scene {
   }
 
   update(time: number, delta: number) {
-    console.log(this.world.getEntitiesWithArchetype(Position));
+    console.log(this.world.getEntitiesWithArchetype(CompPosition));
   }
 }
 

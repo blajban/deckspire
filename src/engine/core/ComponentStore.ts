@@ -1,6 +1,6 @@
 import { Component } from "./Component";
 import ComponentMap from "./ComponentMap";
-import { Entity } from "./EntityStore";
+import { Entity } from "./Entity";
 
 /**
  * The ComponentStore manages all components.

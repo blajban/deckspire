@@ -1,6 +1,6 @@
 import { Component } from '../../src/engine/core/Component';
 import ComponentMap from '../../src/engine/core/ComponentMap';
-import { Entity } from '../../src/engine/core/EntityStore';
+import { Entity } from '../../src/engine/core/Entity';
 
 
 

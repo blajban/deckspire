@@ -1,5 +1,5 @@
 import { Component } from "./Component";
-import { Entity } from "./EntityStore";
+import { Entity } from "./Entity";
 
 /**
  * Manages components of a specific type for entities.

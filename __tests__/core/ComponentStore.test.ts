@@ -1,6 +1,6 @@
 import { Component } from "../../src/engine/core/Component";
 import ComponentStore from "../../src/engine/core/ComponentStore";
-import { Entity } from "../../src/engine/core/EntityStore";
+import { Entity } from "../../src/engine/core/Entity";
 
 class MockComponent extends Component {
   constructor(public value: number) {

@@ -4,12 +4,16 @@ import EntityStore from '../../src/engine/core/EntityStore';
 import { World } from '../../src/engine/core/World';
 
 
-class MockComponent implements Component {
-  constructor(public value: number) {}
+class MockComponent extends Component {
+  constructor(public value: number) {
+    super();
+  }
 }
 
-class AnotherMockComponent implements Component {
-  constructor(public value: number) {}
+class AnotherMockComponent extends Component {
+  constructor(public value: number) {
+    super();
+  }
 }
 
 describe('World', () => {

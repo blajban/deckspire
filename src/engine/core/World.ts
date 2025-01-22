@@ -1,6 +1,7 @@
 import { Component } from './Component';
 import ComponentStore from './ComponentStore';
-import EntityStore, { Entity } from './EntityStore';
+import { Entity } from './Entity';
+import EntityStore  from './EntityStore';
 
 export class World {
   private entityStore: EntityStore;

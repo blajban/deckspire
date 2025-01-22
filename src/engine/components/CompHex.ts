@@ -1,6 +1,6 @@
 import { HexCoordinates } from '../../math/hexgrid/HexVectors';
 import { Component } from '../core/Component';
-import { Entity } from '../core/EntityStore';
+import { Entity } from '../core/Entity';
 
 /**
  * Represents a hex in a hex grid.
