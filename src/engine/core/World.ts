@@ -145,7 +145,7 @@ export class World {
    * - The `childEntity` already has a parent.
    */
   addParentChildRelationship(parentEntity: Entity, childEntity: Entity) {
-    if (this.isAncestor(childEntity, parentEntity)) {
+    if (this.isAncestor(parentEntity, childEntity)) {
       throw new Error(
         `Cannot add Entity ${childEntity} as a child of Entity ${parentEntity}: it would create a cyclic relationship.`
       );
@@ -163,6 +163,8 @@ export class World {
     if (childComp) {
       throw new Error(`Entity ${childEntity} already has a parent.`)
     }
+
+    
 
     this.addComponent(childEntity, new CompChild(parentEntity));
   }

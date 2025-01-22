@@ -71,33 +71,40 @@ class MainScene extends Phaser.Scene {
 
     // Need a convenience function to make sure we make a pair!
 
-    const parent = this.world.newEntity();
+/*     const parent = this.world.newEntity();
   
     const child1 = this.world.newEntity();
     const child2 = this.world.newEntity();
     const child3 = this.world.newEntity();
-    const child4 = this.world.newEntity();
+    const child4 = this.world.newEntity(); */
 
-    this.world.addParentChildRelationship(parent, child1);
+/*     this.world.addParentChildRelationship(parent, child1);
     this.world.addParentChildRelationship(parent, child2);
     this.world.addParentChildRelationship(parent, child3);
-    this.world.addParentChildRelationship(parent, child4);
+    this.world.addParentChildRelationship(parent, child4); */
 
     //this.world.removeComponent(child1, CompChild);
     //this.world.removeComponent(parent, CompParent);
     //this.world.removeComponent(child2, CompChild);
     
-    this.world.removeEntity(child1);
+/*     this.world.removeEntity(child1);
     this.world.removeEntity(child2);
     
     this.world.removeEntity(parent, true);
-    console.log(this.world.getAllEntities());
+    console.log(this.world.getAllEntities()); */
+
+    // cyclic relations
+    const entity1 = this.world.newEntity();
+    const entity2 = this.world.newEntity();
+  
+    this.world.addParentChildRelationship(entity1, entity2);
+    this.world.addParentChildRelationship(entity2, entity1);
   }
 
   update(time: number, delta: number) {
     //console.log(this.world.getEntitiesWithArchetype(CompPosition));
 
-    this.parentChildExampleSystem.update(this.world, time, delta);
+   /*  this.parentChildExampleSystem.update(this.world, time, delta);
 
     const children = this.world.getEntitiesWithComponent(CompChild);
 
@@ -105,7 +112,7 @@ class MainScene extends Phaser.Scene {
       const childComp = this.world.getComponent(child, CompChild);
 
       console.log(`Child #${child} has parent ${childComp?.parent}`);
-    }
+    } */
 
   }
 }
