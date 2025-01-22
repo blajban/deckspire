@@ -2,24 +2,24 @@ import {
   HexLayout,
   HexDirection,
   HexDistance,
-  HexPosition,
+  HexCoordinates,
 } from '../../../src/math/hexgrid/HexVectors';
 
 const FLOAT_DIGITS: number = 8;
 
 describe('Creating Hexes', () => {
   test('Using ctors', () => {
-    const vec1 = new HexPosition(1, 2);
+    const vec1 = new HexCoordinates(1, 2);
     expect(vec1.q).toBe(1);
     expect(vec1.r).toBe(2);
     const dist1 = new HexDistance(1, 2);
     expect(dist1.q).toBe(1);
     expect(dist1.r).toBe(2);
-    const vec2 = new HexPosition(3, 5);
+    const vec2 = new HexCoordinates(3, 5);
     const dist2 = new HexDistance(vec1, vec2);
     expect(dist2.q).toBe(2);
     expect(dist2.r).toBe(3);
-    expect(() => new HexPosition(1.2, 2.9)).toThrow(
+    expect(() => new HexCoordinates(1.2, 2.9)).toThrow(
       'Hex coordinates must be integers.',
     );
     expect(() => new HexDistance(1.2, 2.9)).toThrow(
@@ -27,7 +27,7 @@ describe('Creating Hexes', () => {
     );
   });
   test('By cloning', () => {
-    const clone1 = new HexPosition(3, 7).clone();
+    const clone1 = new HexCoordinates(3, 7).clone();
     expect(clone1.q).toBe(3);
     expect(clone1.r).toBe(7);
     const clone2 = new HexDistance(3, 7).clone();
@@ -36,46 +36,46 @@ describe('Creating Hexes', () => {
   });
   test('HexPosition from Vector2D', () => {
     let vec;
-    vec = HexPosition.from_vector2D({ x: 0, y: 0 });
+    vec = HexCoordinates.from_vector2D({ x: 0, y: 0 });
     expect(vec.q).toBe(0);
     expect(vec.r).toBe(0);
-    vec = HexPosition.from_vector2D({ x: 0.5, y: 0.5 });
+    vec = HexCoordinates.from_vector2D({ x: 0.5, y: 0.5 });
     expect(vec.q).toBe(1);
     expect(vec.r).toBe(0);
-    vec = HexPosition.from_vector2D({ x: -0.5, y: -0.5 });
+    vec = HexCoordinates.from_vector2D({ x: -0.5, y: -0.5 });
     expect(vec.q).toBe(-1);
     expect(vec.r).toBe(0);
-    vec = HexPosition.from_vector2D({ x: -0.5, y: 0.5 });
+    vec = HexCoordinates.from_vector2D({ x: -0.5, y: 0.5 });
     expect(vec.q).toBe(-1);
     expect(vec.r).toBe(1);
-    vec = HexPosition.from_vector2D({ x: 0.5, y: -0.5 });
+    vec = HexCoordinates.from_vector2D({ x: 0.5, y: -0.5 });
     expect(vec.q).toBe(1);
     expect(vec.r).toBe(-1);
-    vec = HexPosition.from_vector2D({
+    vec = HexCoordinates.from_vector2D({
       x: (1 / Math.sqrt(3)) * Math.cos(Math.PI / 3) - 0.001,
       y: (1 / Math.sqrt(3)) * Math.sin(Math.PI / 3) + 0.001,
     });
     expect(vec.q).toBe(0);
     expect(vec.r).toBe(1);
-    vec = HexPosition.from_vector2D({
+    vec = HexCoordinates.from_vector2D({
       x: 1.001 * 0.5 * Math.cos(Math.PI / 6),
       y: 1.001 * 0.5 * Math.sin(Math.PI / 6),
     });
     expect(vec.q === 1).toBeTruthy();
     expect(vec.r === 0).toBeTruthy();
-    vec = HexPosition.from_vector2D({
+    vec = HexCoordinates.from_vector2D({
       x: 0.999 * 0.5 * Math.cos(Math.PI / 6),
       y: 0.999 * 0.5 * Math.sin(Math.PI / 6),
     });
     expect(vec.q === 0).toBeTruthy();
     expect(vec.r === 0).toBeTruthy();
-    vec = HexPosition.from_vector2D({
+    vec = HexCoordinates.from_vector2D({
       x: 2 * Math.cos(Math.PI / 3),
       y: 2 * Math.sin(Math.PI / 3),
     });
     expect(vec.q === 1).toBeTruthy();
     expect(vec.r === 1).toBeTruthy();
-    vec = HexPosition.from_vector2D(
+    vec = HexCoordinates.from_vector2D(
       {
         x: 2 * Math.cos(Math.PI / 3),
         y: 2 * Math.sin(Math.PI / 3),
@@ -86,11 +86,53 @@ describe('Creating Hexes', () => {
     expect(vec.r === 0).toBeTruthy();
   });
   test('HexDistance from HexPosition', () => {
-    const hex1 = new HexPosition(1, 2);
-    const hex2 = new HexPosition(3, 4);
+    const hex1 = new HexCoordinates(1, 2);
+    const hex2 = new HexCoordinates(3, 4);
     const distance = hex1.distance_to(hex2);
     expect(distance.q).toBe(2);
     expect(distance.r).toBe(2);
+  });
+  test('HexDistance from horizontal directions', () => {
+    let vec;
+    vec = HexDistance.from_direction(HexDirection.NE, HexLayout.Horizontal);
+    expect(vec.q).toBe(1);
+    expect(vec.r).toBe(0);
+    vec = HexDistance.from_direction(HexDirection.N, HexLayout.Horizontal);
+    expect(vec.q).toBe(0);
+    expect(vec.r).toBe(1);
+    vec = HexDistance.from_direction(HexDirection.NW, HexLayout.Horizontal);
+    expect(vec.q).toBe(-1);
+    expect(vec.r).toBe(1);
+    vec = HexDistance.from_direction(HexDirection.SW, HexLayout.Horizontal);
+    expect(vec.q).toBe(-1);
+    expect(vec.r).toBe(0);
+    vec = HexDistance.from_direction(HexDirection.S, HexLayout.Horizontal);
+    expect(vec.q).toBe(0);
+    expect(vec.r).toBe(-1);
+    vec = HexDistance.from_direction(HexDirection.SE, HexLayout.Horizontal);
+    expect(vec.q).toBe(1);
+    expect(vec.r).toBe(-1);
+  });
+  test('HexDistance from vertical directions', () => {
+    let vec;
+    vec = HexDistance.from_direction(HexDirection.E, HexLayout.Vertical);
+    expect(vec.q).toBe(1);
+    expect(vec.r).toBe(-1);
+    vec = HexDistance.from_direction(HexDirection.NE, HexLayout.Vertical);
+    expect(vec.q).toBe(1);
+    expect(vec.r).toBe(0);
+    vec = HexDistance.from_direction(HexDirection.NW, HexLayout.Vertical);
+    expect(vec.q).toBe(0);
+    expect(vec.r).toBe(1);
+    vec = HexDistance.from_direction(HexDirection.W, HexLayout.Vertical);
+    expect(vec.q).toBe(-1);
+    expect(vec.r).toBe(1);
+    vec = HexDistance.from_direction(HexDirection.SW, HexLayout.Vertical);
+    expect(vec.q).toBe(-1);
+    expect(vec.r).toBe(0);
+    vec = HexDistance.from_direction(HexDirection.SE, HexLayout.Vertical);
+    expect(vec.q).toBe(0);
+    expect(vec.r).toBe(-1);
   });
 });
 
@@ -174,6 +216,18 @@ describe('Converting HexDistance into Vector2D', () => {
 });
 
 describe('Arithmetics', () => {
+  it('should negate a distance using static method', () => {
+    const hex = new HexDistance(3, 5);
+    const neg = HexDistance.neg(hex);
+    expect(neg.q).toBe(-3);
+    expect(neg.r).toBe(-5);
+  });
+  it('should negate a distance using non-static method', () => {
+    const hex = new HexDistance(3, 5);
+    hex.neg();
+    expect(hex.q).toBe(-3);
+    expect(hex.r).toBe(-5);
+  });
   test('Addition of distances using static method', () => {
     const hex1 = new HexDistance(3, 5);
     const hex2 = new HexDistance(4, 7);
@@ -236,179 +290,105 @@ describe('Arithmetics', () => {
       FLOAT_DIGITS,
     );
   });
+  test('Multiplication by scalar using static method', () => {
+    const hex1 = new HexDistance(3, 5);
+    const hex2 = HexDistance.multiply(hex1, 2);
+    expect(hex2.q).toBe(6);
+    expect(hex2.r).toBe(10);
+    expect(() => HexDistance.multiply(hex1, 0.5)).toThrow('must be integral');
+  });
+  test('Multiplication by scalar using non-static method', () => {
+    const hex = new HexDistance(3, 5);
+    hex.multiply(2);
+    expect(hex.q).toBe(6);
+    expect(hex.r).toBe(10);
+    expect(()=>hex.multiply(0.5)).toThrow('must be integral');
+  });
 });
 
 describe('Hex grid operations and calculations.', () => {
-  test('Manhattan distance', () => {
-    const hex1 = new HexPosition(3, -1);
-    const hex2 = new HexPosition(-2, 1);
+  it('should return the Manhattan distance', () => {
+    const hex1 = new HexCoordinates(3, -1);
+    const hex2 = new HexCoordinates(-2, 1);
     expect(new HexDistance(hex1, hex2).manhattan()).toBe(5);
   });
-  test('Hex wedge', () => {
-    expect(new HexPosition(1, -1).wedge()).toBe(HexDirection.East);
-    expect(new HexPosition(1, 0).wedge()).toBe(HexDirection.NorthEast);
-    expect(new HexPosition(0, 1).wedge()).toBe(HexDirection.NorthWest);
-    expect(new HexPosition(-1, 1).wedge()).toBe(HexDirection.West);
-    expect(new HexPosition(-1, 0).wedge()).toBe(HexDirection.SouthWest);
-    expect(new HexPosition(0, -1).wedge()).toBe(HexDirection.SouthEast);
-    expect(new HexPosition(1, -1).wedge(HexLayout.Vertical)).toBe(
-      HexDirection.NorthEast,
-    );
-    expect(new HexPosition(1, 0).wedge(HexLayout.Vertical)).toBe(
-      HexDirection.North,
-    );
-    expect(new HexPosition(0, 1).wedge(HexLayout.Vertical)).toBe(
-      HexDirection.NorthWest,
-    );
-    expect(new HexPosition(-1, 1).wedge(HexLayout.Vertical)).toBe(
-      HexDirection.SouthWest,
-    );
-    expect(new HexPosition(-1, 0).wedge(HexLayout.Vertical)).toBe(
-      HexDirection.South,
-    );
-    expect(new HexPosition(0, -1).wedge(HexLayout.Vertical)).toBe(
-      HexDirection.SouthEast,
-    );
+  it('should translate a hex by a distance using static method', () => {
+    const hex = new HexCoordinates(1, 2);
+    const distance = new HexDistance(3, 4);
+    const result = HexCoordinates.translate(hex, distance);
+    expect(result.q).toBe(4);
+    expect(result.r).toBe(6);
   });
-  test('Single steps in horizontal orientation directions', () => {
-    expect(() =>
-      new HexPosition(0, 0).step_in_direction(HexDirection.North, 0.5),
-    ).toThrow('must be integral');
-    expect(() =>
-      new HexPosition(0, 0).step_in_direction(HexDirection.East),
-    ).toThrow('Invalid');
-    expect(() =>
-      new HexPosition(0, 0).step_in_direction(
-        HexDirection.North,
-        1,
-        HexLayout.Vertical,
-      ),
-    ).toThrow('Invalid');
-    const vec = new HexPosition(0, 0);
-    vec.step_in_direction(HexDirection.North, 1);
-    expect(vec.q).toBe(0);
-    expect(vec.r).toBe(1);
-    vec.step_in_direction(HexDirection.SouthEast, 1);
-    expect(vec.q).toBe(1);
-    expect(vec.r).toBe(0);
-    vec.step_in_direction(HexDirection.SouthWest, 1);
-    expect(vec.q).toBe(0);
-    expect(vec.r).toBe(0);
-    vec.step_in_direction(HexDirection.SouthEast, -1);
-    expect(vec.q).toBe(-1);
-    expect(vec.r).toBe(1);
-    vec.step_in_direction(HexDirection.North, -1);
-    expect(vec.q).toBe(-1);
-    expect(vec.r).toBe(0);
-    vec.step_in_direction(HexDirection.SouthWest, -1);
-    expect(vec.q).toBe(0);
-    expect(vec.r).toBe(0);
-  });
-  test('Single steps in vertical orientation directions', () => {
-    const vec = new HexPosition(0, 0);
-    vec.step_in_direction(HexDirection.East, 1, HexLayout.Vertical);
-    expect(vec.q).toBe(1);
-    expect(vec.r).toBe(-1);
-    vec.step_in_direction(HexDirection.NorthWest, 1, HexLayout.Vertical);
-    expect(vec.q).toBe(1);
-    expect(vec.r).toBe(0);
-    vec.step_in_direction(HexDirection.SouthWest, 1, HexLayout.Vertical);
-    expect(vec.q).toBe(0);
-    expect(vec.r).toBe(0);
-    vec.step_in_direction(HexDirection.NorthWest, -1, HexLayout.Vertical);
-    expect(vec.q).toBe(0);
-    expect(vec.r).toBe(-1);
-    vec.step_in_direction(HexDirection.SouthWest, -1, HexLayout.Vertical);
-    expect(vec.q).toBe(1);
-    expect(vec.r).toBe(-1);
-    vec.step_in_direction(HexDirection.East, -1, HexLayout.Vertical);
-    expect(vec.q).toBe(0);
-    expect(vec.r).toBe(0);
-  });
-  test('Multiple steps in horizontal directions', () => {
-    const vec = new HexPosition(3, -3);
-    vec.step_in_direction(HexDirection.SouthEast, -2);
-    expect(vec.q).toBe(1);
-    expect(vec.r).toBe(-1);
-    vec.step_in_direction(HexDirection.North, 5);
-    expect(vec.q).toBe(1);
-    expect(vec.r).toBe(4);
-  });
-  test('Multiple steps in vertical directions', () => {
-    const vec = new HexPosition(2, 2);
-    vec.step_in_direction(HexDirection.West, 2, HexLayout.Vertical);
-    expect(vec.q).toBe(0);
-    expect(vec.r).toBe(4);
-    vec.step_in_direction(HexDirection.SouthEast, 5, HexLayout.Vertical);
-    expect(vec.q).toBe(0);
-    expect(vec.r).toBe(-1);
-    vec.step_in_direction(HexDirection.NorthEast, 4, HexLayout.Vertical);
-    expect(vec.q).toBe(4);
-    expect(vec.r).toBe(-1);
+  it('should translate a hex by a distance using non-static method', () => {
+    const hex = new HexCoordinates(1, 2);
+    const distance = new HexDistance(3, 4);
+    hex.translate(distance);
+    expect(hex.q).toBe(4);
+    expect(hex.r).toBe(6);
   });
 });
 
 describe('Rotations', () => {
   test('Wedge rotation', () => {
-    expect(() => new HexPosition(0, 0).wedge_rotation(0.5)).toThrow(
+    expect(() => new HexCoordinates(0, 0).hex_sector_rotation(0.5)).toThrow(
       'must be integral',
     );
     let vec;
-    (vec = new HexPosition(3, -2)).wedge_rotation(0);
+    (vec = new HexCoordinates(3, -2)).hex_sector_rotation(0);
     expect(vec.q).toBe(3);
     expect(vec.r).toBe(-2);
-    (vec = new HexPosition(3, -2)).wedge_rotation(1);
+    (vec = new HexCoordinates(3, -2)).hex_sector_rotation(1);
     expect(vec.q).toBe(2);
     expect(vec.r).toBe(1);
-    (vec = new HexPosition(3, -2)).wedge_rotation(2);
+    (vec = new HexCoordinates(3, -2)).hex_sector_rotation(2);
     expect(vec.q).toBe(-1);
     expect(vec.r).toBe(3);
-    (vec = new HexPosition(3, -2)).wedge_rotation(-3);
+    (vec = new HexCoordinates(3, -2)).hex_sector_rotation(-3);
     expect(vec.q).toBe(-3);
     expect(vec.r).toBe(2);
-    (vec = new HexPosition(3, -2)).wedge_rotation(7);
+    (vec = new HexCoordinates(3, -2)).hex_sector_rotation(7);
     expect(vec.q).toBe(2);
     expect(vec.r).toBe(1);
   });
   test('Step rotation', () => {
-    expect(() => new HexPosition(0, 0).step_rotation(0.5)).toThrow(
+    expect(() => new HexCoordinates(0, 0).step_rotation(0.5)).toThrow(
       'must be integral',
     );
     let vec;
-    (vec = new HexPosition(3, -2)).step_rotation(0);
+    (vec = new HexCoordinates(3, -2)).step_rotation(0);
     expect(vec.q).toBe(3);
     expect(vec.r).toBe(-2);
-    (vec = new HexPosition(3, -2)).step_rotation(1);
+    (vec = new HexCoordinates(3, -2)).step_rotation(1);
     expect(vec.q).toBe(3);
     expect(vec.r).toBe(-1);
-    (vec = new HexPosition(3, -2)).step_rotation(2);
+    (vec = new HexCoordinates(3, -2)).step_rotation(2);
     expect(vec.q).toBe(3);
     expect(vec.r).toBe(0);
-    (vec = new HexPosition(3, -2)).step_rotation(3);
+    (vec = new HexCoordinates(3, -2)).step_rotation(3);
     expect(vec.q).toBe(2);
     expect(vec.r).toBe(1);
-    (vec = new HexPosition(3, -2)).step_rotation(4);
+    (vec = new HexCoordinates(3, -2)).step_rotation(4);
     expect(vec.q).toBe(1);
     expect(vec.r).toBe(2);
-    (vec = new HexPosition(-1, 3)).step_rotation(1);
+    (vec = new HexCoordinates(-1, 3)).step_rotation(1);
     expect(vec.q).toBe(-2);
     expect(vec.r).toBe(3);
-    (vec = new HexPosition(-3, 2)).step_rotation(1);
+    (vec = new HexCoordinates(-3, 2)).step_rotation(1);
     expect(vec.q).toBe(-3);
     expect(vec.r).toBe(1);
-    (vec = new HexPosition(-2, -1)).step_rotation(1);
+    (vec = new HexCoordinates(-2, -1)).step_rotation(1);
     expect(vec.q).toBe(-1);
     expect(vec.r).toBe(-2);
-    (vec = new HexPosition(1, -3)).step_rotation(1);
+    (vec = new HexCoordinates(1, -3)).step_rotation(1);
     expect(vec.q).toBe(2);
     expect(vec.r).toBe(-3);
-    (vec = new HexPosition(3, -2)).step_rotation(15);
+    (vec = new HexCoordinates(3, -2)).step_rotation(15);
     expect(vec.q).toBe(1);
     expect(vec.r).toBe(-3);
-    (vec = new HexPosition(3, -2)).step_rotation(24);
+    (vec = new HexCoordinates(3, -2)).step_rotation(24);
     expect(vec.q).toBe(-1);
     expect(vec.r).toBe(3);
-    (vec = new HexPosition(3, -2)).step_rotation(-10);
+    (vec = new HexCoordinates(3, -2)).step_rotation(-10);
     expect(vec.q).toBe(-3);
     expect(vec.r).toBe(3);
   });
