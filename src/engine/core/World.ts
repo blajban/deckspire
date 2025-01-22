@@ -1,7 +1,7 @@
 import { Component } from './Component';
 import ComponentStore from './ComponentStore';
 import { Entity } from './Entity';
-import EntityStore  from './EntityStore';
+import EntityStore from './EntityStore';
 
 export class World {
   private entityStore: EntityStore;
@@ -24,7 +24,9 @@ export class World {
     const components = this.componentStore.getComponentsForEntity(entity);
 
     for (const component of components) {
-      const componentClass = component.constructor as new (...args: any[]) => Component;
+      const componentClass = component.constructor as new (
+        ...args: any[]
+      ) => Component;
       this.componentStore.removeComponent(entity, componentClass);
     }
 
@@ -35,7 +37,9 @@ export class World {
     return this.entityStore.getAllEntities();
   }
 
-  registerComponent<T extends Component>(componentClass: new (...args: any[]) => T) {
+  registerComponent<T extends Component>(
+    componentClass: new (...args: any[]) => T,
+  ) {
     this.componentStore.registerComponent(componentClass);
   }
 
@@ -43,19 +47,29 @@ export class World {
     this.componentStore.addComponent(entity, component);
   }
 
-  getComponent<T extends Component>(entity: Entity, componentClass: new (...args: any[]) => T): T | undefined {
+  getComponent<T extends Component>(
+    entity: Entity,
+    componentClass: new (...args: any[]) => T,
+  ): T | undefined {
     return this.componentStore.getComponent(entity, componentClass);
   }
 
-  removeComponent<T extends Component>(entity: Entity, componentClass: new (...args: any[]) => T) {
+  removeComponent<T extends Component>(
+    entity: Entity,
+    componentClass: new (...args: any[]) => T,
+  ) {
     this.componentStore.removeComponent(entity, componentClass);
   }
 
-  getEntitiesWithComponent<T extends Component>(componentClass: new (...args: any[]) => T): Entity[] {
+  getEntitiesWithComponent<T extends Component>(
+    componentClass: new (...args: any[]) => T,
+  ): Entity[] {
     return this.componentStore.getEntitiesWithComponent(componentClass);
   }
 
-  getEntitiesWithArchetype(...componentClasses: Array<new (...args: any[]) => Component>): Entity[] {
+  getEntitiesWithArchetype(
+    ...componentClasses: Array<new (...args: any[]) => Component>
+  ): Entity[] {
     return this.componentStore.getEntitiesWithArchetype(...componentClasses);
   }
 
@@ -65,36 +79,38 @@ export class World {
 
   serialize(): string {
     const serializedWorld = this.getAllEntities().map((entity) => {
-      const components = this.getComponentsForEntity(entity).map((component) => {
-        return {
-          type: component.constructor.name,
-          data: component.toJSON(),
-        };
-      });
-  
+      const components = this.getComponentsForEntity(entity).map(
+        (component) => {
+          return {
+            type: component.constructor.name,
+            data: component.toJSON(),
+          };
+        },
+      );
+
       return { components };
     });
-  
+
     return JSON.stringify(serializedWorld);
   }
 
   deserialize(json: string): void {
     const parsedWorld = JSON.parse(json);
-  
+
     for (const { components } of parsedWorld) {
       const entity = this.newEntity();
-  
+
       for (const { type, data } of components) {
-        const ComponentClass = this.componentStore.getRegisteredComponentClass(type);
-        
+        const ComponentClass =
+          this.componentStore.getRegisteredComponentClass(type);
+
         // Add validation(?). Proposed solution:
         // Add an optional static validate function on components.
         // The validate function throws error if invalid data.
-        // Deserialize function could handle the error by logging and skipping component. 
+        // Deserialize function could handle the error by logging and skipping component.
         const component = new ComponentClass(...Object.values(data));
         this.addComponent(entity, component);
       }
     }
   }
-  
 }

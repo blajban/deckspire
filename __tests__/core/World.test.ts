@@ -3,7 +3,6 @@ import ComponentStore from '../../src/engine/core/ComponentStore';
 import EntityStore from '../../src/engine/core/EntityStore';
 import { World } from '../../src/engine/core/World';
 
-
 class MockComponent extends Component {
   constructor(public value: number) {
     super();
@@ -39,8 +38,12 @@ describe('World', () => {
     world.addComponent(entity, new AnotherMockComponent(5));
 
     expect(world.entityExists(entity)).toBe(true);
-    expect(world.getComponent(entity, MockComponent)).toBeInstanceOf(MockComponent);
-    expect(world.getComponent(entity, AnotherMockComponent)).toBeInstanceOf(AnotherMockComponent);
+    expect(world.getComponent(entity, MockComponent)).toBeInstanceOf(
+      MockComponent,
+    );
+    expect(world.getComponent(entity, AnotherMockComponent)).toBeInstanceOf(
+      AnotherMockComponent,
+    );
 
     world.removeEntity(entity);
 
@@ -63,7 +66,9 @@ describe('World', () => {
   test('should remove a specific component from an entity', () => {
     const entity = world.newEntity();
     world.addComponent(entity, new MockComponent(10));
-    expect(world.getComponent(entity, MockComponent)).toBeInstanceOf(MockComponent);
+    expect(world.getComponent(entity, MockComponent)).toBeInstanceOf(
+      MockComponent,
+    );
 
     world.removeComponent(entity, MockComponent);
     expect(world.getComponent(entity, MockComponent)).toBeUndefined();
@@ -93,7 +98,10 @@ describe('World', () => {
 
     world.addComponent(entity3, new AnotherMockComponent(10));
 
-    const entitiesWithArchetype = world.getEntitiesWithArchetype(MockComponent, AnotherMockComponent);
+    const entitiesWithArchetype = world.getEntitiesWithArchetype(
+      MockComponent,
+      AnotherMockComponent,
+    );
     expect(entitiesWithArchetype).toContain(entity1);
     expect(entitiesWithArchetype).not.toContain(entity2);
     expect(entitiesWithArchetype).not.toContain(entity3);

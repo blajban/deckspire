@@ -1,5 +1,5 @@
-import { Component } from "./Component";
-import { Entity } from "./Entity";
+import { Component } from './Component';
+import { Entity } from './Entity';
 
 /**
  * Manages components of a specific type for entities.
@@ -29,10 +29,12 @@ export default class ComponentMap<T extends Component> {
     }
 
     if (this.has(entity) && !allowOverwrite) {
-      throw new Error(`Could not add component to entity ${entity} (entity already has component of type ${this.componentType}).`);
+      throw new Error(
+        `Could not add component to entity ${entity} (entity already has component of type ${this.componentType}).`,
+      );
     }
     this.components.set(entity, component);
-    this.cachedEntities = null; 
+    this.cachedEntities = null;
   }
 
   /**
@@ -60,10 +62,12 @@ export default class ComponentMap<T extends Component> {
    */
   delete(entity: Entity) {
     if (!this.has(entity)) {
-      throw new Error(`Could not delete component of type ${this.componentType} for entity ${entity} (component does not exist).`);
+      throw new Error(
+        `Could not delete component of type ${this.componentType} for entity ${entity} (component does not exist).`,
+      );
     }
     this.components.delete(entity);
-    this.cachedEntities = null; 
+    this.cachedEntities = null;
   }
 
   /**
