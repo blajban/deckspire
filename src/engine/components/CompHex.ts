@@ -4,7 +4,7 @@ import Component from '../core/Component';
 /**
  * Represents a hex in a hex grid.
  */
-export class CompHex extends Component {
+export default class CompHex extends Component {
   /**
    * @param {HexCoordinates} coordinates - The coordinates of the hex.
    */

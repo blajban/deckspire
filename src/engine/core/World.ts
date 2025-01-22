@@ -1,11 +1,11 @@
-import { CompChild } from '../components/CompChild';
-import { CompParent } from '../components/CompParent';
+import CompChild from '../components/CompChild';
+import CompParent from '../components/CompParent';
 import Component from './Component';
 import ComponentStore from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
 
-export class World {
+export default class World {
   private entityStore: EntityStore;
   private componentStore: ComponentStore;
 

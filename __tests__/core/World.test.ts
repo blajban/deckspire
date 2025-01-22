@@ -1,9 +1,9 @@
-import { CompChild } from '../../src/engine/components/CompChild';
-import { CompParent } from '../../src/engine/components/CompParent';
+import CompChild from '../../src/engine/components/CompChild';
+import CompParent from '../../src/engine/components/CompParent';
 import Component from '../../src/engine/core/Component';
 import ComponentStore from '../../src/engine/core/ComponentStore';
 import EntityStore from '../../src/engine/core/EntityStore';
-import { World } from '../../src/engine/core/World';
+import World from '../../src/engine/core/World';
 
 class MockComponent extends Component {
   constructor(public value: number) {

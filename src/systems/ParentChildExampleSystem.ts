@@ -1,6 +1,6 @@
-import { CompParent } from '../engine/components/CompParent';
-import { System } from '../engine/core/System';
-import { World } from '../engine/core/World';
+import CompParent from '../engine/components/CompParent';
+import System from '../engine/core/System';
+import World from '../engine/core/World';
 
 export default class ParentChildExampleSystem extends System {
   update(world: World, time: number, delta: number) {
