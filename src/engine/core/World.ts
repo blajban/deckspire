@@ -1,11 +1,11 @@
-import { CompChild } from '../components/CompChild';
-import { CompParent } from '../components/CompParent';
-import { Component } from './Component';
+import CompChild from '../core_components/CompChild';
+import CompParent from '../core_components/CompParent';
+import Component from './Component';
 import ComponentStore from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
 
-export class World {
+export default class World {
   private entityStore: EntityStore;
   private componentStore: ComponentStore;
 
@@ -83,6 +83,12 @@ export class World {
     }
 
     this.componentStore.addComponent(entity, component);
+  }
+
+  addComponents(entity: Entity, ...components: Component[]) {
+    for (const component of components) {
+      this.addComponent(entity, component);
+    }
   }
 
   getComponent<T extends Component>(
