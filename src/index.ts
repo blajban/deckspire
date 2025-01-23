@@ -13,27 +13,31 @@ import { HexCoordinates } from './math/hexgrid/HexVectors';
 import Vector2D from './math/Vector2D';
 import CompChild from './engine/core_components/CompChild';
 import CompParent from './engine/core_components/CompParent';
-import DrawAHex from './systems/DrawAHex';
+import SysDraw from './systems/SysDraw';
+import { DrawHex, DrawHexGrid } from './draw/DrawHexes';
 
 class MainScene extends Phaser.Scene {
   private entityStore = new EntityStore();
   private componentStore = new ComponentStore();
   private world = new World(this.entityStore, this.componentStore);
   private parentChildExampleSystem = new ParentChildExampleSystem();
-  private draw_a_hex = new DrawAHex();
+  private draw_everything = new SysDraw(this);
+  
   constructor() {
     super('MainScene');
   }
 
   preload() {
     // Load assets
-
     this.world.registerComponent(CompDrawable);
     this.world.registerComponent(CompHex);
     this.world.registerComponent(CompHexGrid);
     this.world.registerComponent(CompTransform);
     this.world.registerComponent(CompChild);
     this.world.registerComponent(CompParent);
+
+    this.draw_everything.add_sub_system(new DrawHexGrid());
+    this.draw_everything.add_sub_system(new DrawHex());
 
     loadJsonFile('/world.json')
       .then((data) => {
@@ -76,7 +80,7 @@ class MainScene extends Phaser.Scene {
 
   update(time: number, delta: number) {
     this.parentChildExampleSystem.update(this.world, time, delta);
-    this.draw_a_hex.update(this.world, time, delta);
+    this.draw_everything.update(this.world, time, delta);
   }
 }
 
