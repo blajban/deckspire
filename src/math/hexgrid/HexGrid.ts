@@ -3,7 +3,7 @@ import Vector2D, { Vector2DLike } from '../Vector2D';
 
 const sqrt3over2 = 0.5 * Math.sqrt(3);
 
-export type HexGridGuard = (hex: HexCoordinates) => boolean;
+export type HexGridConstraint = (hex: HexCoordinates) => boolean;
 
 /** One step in all possible directions in a horizontal hex grid. */
 export class HorizontalLayout {
@@ -34,14 +34,25 @@ export default class HexGrid {
     HorizontalLayout.SE,
   ];
 
+  private constraints: HexGridConstraint[] = [];
+
   /**
    * Represents a hex grid.
-   * @param grid_guard - A function that returns true if a hex is part of the grid. Default is an infinite grid.
+   * @param {number} max_radius - The maximum Manhattan radius of the grid.
+   * @param {HorizontalLayout | VerticalLayout} [layout=HorizontalLayout] - The orientation of the hex grid.
    */
   constructor(
-    public grid_guard: HexGridGuard = (hex: HexCoordinates) => true,
+    public max_radius: number,
     public layout: HorizontalLayout | VerticalLayout = HorizontalLayout,
   ) {}
+
+  /**
+   * Eliminates any hex from the grid, for which the grid constraint returns false.
+   * @param grid_guard - A function that returns true if a hex is part of the grid.
+   */
+  public add_constraint(constraint: HexGridConstraint) {
+    this.constraints.push(constraint);
+  }
 
   /**
    * Checks whether a hex is in the grid.
@@ -49,7 +60,15 @@ export default class HexGrid {
    * @returns true if the hex coordinates is part of the grid.
    */
   public is_hex_in_grid(hex: HexCoordinates): boolean {
-    return this.grid_guard(hex);
+    if (hex.distance_from_origin().manhattan() > this.max_radius) {
+      return false;
+    }
+    for( let constraint of this.constraints) {
+      if (!constraint(hex)) {
+        return false;
+      }
+    };
+    return true;
   }
 
   /**
@@ -103,6 +122,14 @@ export default class HexGrid {
       );
     }
     return vec2d;
+  }
+
+  /**
+   * Returns all hexes in the grid.
+   * @returns an array of all hexes in the grid.
+   */
+  public all_hexes(): HexCoordinates[]{
+    return this.hexes_within_manhattan_radius(new HexCoordinates(0, 0), this.max_radius);
   }
 
   /**
