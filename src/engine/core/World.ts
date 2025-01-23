@@ -1,5 +1,7 @@
 import CompChild from '../core_components/CompChild';
 import CompDrawable from '../core_components/CompDrawable';
+import CompFillStyle from '../core_components/CompFillStyle';
+import CompLineStyle from '../core_components/CompLineStyle';
 import CompParent from '../core_components/CompParent';
 import Component, { ComponentID } from './Component';
 import ComponentStore from './ComponentStore';
@@ -13,6 +15,12 @@ export default class World {
   constructor(entityStore: EntityStore, componentStore: ComponentStore) {
     this.entityStore = entityStore;
     this.componentStore = componentStore;
+    // Core components are always registered.
+    this.registerComponent(CompParent);
+    this.registerComponent(CompChild);
+    this.registerComponent(CompDrawable);
+    this.registerComponent(CompLineStyle);
+    this.registerComponent(CompFillStyle);
   }
 
   newEntity(): Entity {
@@ -52,7 +60,7 @@ export default class World {
 
     // Clean up Phaser objects if the Drawable has created any.
     const drawable = this.getComponent(entity, CompDrawable);
-    if( drawable && drawable.draw_object ) {
+    if (drawable && drawable.draw_object) {
       drawable.draw_object.destroy();
     }
 

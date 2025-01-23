@@ -31,14 +31,9 @@ class MainScene extends Scene {
 
   preload() {
     // Load assets
-    this.world.registerComponent(CompDrawable);
     this.world.registerComponent(CompHex);
     this.world.registerComponent(CompHexGrid);
     this.world.registerComponent(CompTransform);
-    this.world.registerComponent(CompChild);
-    this.world.registerComponent(CompParent);
-    this.world.registerComponent(CompLineStyle);
-    this.world.registerComponent(CompFillStyle);
 
     this.draw_everything.add_sub_system(new DrawHexGrid());
     this.draw_everything.add_sub_system(new DrawHex());
@@ -60,12 +55,7 @@ class MainScene extends Scene {
     const blue_hex = this.world.newEntity();
     this.world.addComponents(
       hex_grid,
-      new CompHexGrid(
-        new HexGrid(
-          (hex) => hex.distance_from_origin().manhattan() <= 3,
-          HorizontalLayout,
-        ),
-      ),
+      new CompHexGrid(new HexGrid(3, HorizontalLayout)),
       new CompTransform(new Vector2D(400, 300), 0, 50),
       new CompDrawable(-1),
       new CompLineStyle(5, 0x000000, 1),
