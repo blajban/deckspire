@@ -1,4 +1,5 @@
 import CompChild from '../core_components/CompChild';
+import CompDrawable from '../core_components/CompDrawable';
 import CompParent from '../core_components/CompParent';
 import Component, { ComponentID } from './Component';
 import ComponentStore from './ComponentStore';
@@ -47,6 +48,12 @@ export default class World {
       if (parentComp) {
         parentComp.children = parentComp.children.filter((e) => e !== entity);
       }
+    }
+
+    // Clean up Phaser objects if the Drawable has created any.
+    const drawable = this.getComponent(entity, CompDrawable);
+    if( drawable && drawable.draw_object ) {
+      drawable.draw_object.destroy();
     }
 
     // Remove all components
