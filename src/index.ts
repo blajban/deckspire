@@ -48,15 +48,14 @@ class MainScene extends Scene {
 
   create() {
     // Initialize game objects
-
     const hex_grid = this.world.newEntity();
     const red_hex = this.world.newEntity();
     const green_hex = this.world.newEntity();
     const blue_hex = this.world.newEntity();
     this.world.addComponents(
       hex_grid,
-      new CompHexGrid(new HexGrid(3, HorizontalLayout)),
-      new CompTransform(new Vector2D(400, 300), 0, 50),
+      new CompHexGrid(new HexGrid(3, 50, HorizontalLayout)),
+      new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9) ),
       new CompDrawable(-1),
       new CompLineStyle(5, 0x000000, 1),
       new CompFillStyle(0x888888, 1),
@@ -78,6 +77,7 @@ class MainScene extends Scene {
       new CompHex(new HexCoordinates(1, 0)),
       new CompDrawable(1),
       new CompLineStyle(5, 0x0000ff, 0.5),
+      new CompFillStyle(0xffffff, 0.5),
     );
     this.world.addParentChildRelationship(hex_grid, red_hex);
     this.world.addParentChildRelationship(hex_grid, green_hex);

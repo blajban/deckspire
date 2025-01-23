@@ -10,6 +10,9 @@ import CompFillStyle from '../engine/core_components/CompFillStyle';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
 import { DrawSubSystem } from '../systems/SysDraw';
 
+/**
+ * Draws a hex grid.
+ */
 export class DrawHexGrid extends DrawSubSystem {
   constructor() {
     super([CompDrawable, CompHexGrid, CompTransform]);
@@ -29,6 +32,9 @@ export class DrawHexGrid extends DrawSubSystem {
   }
 }
 
+/**
+ * Draws a hex in a hex grid
+ */
 export class DrawHex extends DrawSubSystem {
   constructor() {
     super([CompDrawable, CompHex, CompChild]);
@@ -56,21 +62,30 @@ export class DrawHex extends DrawSubSystem {
     }
     const gfx = drawable.draw_object;
     gfx.setDepth(drawable.depth);
+
     let hex_center = hex_grid
-      .vector2d_from_hex_distance(
-        hex_coordinates.distance_from_origin().multiply(transform.scale),
-      )
+      .vector2d_from_hex_distance(hex_coordinates.distance_from_origin())
+      .multiply(transform.scale)
       .add(transform.position);
 
-    if (line_style) {
-      gfx.lineStyle(line_style.width, line_style.color, line_style.alpha);
-      gfx.strokeCircle(hex_center.x, hex_center.y, transform.scale / 2);
-    }
     if (fill_style) {
       gfx.fillStyle(fill_style.color, fill_style.alpha);
-      gfx.fillCircle(hex_center.x, hex_center.y, transform.scale / 2);
+      gfx.fillEllipse(
+        hex_center.x,
+        hex_center.y,
+        (transform.scale.x * hex_grid.size()),
+        (transform.scale.y * hex_grid.size()),
+      );
     }
-
-    console.log('Just pretend we drew something nice here');
+    // Draw lines on top of fill, if any.
+    if (line_style) {
+      gfx.lineStyle(line_style.width, line_style.color, line_style.alpha);
+      gfx.strokeEllipse(
+        hex_center.x,
+        hex_center.y,
+        transform.scale.x * hex_grid.size() - line_style.width / 2,
+        transform.scale.y * hex_grid.size() - line_style.width / 2,
+      );
+    }
   }
 }
