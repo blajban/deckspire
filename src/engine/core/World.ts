@@ -1,6 +1,6 @@
 import CompChild from '../core_components/CompChild';
 import CompParent from '../core_components/CompParent';
-import Component from './Component';
+import Component, { ComponentID } from './Component';
 import ComponentStore from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
@@ -23,9 +23,8 @@ export default class World {
   }
 
   removeEntity(entity: Entity, removeChildren: boolean = true) {
+    // Handle children if entity is a parent.
     const parentComp = this.getComponent(entity, CompParent);
-
-    // Handle children
     if (parentComp) {
       for (const child of parentComp.children) {
         const childComp = this.getComponent(child, CompChild);
@@ -42,7 +41,7 @@ export default class World {
 
     // Remove the parent from its own parent's child list if it is a child.
     const childComp = this.getComponent(entity, CompChild);
-    if (childComp) {
+if (childComp) {
       const parent = childComp.parent;
       const parentComp = this.getComponent(parent, CompParent);
       if (parentComp) {
@@ -54,9 +53,7 @@ export default class World {
     const components = this.componentStore.getComponentsForEntity(entity);
 
     for (const component of components) {
-      const componentClass = component.constructor as new (
-        ...args: any[]
-      ) => Component;
+      const componentClass = component.constructor as ComponentID<Component>;
       this.componentStore.removeComponent(entity, componentClass);
     }
 
@@ -68,7 +65,7 @@ export default class World {
   }
 
   registerComponent<T extends Component>(
-    componentClass: new (...args: any[]) => T,
+    componentClass: ComponentID<T>,
   ) {
     this.componentStore.registerComponent(componentClass);
   }
@@ -93,14 +90,14 @@ export default class World {
 
   getComponent<T extends Component>(
     entity: Entity,
-    componentClass: new (...args: any[]) => T,
+    componentClass: ComponentID<T>,
   ): T | undefined {
     return this.componentStore.getComponent(entity, componentClass);
   }
 
   removeComponent<T extends Component>(
     entity: Entity,
-    componentClass: new (...args: any[]) => T,
+    componentClass: ComponentID<T>,
   ) {
     const componentType = this.componentStore.getRegisteredComponentClass(
       componentClass.name,
@@ -133,13 +130,13 @@ export default class World {
   }
 
   getEntitiesWithComponent<T extends Component>(
-    componentClass: new (...args: any[]) => T,
+    componentClass: ComponentID<T>,
   ): Entity[] {
     return this.componentStore.getEntitiesWithComponent(componentClass);
   }
 
   getEntitiesWithArchetype(
-    ...componentClasses: Array<new (...args: any[]) => Component>
+    ...componentClasses: Array<ComponentID<Component>>
   ): Entity[] {
     return this.componentStore.getEntitiesWithArchetype(...componentClasses);
   }
