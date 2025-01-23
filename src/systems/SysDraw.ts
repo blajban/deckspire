@@ -1,11 +1,18 @@
 import Component, { ComponentID } from '../engine/core/Component';
+import Scene from '../engine/core/Scene';
 import System from '../engine/core/System';
 import World from '../engine/core/World';
 
 export abstract class DrawSubSystem {
   constructor(private archetype: ComponentID<Component>[]) {}
 
-  update(world: World, time: number, delta: number, entity: number) {
+  update(
+    world: World,
+    scene: Scene,
+    time: number,
+    delta: number,
+    entity: number,
+  ) {
     throw new Error('Update method not implemented in DrawSubSystem.');
   }
   public applicable_archetype(): ComponentID<Component>[] {
@@ -16,7 +23,7 @@ export abstract class DrawSubSystem {
 export default class SysDraw extends System {
   private sub_systems: Array<DrawSubSystem> = [];
 
-  constructor(public scene: Phaser.Scene) {
+  constructor(private scene: Scene) {
     super();
   }
 
@@ -29,7 +36,7 @@ export default class SysDraw extends System {
       world
         .getEntitiesWithArchetype(...sub_system.applicable_archetype())
         .forEach((entity) => {
-          sub_system.update(world, time, delta, entity);
+          sub_system.update(world, this.scene, time, delta, entity);
         });
     });
   }

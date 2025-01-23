@@ -41,7 +41,7 @@ export default class World {
 
     // Remove the parent from its own parent's child list if it is a child.
     const childComp = this.getComponent(entity, CompChild);
-if (childComp) {
+    if (childComp) {
       const parent = childComp.parent;
       const parentComp = this.getComponent(parent, CompParent);
       if (parentComp) {
@@ -64,9 +64,7 @@ if (childComp) {
     return this.entityStore.getAllEntities();
   }
 
-  registerComponent<T extends Component>(
-    componentClass: ComponentID<T>,
-  ) {
+  registerComponent<T extends Component>(componentClass: ComponentID<T>) {
     this.componentStore.registerComponent(componentClass);
   }
 

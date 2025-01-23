@@ -1,4 +1,3 @@
-import Phaser from 'phaser';
 import ComponentStore from './engine/core/ComponentStore';
 import EntityStore from './engine/core/EntityStore';
 import World from './engine/core/World';
@@ -15,14 +14,17 @@ import CompChild from './engine/core_components/CompChild';
 import CompParent from './engine/core_components/CompParent';
 import SysDraw from './systems/SysDraw';
 import { DrawHex, DrawHexGrid } from './draw/DrawHexes';
+import Scene from './engine/core/Scene';
+import CompLineStyle from './engine/core_components/CompLineStyle';
+import CompFillStyle from './engine/core_components/CompFillStyle';
 
-class MainScene extends Phaser.Scene {
+class MainScene extends Scene {
   private entityStore = new EntityStore();
   private componentStore = new ComponentStore();
   private world = new World(this.entityStore, this.componentStore);
   private parentChildExampleSystem = new ParentChildExampleSystem();
   private draw_everything = new SysDraw(this);
-  
+
   constructor() {
     super('MainScene');
   }
@@ -35,6 +37,8 @@ class MainScene extends Phaser.Scene {
     this.world.registerComponent(CompTransform);
     this.world.registerComponent(CompChild);
     this.world.registerComponent(CompParent);
+    this.world.registerComponent(CompLineStyle);
+    this.world.registerComponent(CompFillStyle);
 
     this.draw_everything.add_sub_system(new DrawHexGrid());
     this.draw_everything.add_sub_system(new DrawHex());
@@ -51,8 +55,9 @@ class MainScene extends Phaser.Scene {
     // Initialize game objects
 
     const hex_grid = this.world.newEntity();
-    const selected_hex = this.world.newEntity();
-    const the_origin = this.world.newEntity();
+    const red_hex = this.world.newEntity();
+    const green_hex = this.world.newEntity();
+    const blue_hex = this.world.newEntity();
     this.world.addComponents(
       hex_grid,
       new CompHexGrid(
@@ -61,21 +66,32 @@ class MainScene extends Phaser.Scene {
           HorizontalLayout,
         ),
       ),
-      new CompTransform(new Vector2D(0, 0), 0, 50),
+      new CompTransform(new Vector2D(400, 300), 0, 50),
       new CompDrawable(-1),
+      new CompLineStyle(5, 0x000000, 1),
+      new CompFillStyle(0x888888, 1),
     );
     this.world.addComponents(
-      selected_hex,
-      new CompHex(new HexCoordinates(0, 0)),
+      red_hex,
+      new CompHex(new HexCoordinates(-1, 1)),
       new CompDrawable(1),
+      new CompLineStyle(5, 0xff0000, 0.5),
     );
     this.world.addComponents(
-      the_origin,
+      green_hex,
       new CompHex(new HexCoordinates(0, 0)),
       new CompDrawable(1),
+      new CompLineStyle(5, 0x00ff00, 0.5),
     );
-    this.world.addParentChildRelationship(hex_grid, selected_hex);
-    this.world.addParentChildRelationship(hex_grid, the_origin);
+    this.world.addComponents(
+      blue_hex,
+      new CompHex(new HexCoordinates(1, 0)),
+      new CompDrawable(1),
+      new CompLineStyle(5, 0x0000ff, 0.5),
+    );
+    this.world.addParentChildRelationship(hex_grid, red_hex);
+    this.world.addParentChildRelationship(hex_grid, green_hex);
+    this.world.addParentChildRelationship(hex_grid, blue_hex);
   }
 
   update(time: number, delta: number) {
