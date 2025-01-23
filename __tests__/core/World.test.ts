@@ -1,5 +1,5 @@
-import CompChild from '../../src/engine/components/CompChild';
-import CompParent from '../../src/engine/components/CompParent';
+import CompChild from '../../src/engine/core_components/CompChild';
+import CompParent from '../../src/engine/core_components/CompParent';
 import Component from '../../src/engine/core/Component';
 import ComponentStore from '../../src/engine/core/ComponentStore';
 import EntityStore from '../../src/engine/core/EntityStore';

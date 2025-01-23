@@ -1,4 +1,4 @@
-import CompParent from '../engine/components/CompParent';
+import CompParent from '../engine/core_components/CompParent';
 import System from '../engine/core/System';
 import World from '../engine/core/World';
 

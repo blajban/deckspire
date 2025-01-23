@@ -1,5 +1,5 @@
-import { HexCoordinates } from '../../math/hexgrid/HexVectors';
-import Component from '../core/Component';
+import { HexCoordinates } from '../math/hexgrid/HexVectors';
+import Component from '../engine/core/Component';
 
 /**
  * Represents a hex in a hex grid.

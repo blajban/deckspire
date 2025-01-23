@@ -1,5 +1,5 @@
-import CompChild from '../components/CompChild';
-import CompParent from '../components/CompParent';
+import CompChild from '../core_components/CompChild';
+import CompParent from '../core_components/CompParent';
 import Component from './Component';
 import ComponentStore from './ComponentStore';
 import { Entity } from './Entity';
@@ -83,6 +83,12 @@ export default class World {
     }
 
     this.componentStore.addComponent(entity, component);
+  }
+
+  addComponents(entity: Entity, ...components: Component[]) {
+    for (const component of components) {
+      this.addComponent(entity, component);
+    }
   }
 
   getComponent<T extends Component>(

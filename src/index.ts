@@ -4,15 +4,15 @@ import EntityStore from './engine/core/EntityStore';
 import World from './engine/core/World';
 import { loadJsonFile } from './engine/util/file';
 import ParentChildExampleSystem from './systems/ParentChildExampleSystem';
-import CompDrawable from './engine/components/CompDrawable';
-import CompHex from './engine/components/CompHex';
-import CompHexGrid from './engine/components/CompHexGrid';
-import CompTransform from './engine/components/CompTransform';
+import CompDrawable from './engine/core_components/CompDrawable';
+import CompHex from './components/CompHex';
+import CompHexGrid from './components/CompHexGrid';
+import CompTransform from './components/CompTransform';
 import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
 import { HexCoordinates } from './math/hexgrid/HexVectors';
 import Vector2D from './math/Vector2D';
-import CompChild from './engine/components/CompChild';
-import CompParent from './engine/components/CompParent';
+import CompChild from './engine/core_components/CompChild';
+import CompParent from './engine/core_components/CompParent';
 
 class MainScene extends Phaser.Scene {
   private entityStore = new EntityStore();
@@ -31,7 +31,7 @@ class MainScene extends Phaser.Scene {
     this.world.registerComponent(CompHexGrid);
     this.world.registerComponent(CompTransform);
     this.world.registerComponent(CompChild);
-    this.world.registerComponent(CompParent)
+    this.world.registerComponent(CompParent);
 
     loadJsonFile('/world.json')
       .then((data) => {
@@ -46,7 +46,8 @@ class MainScene extends Phaser.Scene {
 
     const hex_grid = this.world.newEntity();
     const selected_hex = this.world.newEntity();
-    this.world.addComponent(
+    const the_origin = this.world.newEntity();
+    this.world.addComponents(
       hex_grid,
       new CompHexGrid(
         new HexGrid(
@@ -54,24 +55,21 @@ class MainScene extends Phaser.Scene {
           HorizontalLayout,
         ),
       ),
-    );
-    this.world.addComponent(
-      hex_grid,
       new CompTransform(new Vector2D(0, 0), 0, 50),
+      new CompDrawable(-1),
     );
-    this.world.addComponent(hex_grid, new CompDrawable(-1));
-    this.world.addComponent(
+    this.world.addComponents(
       selected_hex,
       new CompHex(new HexCoordinates(0, 0)),
+      new CompDrawable(1),
     );
-    this.world.addComponent(selected_hex, new CompDrawable(1));
+    this.world.addComponents(
+      the_origin,
+      new CompHex(new HexCoordinates(0, 0)),
+      new CompDrawable(1),
+    );
     this.world.addParentChildRelationship(hex_grid, selected_hex);
-
-    const archetype = this.world.getEntitiesWithArchetype(
-      CompHexGrid,
-      CompTransform,
-    );
-    console.log(archetype);
+    this.world.addParentChildRelationship(hex_grid, the_origin);
   }
 
   update(time: number, delta: number) {
