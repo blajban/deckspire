@@ -10,13 +10,11 @@ import CompTransform from './components/CompTransform';
 import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
 import { HexCoordinates } from './math/hexgrid/HexVectors';
 import Vector2D from './math/Vector2D';
-import CompChild from './engine/core_components/CompChild';
-import CompParent from './engine/core_components/CompParent';
-import SysDraw from './systems/SysDraw';
 import { DrawHex, DrawHexGrid } from './draw/DrawHexes';
 import Scene from './engine/core/Scene';
 import CompLineStyle from './engine/core_components/CompLineStyle';
 import CompFillStyle from './engine/core_components/CompFillStyle';
+import SysDraw from './engine/core_systems/SysDraw';
 
 class MainScene extends Scene {
   private entityStore = new EntityStore();

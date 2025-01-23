@@ -1,7 +1,7 @@
-import Component, { ComponentID } from '../engine/core/Component';
-import Scene from '../engine/core/Scene';
-import System from '../engine/core/System';
-import World from '../engine/core/World';
+import Component, { ComponentID } from "../core/Component";
+import Scene from "../core/Scene";
+import System from "../core/System";
+import World from "../core/World";
 
 export abstract class DrawSubSystem {
   constructor(private archetype: ComponentID<Component>[]) {}

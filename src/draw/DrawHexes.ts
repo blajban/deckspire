@@ -8,10 +8,9 @@ import CompChild from '../engine/core_components/CompChild';
 import CompDrawable from '../engine/core_components/CompDrawable';
 import CompFillStyle from '../engine/core_components/CompFillStyle';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
+import { DrawSubSystem } from '../engine/core_systems/SysDraw';
 import HexGrid from '../math/hexgrid/HexGrid';
 import { HexCoordinates } from '../math/hexgrid/HexVectors';
-import Vector2D from '../math/Vector2D';
-import { DrawSubSystem } from '../systems/SysDraw';
 
 /**
  * Draws a hex grid.
