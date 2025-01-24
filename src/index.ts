@@ -19,7 +19,7 @@ import SysDraw from './engine/core_systems/SysDraw';
 class MainScene extends Scene {
   private entityStore = new EntityStore();
   private componentStore = new ComponentStore();
-  private world = new World(this.entityStore, this.componentStore);
+  private world = new World(this, this.entityStore, this.componentStore);
   private parentChildExampleSystem = new ParentChildExampleSystem();
   private draw_everything = new SysDraw(this);
 

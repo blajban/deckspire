@@ -4,6 +4,7 @@ import Component from '../../src/engine/core/Component';
 import ComponentStore from '../../src/engine/core/ComponentStore';
 import EntityStore from '../../src/engine/core/EntityStore';
 import World from '../../src/engine/core/World';
+import Scene from '../../src/engine/core/Scene';
 
 class MockComponent extends Component {
   constructor(public value: number) {
@@ -23,7 +24,8 @@ describe('World', () => {
   beforeEach(() => {
     const entityStore = new EntityStore();
     const componentStore = new ComponentStore();
-    world = new World(entityStore, componentStore);
+    const scene = new Scene();
+    world = new World(scene, entityStore, componentStore);
 
     world.registerComponent(CompParent);
     world.registerComponent(CompChild);

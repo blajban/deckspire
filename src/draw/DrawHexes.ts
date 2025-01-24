@@ -8,7 +8,7 @@ import CompChild from '../engine/core_components/CompChild';
 import CompDrawable from '../engine/core_components/CompDrawable';
 import CompFillStyle from '../engine/core_components/CompFillStyle';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
-import { DrawSubSystem } from '../engine/core_systems/SysDraw';
+import { DrawSubSystem, GraphicsCacheObject } from '../engine/core_systems/SysDraw';
 import HexGrid from '../math/hexgrid/HexGrid';
 import { HexCoordinates } from '../math/hexgrid/HexVectors';
 
@@ -23,6 +23,7 @@ export class DrawHexGrid extends DrawSubSystem {
   update(
     world: World,
     scene: Scene,
+    cache: GraphicsCacheObject,
     time: number,
     delta: number,
     entity: Entity,
@@ -33,10 +34,10 @@ export class DrawHexGrid extends DrawSubSystem {
     const line_style = world.getComponent(entity, CompLineStyle);
     const fill_style = world.getComponent(entity, CompFillStyle);
 
-    if (!drawable.draw_object) {
-      drawable.draw_object = scene.add.graphics();
+    if (!cache.graphics_object) {
+      cache.graphics_object = scene.add.graphics();
     }
-    const gfx = drawable.draw_object;
+    const gfx = cache.graphics_object;
     gfx.setDepth(drawable.depth);
 
     hex_grid.all_hexes().forEach((hex) => {
@@ -57,6 +58,7 @@ export class DrawHex extends DrawSubSystem {
   update(
     world: World,
     scene: Scene,
+    cache: GraphicsCacheObject,
     time: number,
     delta: number,
     entity: Entity,
@@ -71,10 +73,10 @@ export class DrawHex extends DrawSubSystem {
     if (!transform)
       throw new Error('Parent does not have a transform component');
 
-    if (!drawable.draw_object) {
-      drawable.draw_object = scene.add.graphics();
+    if (!cache.graphics_object) {
+      cache.graphics_object = scene.add.graphics();
     }
-    const gfx = drawable.draw_object;
+    const gfx = cache.graphics_object;
     gfx.setDepth(drawable.depth);
 
     draw_hex(gfx, hex, hex_grid, transform, line_style, fill_style);
