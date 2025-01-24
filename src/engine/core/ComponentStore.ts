@@ -1,6 +1,9 @@
+import { set_intersection } from '../util/set_utility_functions';
 import Component, { ComponentClass } from './Component';
 import ComponentMap from './ComponentMap';
 import { Entity } from './Entity';
+
+export type Archetype = ComponentClass<Component>[];
 
 /**
  * The ComponentStore manages all components.
@@ -108,7 +111,7 @@ export default class ComponentStore {
    */
   getEntitiesWithComponent<T extends Component>(
     componentClass: ComponentClass<T>,
-  ): Entity[] {
+  ): Set<Entity> {
     const componentType = componentClass.name;
     const componentMap = this.componentMaps.get(componentType);
     if (!componentMap) {
@@ -127,10 +130,10 @@ export default class ComponentStore {
    * @throws Will throw an error if any of the component types have not been registered.
    */
   getEntitiesWithArchetype(
-    ...componentClasses: Array<ComponentClass<Component>>
-  ): Entity[] {
+    ...componentClasses: Archetype
+  ): Set<Entity> {
     if (componentClasses.length === 0) {
-      return [];
+      throw new Error('Archetype cannot be empty.');
     }
 
     const componentTypes = componentClasses.map((componentClass) => {
@@ -147,15 +150,9 @@ export default class ComponentStore {
       return new Set(componentMap.getEntities());
     });
 
-    entitySets.sort((a, b) => a.size - b.size);
-    const [smallestSet, ...restSets] = entitySets;
-    const intersection = Array.from(smallestSet).filter((entity) =>
-      restSets.every((set) => set.has(entity)),
-    );
-
-    return intersection;
+    return set_intersection(...entitySets);
   }
-
+  
   /**
    * Retrieves all components associated with a specific entity.
    * @param entity - The entity whose components are being retrieved.

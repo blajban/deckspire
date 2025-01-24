@@ -179,7 +179,7 @@ describe('ComponentStore', () => {
   });
 
   test('getEntitiesWithArchetype should return an empty array for no component types', () => {
-    expect(store.getEntitiesWithArchetype()).toHaveLength(0);
+    expect(() => store.getEntitiesWithArchetype()).toThrow('Archetype cannot be empty');
   });
 
   test('clear should remove all components and registered component types', () => {

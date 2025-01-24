@@ -5,7 +5,7 @@ import CompLineStyle from '../core_components/CompLineStyle';
 import CompParent from '../core_components/CompParent';
 import SysDraw, { DrawSubSystem } from '../core_systems/SysDraw';
 import Component, { ComponentClass } from './Component';
-import ComponentStore from './ComponentStore';
+import ComponentStore, { Archetype } from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
 
@@ -154,13 +154,13 @@ export default class World {
 
   getEntitiesWithComponent<T extends Component>(
     componentClass: ComponentClass<T>,
-  ): Entity[] {
+  ): Set<Entity> {
     return this.componentStore.getEntitiesWithComponent(componentClass);
   }
 
   getEntitiesWithArchetype(
-    ...componentClasses: Array<ComponentClass<Component>>
-  ): Entity[] {
+    ...componentClasses: Archetype
+  ): Set<Entity> {
     return this.componentStore.getEntitiesWithArchetype(...componentClasses);
   }
 

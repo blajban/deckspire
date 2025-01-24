@@ -1,10 +1,10 @@
-import Component, { ComponentClass } from '../core/Component';
+import { Archetype } from '../core/ComponentStore';
 import Scene from '../core/Scene';
-import System, { ApplicableArchetypes, Archetype } from '../core/System';
+import System, { HasApplicableArchetypes } from '../core/System';
 import World from '../core/World';
 import CompDrawable from '../core_components/CompDrawable';
 
-export abstract class DrawSubSystem implements ApplicableArchetypes {
+export abstract class DrawSubSystem implements HasApplicableArchetypes {
   constructor(public readonly archetypes: Archetype[]) {}
 
   update(
