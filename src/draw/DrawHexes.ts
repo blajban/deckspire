@@ -43,7 +43,6 @@ export class DrawHexGrid extends DrawSubSystem {
     hex_grid.all_hexes().forEach((hex) => {
       draw_hex(gfx, hex, hex_grid, transform, line_style, fill_style);
     });
-    console.log('Just pretend we drew something nice here');
   }
 }
 
