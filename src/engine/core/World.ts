@@ -1,17 +1,34 @@
 import CompChild from '../core_components/CompChild';
+import CompDrawable from '../core_components/CompDrawable';
+import CompFillStyle from '../core_components/CompFillStyle';
+import CompLineStyle from '../core_components/CompLineStyle';
 import CompParent from '../core_components/CompParent';
-import Component from './Component';
+import SysDraw from '../core_systems/SysDraw';
+import Component, { ComponentClass } from './Component';
 import ComponentStore from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
+import Scene from './Scene';
 
 export default class World {
   private entityStore: EntityStore;
   private componentStore: ComponentStore;
+  private system_draw;
 
-  constructor(entityStore: EntityStore, componentStore: ComponentStore) {
+  constructor(
+    startingScene: Scene,
+    entityStore: EntityStore,
+    componentStore: ComponentStore,
+  ) {
+    this.system_draw = new SysDraw(startingScene);
     this.entityStore = entityStore;
     this.componentStore = componentStore;
+    // Core components are always registered.
+    this.registerComponent(CompParent);
+    this.registerComponent(CompChild);
+    this.registerComponent(CompDrawable);
+    this.registerComponent(CompLineStyle);
+    this.registerComponent(CompFillStyle);
   }
 
   newEntity(): Entity {
@@ -23,9 +40,8 @@ export default class World {
   }
 
   removeEntity(entity: Entity, removeChildren: boolean = true) {
+    // Handle children if entity is a parent.
     const parentComp = this.getComponent(entity, CompParent);
-
-    // Handle children
     if (parentComp) {
       for (const child of parentComp.children) {
         const childComp = this.getComponent(child, CompChild);
@@ -50,13 +66,17 @@ export default class World {
       }
     }
 
+    // Clean up Phaser objects if the Drawable has created any.
+    const drawable = this.getComponent(entity, CompDrawable);
+    if (drawable) {
+      this.system_draw.cleanup(drawable);
+    }
+
     // Remove all components
     const components = this.componentStore.getComponentsForEntity(entity);
 
     for (const component of components) {
-      const componentClass = component.constructor as new (
-        ...args: any[]
-      ) => Component;
+      const componentClass = component.constructor as ComponentClass<Component>;
       this.componentStore.removeComponent(entity, componentClass);
     }
 
@@ -67,9 +87,7 @@ export default class World {
     return this.entityStore.getAllEntities();
   }
 
-  registerComponent<T extends Component>(
-    componentClass: new (...args: any[]) => T,
-  ) {
+  registerComponent<T extends Component>(componentClass: ComponentClass<T>) {
     this.componentStore.registerComponent(componentClass);
   }
 
@@ -93,14 +111,14 @@ export default class World {
 
   getComponent<T extends Component>(
     entity: Entity,
-    componentClass: new (...args: any[]) => T,
+    componentClass: ComponentClass<T>,
   ): T | undefined {
     return this.componentStore.getComponent(entity, componentClass);
   }
 
   removeComponent<T extends Component>(
     entity: Entity,
-    componentClass: new (...args: any[]) => T,
+    componentClass: ComponentClass<T>,
   ) {
     const componentType = this.componentStore.getRegisteredComponentClass(
       componentClass.name,
@@ -133,13 +151,13 @@ export default class World {
   }
 
   getEntitiesWithComponent<T extends Component>(
-    componentClass: new (...args: any[]) => T,
+    componentClass: ComponentClass<T>,
   ): Entity[] {
     return this.componentStore.getEntitiesWithComponent(componentClass);
   }
 
   getEntitiesWithArchetype(
-    ...componentClasses: Array<new (...args: any[]) => Component>
+    ...componentClasses: Array<ComponentClass<Component>>
   ): Entity[] {
     return this.componentStore.getEntitiesWithArchetype(...componentClasses);
   }

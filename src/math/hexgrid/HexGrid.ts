@@ -3,7 +3,7 @@ import Vector2D, { Vector2DLike } from '../Vector2D';
 
 const sqrt3over2 = 0.5 * Math.sqrt(3);
 
-export type HexGridGuard = (hex: HexCoordinates) => boolean;
+export type HexGridConstraint = (hex: HexCoordinates) => boolean;
 
 /** One step in all possible directions in a horizontal hex grid. */
 export class HorizontalLayout {
@@ -34,14 +34,45 @@ export default class HexGrid {
     HorizontalLayout.SE,
   ];
 
+  private constraints: HexGridConstraint[] = [];
+  private max_radius: number;
+  private hex_size: number = 0; // Will be set in ctor.
+  private layout: HorizontalLayout | VerticalLayout;
+
   /**
    * Represents a hex grid.
-   * @param grid_guard - A function that returns true if a hex is part of the grid. Default is an infinite grid.
+   * @param {number} max_radius - The maximum Manhattan radius of the grid.
+   * @param {number} hex_size - The distance between two adjacent hexes.
+   * @param {HorizontalLayout | VerticalLayout} [layout=HorizontalLayout] - The orientation of the hex grid.
    */
   constructor(
-    public grid_guard: HexGridGuard = (hex: HexCoordinates) => true,
-    public layout: HorizontalLayout | VerticalLayout = HorizontalLayout,
-  ) {}
+    max_radius: number,
+    hex_size: number,
+    layout: HorizontalLayout | VerticalLayout = HorizontalLayout,
+  ) {
+    this.max_radius = max_radius;
+    this.layout = layout;
+    this.set_size(hex_size);
+  }
+
+  public size(): number {
+    return this.hex_size;
+  }
+
+  public set_size(hex_size: number) {
+    if (hex_size <= 0) {
+      throw new Error('Hex size must be positive.');
+    }
+    this.hex_size = hex_size;
+  }
+
+  /**
+   * Eliminates any hex from the grid, for which the grid constraint returns false.
+   * @param grid_guard - A function that returns true if a hex is part of the grid.
+   */
+  public add_constraint(constraint: HexGridConstraint) {
+    this.constraints.push(constraint);
+  }
 
   /**
    * Checks whether a hex is in the grid.
@@ -49,7 +80,15 @@ export default class HexGrid {
    * @returns true if the hex coordinates is part of the grid.
    */
   public is_hex_in_grid(hex: HexCoordinates): boolean {
-    return this.grid_guard(hex);
+    if (hex.distance_from_origin().manhattan() > this.max_radius) {
+      return false;
+    }
+    for (let constraint of this.constraints) {
+      if (!constraint(hex)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -58,11 +97,8 @@ export default class HexGrid {
    * @returns {HexCoordinates} - Hex coordinates of the hex that (x,y) is inside.
    * @throws if an invalid hex grid orientation is supplied.
    */
-  public hex_coordinates_from_vector2d(
-    vec: Vector2DLike,
-    scale = 1,
-  ): HexCoordinates {
-    let vec2d = new Vector2D(vec.x / scale, vec.y / scale);
+  public hex_coordinates_from_vector2d(vec: Vector2DLike): HexCoordinates {
+    let vec2d = new Vector2D(vec.x / this.hex_size, vec.y / this.hex_size);
 
     if (this.layout === VerticalLayout) {
       vec2d = new Vector2D(
@@ -85,16 +121,10 @@ export default class HexGrid {
    * @returns {Vector2D} - A vector pointing from the origin to the center of the hex.
    * @throws if the size is not positive or an invalid orientation is supplied.
    */
-  public vector2d_from_hex_distance(
-    distance: HexDistance,
-    scale: number = 1,
-  ): Vector2D {
-    if (scale <= 0) {
-      throw new Error('Hex size must be positive.');
-    }
+  public vector2d_from_hex_distance(distance: HexDistance): Vector2D {
     let vec2d = new Vector2D(
-      scale * sqrt3over2 * distance.q,
-      scale * (0.5 * distance.q + distance.r),
+      this.hex_size * sqrt3over2 * distance.q,
+      this.hex_size * (0.5 * distance.q + distance.r),
     );
     if (this.layout === VerticalLayout) {
       vec2d = new Vector2D(
@@ -103,6 +133,17 @@ export default class HexGrid {
       );
     }
     return vec2d;
+  }
+
+  /**
+   * Returns all hexes in the grid.
+   * @returns an array of all hexes in the grid.
+   */
+  public all_hexes(): HexCoordinates[] {
+    return this.hexes_within_manhattan_radius(
+      new HexCoordinates(0, 0),
+      this.max_radius,
+    );
   }
 
   /**
