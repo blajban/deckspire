@@ -1,4 +1,4 @@
-import Component, { ComponentID } from './Component';
+import Component, { ComponentClass } from './Component';
 import ComponentMap from './ComponentMap';
 import { Entity } from './Entity';
 
@@ -8,14 +8,14 @@ import { Entity } from './Entity';
  */
 export default class ComponentStore {
   private componentMaps: Map<string, ComponentMap<Component>> = new Map();
-  private componentRegistry: Map<string, ComponentID<Component>> = new Map();
+  private componentRegistry: Map<string, ComponentClass<Component>> = new Map();
 
   /**
    * Registers a new component type.
    * This must be called before adding components of this type.
    * @param componentClass - The component class to be registered.
    */
-  registerComponent<T extends Component>(componentClass: ComponentID<T>) {
+  registerComponent<T extends Component>(componentClass: ComponentClass<T>) {
     const name = componentClass.name;
 
     if (!this.componentRegistry.has(name) && !this.componentMaps.has(name)) {
@@ -30,7 +30,7 @@ export default class ComponentStore {
    * @returns The constructor of the registered component class.
    * @throws Will throw an error if the specified component type is not registered.
    */
-  getRegisteredComponentClass(type: string): ComponentID<Component> {
+  getRegisteredComponentClass(type: string): ComponentClass<Component> {
     const componentClass = this.componentRegistry.get(type);
     if (!componentClass) {
       throw new Error(`Component type ${type} is not registered.`);
@@ -67,7 +67,7 @@ export default class ComponentStore {
    */
   getComponent<T extends Component>(
     entity: Entity,
-    componentClass: ComponentID<T>,
+    componentClass: ComponentClass<T>,
   ): T | undefined {
     const componentType = componentClass.name;
     const componentMap = this.componentMaps.get(componentType);
@@ -87,7 +87,7 @@ export default class ComponentStore {
    */
   removeComponent<T extends Component>(
     entity: Entity,
-    componentClass: ComponentID<T>,
+    componentClass: ComponentClass<T>,
   ) {
     const componentType = componentClass.name;
     const componentMap = this.componentMaps.get(componentType);
@@ -107,7 +107,7 @@ export default class ComponentStore {
    * @throws Will throw an error if the component type has not been registered.
    */
   getEntitiesWithComponent<T extends Component>(
-    componentClass: ComponentID<T>,
+    componentClass: ComponentClass<T>,
   ): Entity[] {
     const componentType = componentClass.name;
     const componentMap = this.componentMaps.get(componentType);
@@ -127,7 +127,7 @@ export default class ComponentStore {
    * @throws Will throw an error if any of the component types have not been registered.
    */
   getEntitiesWithArchetype(
-    ...componentClasses: Array<ComponentID<Component>>
+    ...componentClasses: Array<ComponentClass<Component>>
   ): Entity[] {
     if (componentClasses.length === 0) {
       return [];

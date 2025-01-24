@@ -1,11 +1,11 @@
-import Component, { ComponentID } from '../core/Component';
+import Component, { ComponentClass } from '../core/Component';
 import Scene from '../core/Scene';
 import System from '../core/System';
 import World from '../core/World';
 import CompDrawable from '../core_components/CompDrawable';
 
 export abstract class DrawSubSystem {
-  constructor(private archetype: ComponentID<Component>[]) {}
+  constructor(private archetype: ComponentClass<Component>[]) {}
 
   update(
     world: World,
@@ -17,7 +17,7 @@ export abstract class DrawSubSystem {
   ) {
     throw new Error('Update method not implemented in DrawSubSystem.');
   }
-  public applicable_archetype(): ComponentID<Component>[] {
+  public applicable_archetype(): ComponentClass<Component>[] {
     return this.archetype;
   }
 }

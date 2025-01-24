@@ -4,7 +4,7 @@ import CompFillStyle from '../core_components/CompFillStyle';
 import CompLineStyle from '../core_components/CompLineStyle';
 import CompParent from '../core_components/CompParent';
 import SysDraw from '../core_systems/SysDraw';
-import Component, { ComponentID } from './Component';
+import Component, { ComponentClass } from './Component';
 import ComponentStore from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
@@ -76,7 +76,7 @@ export default class World {
     const components = this.componentStore.getComponentsForEntity(entity);
 
     for (const component of components) {
-      const componentClass = component.constructor as ComponentID<Component>;
+      const componentClass = component.constructor as ComponentClass<Component>;
       this.componentStore.removeComponent(entity, componentClass);
     }
 
@@ -87,7 +87,7 @@ export default class World {
     return this.entityStore.getAllEntities();
   }
 
-  registerComponent<T extends Component>(componentClass: ComponentID<T>) {
+  registerComponent<T extends Component>(componentClass: ComponentClass<T>) {
     this.componentStore.registerComponent(componentClass);
   }
 
@@ -111,14 +111,14 @@ export default class World {
 
   getComponent<T extends Component>(
     entity: Entity,
-    componentClass: ComponentID<T>,
+    componentClass: ComponentClass<T>,
   ): T | undefined {
     return this.componentStore.getComponent(entity, componentClass);
   }
 
   removeComponent<T extends Component>(
     entity: Entity,
-    componentClass: ComponentID<T>,
+    componentClass: ComponentClass<T>,
   ) {
     const componentType = this.componentStore.getRegisteredComponentClass(
       componentClass.name,
@@ -151,13 +151,13 @@ export default class World {
   }
 
   getEntitiesWithComponent<T extends Component>(
-    componentClass: ComponentID<T>,
+    componentClass: ComponentClass<T>,
   ): Entity[] {
     return this.componentStore.getEntitiesWithComponent(componentClass);
   }
 
   getEntitiesWithArchetype(
-    ...componentClasses: Array<ComponentID<Component>>
+    ...componentClasses: Array<ComponentClass<Component>>
   ): Entity[] {
     return this.componentStore.getEntitiesWithArchetype(...componentClasses);
   }
