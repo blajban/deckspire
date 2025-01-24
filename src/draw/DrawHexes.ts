@@ -17,7 +17,7 @@ import { HexCoordinates } from '../math/hexgrid/HexVectors';
  */
 export class DrawHexGrid extends DrawSubSystem {
   constructor() {
-    super([CompDrawable, CompHexGrid, CompTransform]);
+    super([[CompDrawable, CompHexGrid, CompTransform]]);
   }
 
   update(
@@ -52,7 +52,7 @@ export class DrawHexGrid extends DrawSubSystem {
  */
 export class DrawHex extends DrawSubSystem {
   constructor() {
-    super([CompDrawable, CompHex, CompChild]);
+    super([[CompDrawable, CompHex, CompChild]]);
   }
 
   update(

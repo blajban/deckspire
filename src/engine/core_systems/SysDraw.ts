@@ -1,11 +1,11 @@
 import Component, { ComponentClass } from '../core/Component';
 import Scene from '../core/Scene';
-import System from '../core/System';
+import System, { ApplicableArchetypes, Archetype } from '../core/System';
 import World from '../core/World';
 import CompDrawable from '../core_components/CompDrawable';
 
-export abstract class DrawSubSystem {
-  constructor(private archetype: ComponentClass<Component>[]) {}
+export abstract class DrawSubSystem implements ApplicableArchetypes {
+  constructor(public readonly archetypes: Archetype[]) {}
 
   update(
     world: World,
@@ -17,38 +17,35 @@ export abstract class DrawSubSystem {
   ) {
     throw new Error('Update method not implemented in DrawSubSystem.');
   }
-  public applicable_archetype(): ComponentClass<Component>[] {
-    return this.archetype;
-  }
 }
 
 export default class SysDraw extends System {
   private sub_systems: Array<DrawSubSystem> = [];
   private graphics_cache = new GraphicsCache();
 
-  constructor(private scene: Scene) {
-    super();
+  constructor() {
+    super([[CompDrawable]]);
   }
 
   public add_sub_system(sub_system: DrawSubSystem) {
     this.sub_systems.push(sub_system);
   }
 
-  public update(world: World, time: number, delta: number) {
+  public update(world: World, scene: Scene, time: number, delta: number) {
     this.sub_systems.forEach((sub_system) => {
-      world
-        .getEntitiesWithArchetype(...sub_system.applicable_archetype())
-        .forEach((entity) => {
+      sub_system.archetypes.forEach((archetype) => {
+        world.getEntitiesWithArchetype(...archetype).forEach((entity) => {
           const drawable = world.getComponent(entity, CompDrawable)!;
           sub_system.update(
             world,
-            this.scene,
+            scene,
             this.graphics_cache.get_component_cache(drawable),
             time,
             delta,
             entity,
           );
         });
+      });
     });
   }
 

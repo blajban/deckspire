@@ -3,24 +3,21 @@ import CompDrawable from '../core_components/CompDrawable';
 import CompFillStyle from '../core_components/CompFillStyle';
 import CompLineStyle from '../core_components/CompLineStyle';
 import CompParent from '../core_components/CompParent';
-import SysDraw from '../core_systems/SysDraw';
+import SysDraw, { DrawSubSystem } from '../core_systems/SysDraw';
 import Component, { ComponentClass } from './Component';
 import ComponentStore from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
-import Scene from './Scene';
 
 export default class World {
   private entityStore: EntityStore;
   private componentStore: ComponentStore;
-  private system_draw;
+  private systemDraw = new SysDraw;
 
   constructor(
-    startingScene: Scene,
     entityStore: EntityStore,
     componentStore: ComponentStore,
   ) {
-    this.system_draw = new SysDraw(startingScene);
     this.entityStore = entityStore;
     this.componentStore = componentStore;
     // Core components are always registered.
@@ -29,6 +26,11 @@ export default class World {
     this.registerComponent(CompDrawable);
     this.registerComponent(CompLineStyle);
     this.registerComponent(CompFillStyle);
+  }
+  
+  // Temporary until we have a system handler.
+  public getDrawSystem(): SysDraw{
+    return this.systemDraw;
   }
 
   newEntity(): Entity {
@@ -69,7 +71,7 @@ export default class World {
     // Clean up Phaser objects if the Drawable has created any.
     const drawable = this.getComponent(entity, CompDrawable);
     if (drawable) {
-      this.system_draw.cleanup(drawable);
+      this.systemDraw.cleanup(drawable);
     }
 
     // Remove all components

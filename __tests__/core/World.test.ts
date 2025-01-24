@@ -25,7 +25,7 @@ describe('World', () => {
     const entityStore = new EntityStore();
     const componentStore = new ComponentStore();
     const scene = new Scene();
-    world = new World(scene, entityStore, componentStore);
+    world = new World(entityStore, componentStore);
 
     world.registerComponent(CompParent);
     world.registerComponent(CompChild);

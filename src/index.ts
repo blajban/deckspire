@@ -14,14 +14,12 @@ import { DrawHex, DrawHexGrid } from './draw/DrawHexes';
 import Scene from './engine/core/Scene';
 import CompLineStyle from './engine/core_components/CompLineStyle';
 import CompFillStyle from './engine/core_components/CompFillStyle';
-import SysDraw from './engine/core_systems/SysDraw';
 
 class MainScene extends Scene {
   private entityStore = new EntityStore();
   private componentStore = new ComponentStore();
-  private world = new World(this, this.entityStore, this.componentStore);
+  private world = new World(this.entityStore, this.componentStore);
   private parentChildExampleSystem = new ParentChildExampleSystem();
-  private draw_everything = new SysDraw(this);
 
   constructor() {
     super('MainScene');
@@ -33,8 +31,8 @@ class MainScene extends Scene {
     this.world.registerComponent(CompHexGrid);
     this.world.registerComponent(CompTransform);
 
-    this.draw_everything.add_sub_system(new DrawHexGrid());
-    this.draw_everything.add_sub_system(new DrawHex());
+    this.world.getDrawSystem().add_sub_system(new DrawHexGrid());
+    this.world.getDrawSystem().add_sub_system(new DrawHex());
 
     loadJsonFile('/world.json')
       .then((data) => {
@@ -83,8 +81,8 @@ class MainScene extends Scene {
   }
 
   update(time: number, delta: number) {
-    this.parentChildExampleSystem.update(this.world, time, delta);
-    this.draw_everything.update(this.world, time, delta);
+    this.parentChildExampleSystem.update(this.world, this, time, delta);
+    this.world.getDrawSystem().update(this.world, this, time, delta);
   }
 }
 
