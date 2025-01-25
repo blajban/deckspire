@@ -14,22 +14,23 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
     // Need Drawable to get depth. Should probably be change to a separate component.
     super([[CompMouseSensitive, CompDrawable]]);
     scene.input.addListener('pointermove', this.on_pointer_move, this);
+    scene.input.setPollAlways();
   }
 
   private on_pointer_move(pointer: Phaser.Input.Pointer) {
-    this.context.last_position = pointer.position;
+    this.context.last_position = pointer.position.clone();
     this.context.time_since_last_event =
       pointer.time - this.context.timestamp_of_last_event;
     this.context.timestamp_of_last_event = pointer.time;
-    this.context.valid = true;
-    console.log(`Pointer position: (${pointer.x}, ${pointer.y}`);
+    this.context.unhandled = true;
+    console.log(`Pointer position: (${pointer.x}, ${pointer.y})`);
+    console.log(`Pointer deltas: (${pointer.deltaX}, ${pointer.deltaY})`);
+    console.log(`Pointer distance: ${pointer.distance}`);
+    console.log('MouseContext position: ', this.context.last_position);
   }
 
   public update(world: World, scene: Scene, time: number, delta: number) {
-    scene.input.setPollAlways();
-    const pointer = scene.input.activePointer;
-    this.context.last_position = pointer.position;
-    if (!this.context.valid) {
+    if (!this.context.unhandled) {
       return;
     }
 
@@ -65,6 +66,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
         });
       });
     });
+    this.context.unhandled = false;
   }
 }
 
@@ -89,7 +91,7 @@ export abstract class MouseSubSystem extends SubSystem {
 }
 
 export class MouseContext {
-  public valid = false;
+  public unhandled = false;
   public last_position: Vector2D = new Vector2D(0, 0);
   public time_since_last_event: number = 0;
   public timestamp_of_last_event: number = 0;
