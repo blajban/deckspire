@@ -5,7 +5,9 @@ import { Entity } from '../engine/core/Entity';
 import Scene from '../engine/core/Scene';
 import World from '../engine/core/World';
 import CompDrawable from '../engine/core_components/CompDrawable';
+import CompLineStyle from '../engine/core_components/CompLineStyle';
 import CompMouseSensitive from '../engine/core_components/CompMouseSensitive';
+import CompNamed from '../engine/core_components/CompNamed';
 import { MouseContext, MouseSubSystem } from '../engine/core_systems/SysMouse';
 
 export class SysPointedAtHex extends MouseSubSystem {
@@ -28,7 +30,8 @@ export class SysPointedAtHex extends MouseSubSystem {
     const mouse_sensitivity = world.getComponent(entity, CompMouseSensitive)!;
     if (mouse_sensitivity.activate && mouse_sensitivity.activate_on_motion) {
       const hex_coordinates = hex_grid.hex_coordinates_from_vector2d(
-        context.last_position.clone()
+        context.last_position
+          .clone()
           .subtract(transform.position)
           .rotate(-transform.rotation),
       );
@@ -61,8 +64,10 @@ export class SysPointedAtHex extends MouseSubSystem {
       this.pointed_at_hex = world.newEntity();
       world.addComponents(
         this.pointed_at_hex,
+        new CompNamed('The Selected Hex'),
         new CompDrawable(10),
         new CompHex(hex_coordinates),
+        new CompLineStyle(5, 0xff0000, 0.5),
       );
       world.addParentChildRelationship(entity, this.pointed_at_hex);
     } else {

@@ -8,6 +8,7 @@ import CompChild from '../engine/core_components/CompChild';
 import CompDrawable from '../engine/core_components/CompDrawable';
 import CompFillStyle from '../engine/core_components/CompFillStyle';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
+import CompNamed from '../engine/core_components/CompNamed';
 import { DrawSubSystem, GraphicsCacheObject } from '../engine/core_systems/SysDraw';
 import HexGrid from '../math/hexgrid/HexGrid';
 import { HexCoordinates } from '../math/hexgrid/HexVectors';
@@ -62,6 +63,7 @@ export class DrawHex extends DrawSubSystem {
     delta: number,
     entity: Entity,
   ) {
+    console.log(`Drawing entity named: ${world.getComponent(entity, CompNamed)?.name}`);
     const drawable = world.getComponent(entity, CompDrawable)!;
     const hex = world.getComponent(entity, CompHex)!.coordinates;
     const line_style = world.getComponent(entity, CompLineStyle);
@@ -95,6 +97,10 @@ function draw_hex(
     .vector2d_from_hex_distance(hex.distance_from_origin())
     .multiply(transform.scale)
     .add(transform.position);
+  if( !fill_style && !line_style){
+    console.warn('Warning: Hex entity lacks both FillStyle and LineStyle components.');
+    return;
+  }
   if (fill_style) {
     gfx.fillStyle(fill_style.color, fill_style.alpha);
     gfx.fillEllipse(
