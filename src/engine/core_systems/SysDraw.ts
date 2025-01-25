@@ -1,50 +1,41 @@
 import { Archetype } from '../core/ComponentStore';
+import { Entity } from '../core/Entity';
 import Scene from '../core/Scene';
-import System, { HasApplicableArchetypes } from '../core/System';
+import { SubSystem, SystemWithSubsystems } from '../core/System';
 import World from '../core/World';
 import CompDrawable from '../core_components/CompDrawable';
+import { set_union } from '../util/set_utility_functions';
 
-export abstract class DrawSubSystem implements HasApplicableArchetypes {
-  constructor(public readonly archetypes: Archetype[]) {}
-
-  update(
+export abstract class DrawSubSystem extends SubSystem {
+  public abstract update(
     world: World,
     scene: Scene,
     cache: GraphicsCacheObject,
     time: number,
     delta: number,
     entity: number,
-  ) {
-    throw new Error('Update method not implemented in DrawSubSystem.');
-  }
+  ): void;
 }
 
-export default class SysDraw extends System {
-  private sub_systems: Array<DrawSubSystem> = [];
+export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
   private graphics_cache = new GraphicsCache();
 
   constructor() {
     super([[CompDrawable]]);
   }
 
-  public add_sub_system(sub_system: DrawSubSystem) {
-    this.sub_systems.push(sub_system);
-  }
-
   public update(world: World, scene: Scene, time: number, delta: number) {
     this.sub_systems.forEach((sub_system) => {
-      sub_system.archetypes.forEach((archetype) => {
-        world.getEntitiesWithArchetype(...archetype).forEach((entity) => {
-          const drawable = world.getComponent(entity, CompDrawable)!;
-          sub_system.update(
-            world,
-            scene,
-            this.graphics_cache.get_component_cache(drawable),
-            time,
-            delta,
-            entity,
-          );
-        });
+      sub_system.all_matching_entities(world).forEach((entity) => {
+        const drawable = world.getComponent(entity, CompDrawable)!;
+        sub_system.update(
+          world,
+          scene,
+          this.graphics_cache.get_component_cache(drawable),
+          time,
+          delta,
+          entity,
+        );
       });
     });
   }

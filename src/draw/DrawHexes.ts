@@ -76,6 +76,7 @@ export class DrawHex extends DrawSubSystem {
       cache.graphics_object = scene.add.graphics();
     }
     const gfx = cache.graphics_object;
+    gfx.clear();
     gfx.setDepth(drawable.depth);
 
     draw_hex(gfx, hex, hex_grid, transform, line_style, fill_style);

@@ -2,35 +2,61 @@ import CompChild from '../core_components/CompChild';
 import CompDrawable from '../core_components/CompDrawable';
 import CompFillStyle from '../core_components/CompFillStyle';
 import CompLineStyle from '../core_components/CompLineStyle';
+import CompMouseSensitive from '../core_components/CompMouseSensitive';
 import CompParent from '../core_components/CompParent';
 import SysDraw, { DrawSubSystem } from '../core_systems/SysDraw';
+import SysMouse from '../core_systems/SysMouse';
 import Component, { ComponentClass } from './Component';
 import ComponentStore, { Archetype } from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
+import Scene from './Scene';
 
 export default class World {
   private entityStore: EntityStore;
   private componentStore: ComponentStore;
-  private systemDraw = new SysDraw;
+  private systemDraw: SysDraw | null = null;
+  private systemMouse: SysMouse | null = null;
 
   constructor(
+    private topLevelScene: Scene,
     entityStore: EntityStore,
     componentStore: ComponentStore,
   ) {
     this.entityStore = entityStore;
     this.componentStore = componentStore;
     // Core components are always registered.
+    this.registerCoreComponents();
+  }
+
+  public addDraw() {
+    if (!this.systemDraw) {
+      this.systemDraw = new SysDraw();
+    }
+  }
+
+  public addMouse() {
+    if (!this.systemMouse) {
+      this.systemMouse = new SysMouse(this.topLevelScene);
+    }
+  }
+
+  private registerCoreComponents() {
     this.registerComponent(CompParent);
     this.registerComponent(CompChild);
     this.registerComponent(CompDrawable);
     this.registerComponent(CompLineStyle);
     this.registerComponent(CompFillStyle);
+    this.registerComponent(CompMouseSensitive);
   }
-  
+
   // Temporary until we have a system handler.
-  public getDrawSystem(): SysDraw{
+  public getDrawSystem(): SysDraw | null {
     return this.systemDraw;
+  }
+
+  public getMouseSystem(): SysMouse | null {
+    return this.systemMouse;
   }
 
   newEntity(): Entity {
@@ -71,7 +97,7 @@ export default class World {
     // Clean up Phaser objects if the Drawable has created any.
     const drawable = this.getComponent(entity, CompDrawable);
     if (drawable) {
-      this.systemDraw.cleanup(drawable);
+      this.systemDraw?.cleanup(drawable);
     }
 
     // Remove all components
@@ -158,9 +184,7 @@ export default class World {
     return this.componentStore.getEntitiesWithComponent(componentClass);
   }
 
-  getEntitiesWithArchetype(
-    ...componentClasses: Archetype
-  ): Set<Entity> {
+  getEntitiesWithArchetype(...componentClasses: Archetype): Set<Entity> {
     return this.componentStore.getEntitiesWithArchetype(...componentClasses);
   }
 

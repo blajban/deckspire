@@ -10,3 +10,13 @@ export function set_intersection<T>(...sets: Set<T>[]): Set<T> {
   }
   return result;
 }
+
+export function set_union<T>(...sets: Set<T>[]): Set<T> {
+  const result = new Set<T>();
+  sets.forEach((set) => {
+    set.forEach((val) => {
+      result.add(val);
+    });
+  });
+  return result;
+}

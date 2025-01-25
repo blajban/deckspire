@@ -14,15 +14,18 @@ import { DrawHex, DrawHexGrid } from './draw/DrawHexes';
 import Scene from './engine/core/Scene';
 import CompLineStyle from './engine/core_components/CompLineStyle';
 import CompFillStyle from './engine/core_components/CompFillStyle';
+import { SysPointedAtHex } from './systems/SysPointedAtHex';
+import CompMouseSensitive from './engine/core_components/CompMouseSensitive';
 
 class MainScene extends Scene {
   private entityStore = new EntityStore();
   private componentStore = new ComponentStore();
-  private world = new World(this.entityStore, this.componentStore);
   private parentChildExampleSystem = new ParentChildExampleSystem();
+  private world: World;
 
   constructor() {
     super('MainScene');
+    this.world = new World(this, this.entityStore, this.componentStore);
   }
 
   preload() {
@@ -31,8 +34,12 @@ class MainScene extends Scene {
     this.world.registerComponent(CompHexGrid);
     this.world.registerComponent(CompTransform);
 
-    this.world.getDrawSystem().add_sub_system(new DrawHexGrid());
-    this.world.getDrawSystem().add_sub_system(new DrawHex());
+    this.world.addMouse();
+    this.world.getMouseSystem()!.add_sub_system(new SysPointedAtHex());
+
+    this.world.addDraw();
+    this.world.getDrawSystem()!.add_sub_system(new DrawHexGrid());
+    this.world.getDrawSystem()!.add_sub_system(new DrawHex());
 
     loadJsonFile('/world.json')
       .then((data) => {
@@ -51,10 +58,11 @@ class MainScene extends Scene {
     this.world.addComponents(
       hex_grid,
       new CompHexGrid(new HexGrid(3, 50, HorizontalLayout)),
-      new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9) ),
+      new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
       new CompDrawable(-1),
       new CompLineStyle(5, 0x000000, 1),
       new CompFillStyle(0x888888, 1),
+      new CompMouseSensitive(),
     );
     this.world.addComponents(
       red_hex,
@@ -82,7 +90,8 @@ class MainScene extends Scene {
 
   update(time: number, delta: number) {
     this.parentChildExampleSystem.update(this.world, this, time, delta);
-    this.world.getDrawSystem().update(this.world, this, time, delta);
+    this.world.getMouseSystem()?.update(this.world, this, time, delta);
+    this.world.getDrawSystem()?.update(this.world, this, time, delta);
   }
 }
 
