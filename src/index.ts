@@ -69,6 +69,7 @@ class MainScene extends Scene {
   }
 
   update(time: number, delta: number) {
+    console.log(`FPS: ${game.loop.actualFps}`);
     this.world.getMouseSystem()?.update(this.world, this, time, delta);
     this.world.getDrawSystem()?.update(this.world, this, time, delta);
   }
