@@ -8,7 +8,7 @@ import CompDrawable from '../engine/core_components/CompDrawable';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
 import CompMouseSensitive from '../engine/core_components/CompMouseSensitive';
 import CompNamed from '../engine/core_components/CompNamed';
-import { MouseContext, MouseSubSystem } from '../engine/core_systems/SysMouse';
+import { MouseEvent, MouseSubSystem } from '../engine/core_systems/SysMouse';
 
 export class SysPointedAtHex extends MouseSubSystem {
   private pointed_at_hex: Entity | null = null;
@@ -20,7 +20,7 @@ export class SysPointedAtHex extends MouseSubSystem {
   public is_entity_pointed_at(
     world: World,
     scene: Scene,
-    context: MouseContext,
+    context: MouseEvent,
     time: number,
     delta: number,
     entity: Entity,
@@ -36,20 +36,17 @@ export class SysPointedAtHex extends MouseSubSystem {
           .rotate(-transform.rotation),
       );
       console.log(
-        `Pointing at position: (${context.last_position.x}, ${context.last_position.y})`,
-      );
-      console.log(
-        `Pointing at coords: (${hex_coordinates.q}, ${hex_coordinates.r})`,
+        `Pointing at position: (${context.last_position.x}, ${context.last_position.y}), corresponding to coordinates: (${hex_coordinates.q}, ${hex_coordinates.r})`,
       );
       return hex_grid.is_hex_in_grid(hex_coordinates);
     }
     return false;
   }
 
-  public pointing_at(
+  public on_mouse_event(
     world: World,
     scene: Scene,
-    context: MouseContext,
+    context: MouseEvent,
     time: number,
     delta: number,
     entity: Entity,

@@ -9,7 +9,10 @@ import CompDrawable from '../engine/core_components/CompDrawable';
 import CompFillStyle from '../engine/core_components/CompFillStyle';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
 import CompNamed from '../engine/core_components/CompNamed';
-import { DrawSubSystem, GraphicsCacheObject } from '../engine/core_systems/SysDraw';
+import {
+  DrawSubSystem,
+  GraphicsCacheObject,
+} from '../engine/core_systems/SysDraw';
 import HexGrid from '../math/hexgrid/HexGrid';
 import { HexCoordinates } from '../math/hexgrid/HexVectors';
 
@@ -21,6 +24,15 @@ export class DrawHexGrid extends DrawSubSystem {
     super([[CompDrawable, CompHexGrid, CompTransform]]);
   }
 
+  /**
+   * The cached Graphics object must be cleared before drawing to it again.
+   * @param world 
+   * @param scene 
+   * @param cache 
+   * @param time 
+   * @param delta 
+   * @param entity 
+   */
   update(
     world: World,
     scene: Scene,
@@ -64,7 +76,7 @@ export class DrawHex extends DrawSubSystem {
     delta: number,
     entity: Entity,
   ) {
-    console.log(`Drawing entity named: ${world.getComponent(entity, CompNamed)?.name}`);
+    //console.log(`Drawing entity named: ${world.getComponent(entity, CompNamed)?.name}`);
     const drawable = world.getComponent(entity, CompDrawable)!;
     const hex = world.getComponent(entity, CompHex)!.coordinates;
     const line_style = world.getComponent(entity, CompLineStyle);
@@ -72,8 +84,9 @@ export class DrawHex extends DrawSubSystem {
     const parent = world.getComponent(entity, CompChild)!.parent;
     let hex_grid = world.getComponent(parent, CompHexGrid)!.hexgrid;
     let transform = world.getComponent(parent, CompTransform);
-    if (!transform)
+    if (!transform) {
       throw new Error('Parent does not have a transform component');
+    }
 
     if (!cache.graphics_object) {
       cache.graphics_object = scene.add.graphics();
@@ -98,8 +111,10 @@ function draw_hex(
     .vector2d_from_hex_distance(hex.distance_from_origin())
     .multiply(transform.scale)
     .add(transform.position);
-  if( !fill_style && !line_style){
-    console.warn('Warning: Hex entity lacks both FillStyle and LineStyle components.');
+  if (!fill_style && !line_style) {
+    console.warn(
+      'Warning: Hex entity lacks both FillStyle and LineStyle components.',
+    );
     return;
   }
   if (fill_style) {

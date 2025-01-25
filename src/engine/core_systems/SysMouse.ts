@@ -8,7 +8,7 @@ import CompMouseSensitive from '../core_components/CompMouseSensitive';
 import { set_intersection, set_union } from '../util/set_utility_functions';
 
 export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
-  private context = new MouseContext();
+  private context = new MouseEvent();
 
   constructor(scene: Scene) {
     // Need Drawable to get depth. Should probably be change to a separate component.
@@ -23,10 +23,6 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
       pointer.time - this.context.timestamp_of_last_event;
     this.context.timestamp_of_last_event = pointer.time;
     this.context.unhandled = true;
-    console.log(`Pointer position: (${pointer.x}, ${pointer.y})`);
-    console.log(`Pointer deltas: (${pointer.deltaX}, ${pointer.deltaY})`);
-    console.log(`Pointer distance: ${pointer.distance}`);
-    console.log('MouseContext position: ', this.context.last_position);
   }
 
   public update(world: World, scene: Scene, time: number, delta: number) {
@@ -55,7 +51,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
       });
       sub_system_entity_sets.forEach((set) => {
         set_intersection(set, pointed_at_entities).forEach((entity) => {
-          sub_system.pointing_at(
+          sub_system.on_mouse_event(
             world,
             scene,
             this.context,
@@ -74,26 +70,28 @@ export abstract class MouseSubSystem extends SubSystem {
   public abstract is_entity_pointed_at(
     world: World,
     scene: Scene,
-    context: MouseContext,
+    context: MouseEvent,
     time: number,
     delta: number,
     entity: Entity,
   ): boolean;
 
-  public abstract pointing_at(
+  public abstract on_mouse_event(
     world: World,
     scene: Scene,
-    context: MouseContext,
+    context: MouseEvent,
     time: number,
     delta: number,
     entity: Entity,
   ): void;
 }
 
-export class MouseContext {
-  public unhandled = false;
-  public last_position: Vector2D = new Vector2D(0, 0);
-  public time_since_last_event: number = 0;
-  public timestamp_of_last_event: number = 0;
-  public on_top: boolean | undefined = undefined;
+export class MouseEvent {
+  constructor(
+    public unhandled = false,
+    public last_position: Vector2D = new Vector2D(0, 0),
+    public time_since_last_event: number = 0,
+    public timestamp_of_last_event: number = 0,
+    public on_top: boolean = false,
+  ) {}
 }
