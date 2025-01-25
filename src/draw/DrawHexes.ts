@@ -39,6 +39,7 @@ export class DrawHexGrid extends DrawSubSystem {
       cache.graphics_object = scene.add.graphics();
     }
     const gfx = cache.graphics_object;
+    gfx.clear();
     gfx.setDepth(drawable.depth);
 
     hex_grid.all_hexes().forEach((hex) => {

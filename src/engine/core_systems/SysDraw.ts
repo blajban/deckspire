@@ -70,4 +70,8 @@ export class GraphicsCache {
   public delete_cache(drawable: CompDrawable) {
     this.component_caches.delete(drawable);
   }
+
+  public size(): number{
+    return this.component_caches.size;
+  }
 }
