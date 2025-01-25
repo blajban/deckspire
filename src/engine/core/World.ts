@@ -3,6 +3,7 @@ import CompDrawable from '../core_components/CompDrawable';
 import CompFillStyle from '../core_components/CompFillStyle';
 import CompLineStyle from '../core_components/CompLineStyle';
 import CompMouseSensitive from '../core_components/CompMouseSensitive';
+import CompNamed from '../core_components/CompNamed';
 import CompParent from '../core_components/CompParent';
 import SysDraw, { DrawSubSystem } from '../core_systems/SysDraw';
 import SysMouse from '../core_systems/SysMouse';
@@ -42,12 +43,13 @@ export default class World {
   }
 
   private registerCoreComponents() {
-    this.registerComponent(CompParent);
     this.registerComponent(CompChild);
     this.registerComponent(CompDrawable);
-    this.registerComponent(CompLineStyle);
     this.registerComponent(CompFillStyle);
+    this.registerComponent(CompLineStyle);
     this.registerComponent(CompMouseSensitive);
+    this.registerComponent(CompNamed);
+    this.registerComponent(CompParent);
   }
 
   // Temporary until we have a system handler.

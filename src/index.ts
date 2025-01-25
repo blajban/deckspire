@@ -16,6 +16,7 @@ import CompLineStyle from './engine/core_components/CompLineStyle';
 import CompFillStyle from './engine/core_components/CompFillStyle';
 import { SysPointedAtHex } from './systems/SysPointedAtHex';
 import CompMouseSensitive from './engine/core_components/CompMouseSensitive';
+import CompNamed from './engine/core_components/CompNamed';
 
 class MainScene extends Scene {
   private entityStore = new EntityStore();
@@ -57,6 +58,7 @@ class MainScene extends Scene {
     const blue_hex = this.world.newEntity();
     this.world.addComponents(
       hex_grid,
+      new CompNamed('The Hex Grid'),
       new CompHexGrid(new HexGrid(3, 50, HorizontalLayout)),
       new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
       new CompDrawable(-1),
@@ -66,18 +68,21 @@ class MainScene extends Scene {
     );
     this.world.addComponents(
       red_hex,
+      new CompNamed('The Red Hex'),
       new CompHex(new HexCoordinates(-1, 1)),
       new CompDrawable(1),
       new CompLineStyle(5, 0xff0000, 0.5),
     );
     this.world.addComponents(
       green_hex,
+      new CompNamed('The Green Hex'),
       new CompHex(new HexCoordinates(0, 0)),
       new CompDrawable(1),
       new CompLineStyle(5, 0x00ff00, 0.5),
     );
     this.world.addComponents(
       blue_hex,
+      new CompNamed('The Blue Hex'),
       new CompHex(new HexCoordinates(1, 0)),
       new CompDrawable(1),
       new CompLineStyle(5, 0x0000ff, 0.5),
@@ -89,7 +94,6 @@ class MainScene extends Scene {
   }
 
   update(time: number, delta: number) {
-    this.parentChildExampleSystem.update(this.world, this, time, delta);
     this.world.getMouseSystem()?.update(this.world, this, time, delta);
     this.world.getDrawSystem()?.update(this.world, this, time, delta);
   }
