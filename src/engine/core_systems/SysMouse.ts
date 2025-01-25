@@ -17,6 +17,10 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
     scene.input.setPollAlways();
   }
 
+  /**
+   * Called upon a pointermove event.
+   * @param {Phaser.Input.Pointer} pointer - a pointer object.
+   */
   private on_pointer_move(pointer: Phaser.Input.Pointer) {
     this.context.last_position = pointer.position.clone();
     this.context.time_since_last_event =
@@ -29,7 +33,6 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
     if (!this.context.unhandled) {
       return;
     }
-
     const pointed_at_entities = new Set<Entity>();
     const sub_system_entity_sets = new Map<SubSystem, Set<Entity>>();
     this.sub_systems.forEach((sub_system) => {

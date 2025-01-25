@@ -5,7 +5,7 @@ import CompLineStyle from '../core_components/CompLineStyle';
 import CompMouseSensitive from '../core_components/CompMouseSensitive';
 import CompNamed from '../core_components/CompNamed';
 import CompParent from '../core_components/CompParent';
-import SysDraw, { DrawSubSystem } from '../core_systems/SysDraw';
+import SysDraw from '../core_systems/SysDraw';
 import SysMouse from '../core_systems/SysMouse';
 import Component, { ComponentClass } from './Component';
 import ComponentStore, { Archetype } from './ComponentStore';
@@ -30,18 +30,29 @@ export default class World {
     this.registerCoreComponents();
   }
 
+  /**
+   * Adds the core system for drawing entities to the world.
+   */
   public addDraw() {
     if (!this.systemDraw) {
       this.systemDraw = new SysDraw();
     }
   }
 
+  /**
+   * Adds the core system for handling mouse input to the world,
+   */
   public addMouse() {
     if (!this.systemMouse) {
+      /* Do not move this to the constructor! The Scene.Input object will not
+       * yet be instantiated and things will fail. */
       this.systemMouse = new SysMouse(this.topLevelScene);
     }
   }
 
+  /**
+   * Registers all core components.
+   */
   private registerCoreComponents() {
     this.registerComponent(CompChild);
     this.registerComponent(CompDrawable);
@@ -53,10 +64,16 @@ export default class World {
   }
 
   // Temporary until we have a system handler.
+  /**
+   * @returns {SysDraw | null} the draw system if it exists.
+   */
   public getDrawSystem(): SysDraw | null {
     return this.systemDraw;
   }
 
+  /**
+   * @returns {SysMouse | null} the mouse handling system if it exists.
+   */
   public getMouseSystem(): SysMouse | null {
     return this.systemMouse;
   }
