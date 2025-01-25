@@ -66,31 +66,6 @@ class MainScene extends Scene {
       new CompFillStyle(0x888888, 1),
       new CompMouseSensitive(),
     );
-    this.world.addComponents(
-      red_hex,
-      new CompNamed('The Red Hex'),
-      new CompHex(new HexCoordinates(-1, 1)),
-      new CompDrawable(1),
-      new CompLineStyle(5, 0xff0000, 0.5),
-    );
-    this.world.addComponents(
-      green_hex,
-      new CompNamed('The Green Hex'),
-      new CompHex(new HexCoordinates(0, 0)),
-      new CompDrawable(1),
-      new CompLineStyle(5, 0x00ff00, 0.5),
-    );
-    this.world.addComponents(
-      blue_hex,
-      new CompNamed('The Blue Hex'),
-      new CompHex(new HexCoordinates(1, 0)),
-      new CompDrawable(1),
-      new CompLineStyle(5, 0x0000ff, 0.5),
-      new CompFillStyle(0xffffff, 0.5),
-    );
-    this.world.addParentChildRelationship(hex_grid, red_hex);
-    this.world.addParentChildRelationship(hex_grid, green_hex);
-    this.world.addParentChildRelationship(hex_grid, blue_hex);
   }
 
   update(time: number, delta: number) {
