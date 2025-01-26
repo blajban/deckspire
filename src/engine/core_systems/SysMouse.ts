@@ -13,23 +13,10 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
   constructor(scene: Scene) {
     // Need Drawable to get depth. Should probably be change to a separate component.
     super([[CompMouseSensitive, CompDrawable]]);
-    scene.input.addListener('pointermove', this.on_pointer_move, this);
-    scene.input.setPollAlways();
-  }
-
-  /**
-   * Called upon a pointermove event.
-   * @param {Phaser.Input.Pointer} pointer - a pointer object.
-   */
-  private on_pointer_move(pointer: Phaser.Input.Pointer) {
-    this.context.last_position = pointer.position.clone();
-    this.context.time_since_last_event =
-      pointer.time - this.context.timestamp_of_last_event;
-    this.context.timestamp_of_last_event = pointer.time;
-    this.context.unhandled = true;
   }
 
   public update(world: World, scene: Scene, time: number, delta: number) {
+    this.context.update_mouse_status(scene.input.activePointer.position, time);
     if (!this.context.unhandled) {
       return;
     }
@@ -90,11 +77,30 @@ export abstract class MouseSubSystem extends SubSystem {
 }
 
 export class MouseEvent {
-  constructor(
-    public unhandled = false,
-    public last_position: Vector2D = new Vector2D(0, 0),
-    public time_since_last_event: number = 0,
-    public timestamp_of_last_event: number = 0,
-    public on_top: boolean = false,
-  ) {}
+  public last_position: Vector2D = new Vector2D(0, 0);
+  public time_of_previous_event: number = 0;
+  public time_of_event: number = 0;
+  public on_top: boolean = false;
+  public unhandled = false;
+
+  public update_mouse_status(last_position: Vector2D, current_time: number): MouseEvent {
+    if( last_position.equals(this.last_position)){
+      return this;
+    }
+    this.last_position = last_position.clone();
+    this.time_of_previous_event = this.time_of_event;
+    this.time_of_event = current_time;
+    this.unhandled = true;
+    return this;
+  }
+
+  public set_item_is_on_top(on_top: boolean) : MouseEvent {
+    this.on_top = on_top;
+    return this;
+  }
+
+  public set_event_is_handled(handled: boolean): MouseEvent {
+    this.unhandled = !handled;
+    return this;
+  }
 }
