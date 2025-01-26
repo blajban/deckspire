@@ -61,7 +61,7 @@ class MainScene extends Scene {
       new CompDrawable(0),
       new CompLineStyle(5, 0x000000, 1),
       new CompFillStyle(0x888888, 1),
-      new CompMouseSensitive(true),
+      new CompMouseSensitive(0,true,false,true,true),
     );
     // This grid blocks the mouse events from reaching the other hex grid due to being higher up
     const partly_blocking_grid = this.world.newEntity();
@@ -70,8 +70,7 @@ class MainScene extends Scene {
       new CompNamed('The Blocking Grid'),
       new CompHexGrid(new HexGrid(2, 50, HorizontalLayout)),
       new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
-      new CompDrawable(1),
-      new CompMouseSensitive(false),
+      new CompMouseSensitive(1, false),
     );
   }
 

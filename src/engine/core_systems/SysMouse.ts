@@ -3,21 +3,19 @@ import { Entity } from '../core/Entity';
 import Scene from '../core/Scene';
 import { SubSystem, SystemWithSubsystems } from '../core/System';
 import World from '../core/World';
-import CompDrawable from '../core_components/CompDrawable';
 import CompMouseSensitive from '../core_components/CompMouseSensitive';
-import { set_intersection, set_union } from '../util/set_utility_functions';
+import { set_intersection } from '../util/set_utility_functions';
 
 export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
-  private context = new MouseEvent();
+  private mouse_event = new MouseEvent();
 
   constructor(scene: Scene) {
-    // Need Drawable to get depth. Should probably be change to a separate component.
-    super([[CompMouseSensitive, CompDrawable]]);
+    super([[CompMouseSensitive]]);
   }
 
   public update(world: World, scene: Scene, time: number, delta: number) {
-    this.context.update_mouse_status(scene.input.activePointer.position, time);
-    if (!this.context.unhandled) {
+    this.mouse_event.update_mouse_status(scene.input.activePointer, time);
+    if (!this.mouse_event.unhandled) {
       return;
     }
     const pointed_at_entities = new Set<Entity>();
@@ -32,21 +30,24 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
           sub_system.is_entity_pointed_at(
             world,
             scene,
-            this.context,
+            this.mouse_event,
             time,
             delta,
             entity,
           )
         ) {
           pointed_at_entities.add(entity);
-          const depth = world.getComponent(entity, CompDrawable)!.depth;
+          const depth = world.getComponent(
+            entity,
+            CompMouseSensitive,
+          )!.mouse_depth;
           if (top_depth < depth) {
             top_depth = depth;
             on_top_entity = entity;
           }
         }
       });
-      this.context.entity_on_top = on_top_entity;
+      this.mouse_event.entity_on_top = on_top_entity;
       sub_system_entity_sets.forEach((set) => {
         set_intersection(set, pointed_at_entities).forEach((entity) => {
           const mouse_sensitivity = world.getComponent(
@@ -59,13 +60,15 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
               mouse_sensitivity.activate_even_if_not_on_top)
           ) {
             if (
-              (mouse_sensitivity.activate_on_move && this.context.has_moved) ||
-              (mouse_sensitivity.activate_on_click && this.context.has_clicked)
+              (mouse_sensitivity.activate_on_move &&
+                this.mouse_event.has_moved) ||
+              (mouse_sensitivity.activate_on_click &&
+                this.mouse_event.has_clicked)
             ) {
               sub_system.on_mouse_event(
                 world,
                 scene,
-                this.context,
+                this.mouse_event,
                 time,
                 delta,
                 entity,
@@ -75,7 +78,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
         });
       });
     });
-    this.context.unhandled = false;
+    this.mouse_event.unhandled = false;
   }
 }
 
@@ -99,6 +102,13 @@ export abstract class MouseSubSystem extends SubSystem {
   ): void;
 }
 
+export enum MouseButtonStatus {
+  None,
+  Down,
+  Held,
+  Up,
+}
+
 export class MouseEvent {
   public last_position: Vector2D = new Vector2D(0, 0);
   public time_of_previous_event: number = 0;
@@ -107,21 +117,61 @@ export class MouseEvent {
   public unhandled = false;
   public has_moved = false;
   public has_clicked = false;
+  private mouse_buttons_states: Map<number, MouseButtonStatus> = new Map();
+  private mouse_buttons: number = 0;
 
   public update_mouse_status(
-    last_position: Vector2D,
+    pointer: Phaser.Input.Pointer,
     current_time: number,
   ): MouseEvent {
-    if (!last_position.equals(this.last_position)) {
-      this.has_moved = true;
-    }
+    this.update_position(pointer.position);
+    this.update_mouse_button_status(pointer.buttons);
     if (!this.has_moved && !this.has_clicked) {
       return this;
     }
-    this.last_position = last_position.clone();
     this.time_of_previous_event = this.time_of_event;
     this.time_of_event = current_time;
     this.unhandled = true;
     return this;
+  }
+
+  private update_position(position: Vector2D) {
+    if (!position.equals(this.last_position)) {
+      this.last_position = position.clone();
+      this.has_moved = true;
+    }
+  }
+
+  private update_mouse_button_status(buttons: number) {
+    for (let n = 1; n <= 16; n *= 2) {
+      let old_pressed = (this.mouse_buttons & n) > 0;
+      let new_pressed = (buttons & n) > 0;
+      let state;
+      if (old_pressed && !new_pressed) {
+        state = MouseButtonStatus.Up;
+      } else if (!old_pressed && new_pressed) {
+        state = MouseButtonStatus.Down;
+      } else if (old_pressed && new_pressed) {
+        state = MouseButtonStatus.Held;
+      } else {
+        state = MouseButtonStatus.None;
+      }
+      this.mouse_buttons_states.set(n, state);
+    }
+    if (this.mouse_buttons !== buttons) {
+      this.mouse_buttons = buttons;
+      this.has_clicked = true;
+    }
+  }
+
+  /**
+   * @param {number} button - Which button to get status for, starting at 0 for the left mouse button.
+   * @returns - The status of the button or the None state if the button does not exist.
+   */
+  public mouse_button_state(button: number): MouseButtonStatus {
+    return (
+      this.mouse_buttons_states.get(Math.pow(2, button)) ??
+      MouseButtonStatus.None
+    );
   }
 }

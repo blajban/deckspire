@@ -76,7 +76,6 @@ export class DrawHex extends DrawSubSystem {
     delta: number,
     entity: Entity,
   ) {
-    //console.log(`Drawing entity named: ${world.getComponent(entity, CompNamed)?.name}`);
     const drawable = world.getComponent(entity, CompDrawable)!;
     const hex = world.getComponent(entity, CompHex)!.coordinates;
     const line_style = world.getComponent(entity, CompLineStyle);

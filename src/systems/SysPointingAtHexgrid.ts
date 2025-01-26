@@ -8,7 +8,7 @@ import CompDrawable from '../engine/core_components/CompDrawable';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
 import CompMouseSensitive from '../engine/core_components/CompMouseSensitive';
 import CompNamed from '../engine/core_components/CompNamed';
-import { MouseEvent, MouseSubSystem } from '../engine/core_systems/SysMouse';
+import { MouseButtonStatus, MouseEvent, MouseSubSystem } from '../engine/core_systems/SysMouse';
 
 export class SysPointingAtHexgrid extends MouseSubSystem {
   private pointed_at_hex: Entity | null = null;
@@ -20,7 +20,7 @@ export class SysPointingAtHexgrid extends MouseSubSystem {
   public is_entity_pointed_at(
     world: World,
     scene: Scene,
-    context: MouseEvent,
+    event: MouseEvent,
     time: number,
     delta: number,
     entity: Entity,
@@ -28,13 +28,10 @@ export class SysPointingAtHexgrid extends MouseSubSystem {
     const hex_grid = world.getComponent(entity, CompHexGrid)!.hexgrid;
     const transform = world.getComponent(entity, CompTransform)!;
     const hex_coordinates = hex_grid.hex_coordinates_from_vector2d(
-      context.last_position
+      event.last_position
         .clone()
         .subtract(transform.position)
         .rotate(-transform.rotation),
-    );
-    console.log(
-      `Pointing at position: (${context.last_position.x}, ${context.last_position.y}), corresponding to coordinates: (${hex_coordinates.q}, ${hex_coordinates.r})`,
     );
     return hex_grid.is_hex_in_grid(hex_coordinates);
   }
@@ -42,14 +39,14 @@ export class SysPointingAtHexgrid extends MouseSubSystem {
   public on_mouse_event(
     world: World,
     scene: Scene,
-    context: MouseEvent,
+    event: MouseEvent,
     time: number,
     delta: number,
     entity: Entity,
   ): void {
     const hex_grid = world.getComponent(entity, CompHexGrid)!.hexgrid;
     const transform = world.getComponent(entity, CompTransform)!;
-    const vec2d = context.last_position.clone();
+    const vec2d = event.last_position.clone();
     const hex_coordinates = hex_grid.hex_coordinates_from_vector2d(
       vec2d.subtract(transform.position).rotate(-transform.rotation),
     );
@@ -66,6 +63,13 @@ export class SysPointingAtHexgrid extends MouseSubSystem {
     } else {
       world.getComponent(this.pointed_at_hex, CompHex)!.coordinates =
         hex_coordinates;
+    }
+    let line_style = world.getComponent(this.pointed_at_hex, CompLineStyle)!;
+    if( event.mouse_button_state(0) === MouseButtonStatus.Held){
+      line_style.color = 0x0000ff;
+    }
+    else{
+      line_style.color = 0xff0000;
     }
   }
 }
