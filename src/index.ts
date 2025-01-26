@@ -41,13 +41,6 @@ class MainScene extends Scene {
     this.world.addDraw();
     this.world.getDrawSystem()!.add_sub_system(new DrawHexGrid());
     this.world.getDrawSystem()!.add_sub_system(new DrawHex());
-
-    loadJsonFile('/world.json')
-      .then((data) => {
-        console.log('Loaded JSON:', data);
-        this.world.deserialize(JSON.stringify(data));
-      })
-      .catch((error) => console.error('Error:', error));
   }
 
   create() {
