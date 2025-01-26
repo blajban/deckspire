@@ -26,7 +26,7 @@ class MainScene extends Scene {
 
   constructor() {
     super('MainScene');
-    this.world = new World(this, this.entityStore, this.componentStore);
+    this.world = new World(this.entityStore, this.componentStore);
   }
 
   preload() {
@@ -61,7 +61,7 @@ class MainScene extends Scene {
       new CompDrawable(0),
       new CompLineStyle(5, 0x000000, 1),
       new CompFillStyle(0x888888, 1),
-      new CompMouseSensitive(0,true,false,true,true),
+      new CompMouseSensitive(0, true, false, true, true),
     );
     // This grid blocks the mouse events from reaching the other hex grid due to being higher up
     const partly_blocking_grid = this.world.newEntity();

@@ -9,7 +9,7 @@ import { set_intersection } from '../util/set_utility_functions';
 export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
   private mouse_event = new MouseEvent();
 
-  constructor(scene: Scene) {
+  constructor() {
     super([[CompMouseSensitive]]);
   }
 

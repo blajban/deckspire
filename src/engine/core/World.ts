@@ -11,7 +11,6 @@ import Component, { ComponentClass } from './Component';
 import ComponentStore, { Archetype } from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
-import Scene from './Scene';
 
 export default class World {
   private entityStore: EntityStore;
@@ -19,11 +18,7 @@ export default class World {
   private systemDraw: SysDraw | null = null;
   private systemMouse: SysMouse | null = null;
 
-  constructor(
-    private topLevelScene: Scene,
-    entityStore: EntityStore,
-    componentStore: ComponentStore,
-  ) {
+  constructor(entityStore: EntityStore, componentStore: ComponentStore) {
     this.entityStore = entityStore;
     this.componentStore = componentStore;
     // Core components are always registered.
@@ -46,7 +41,7 @@ export default class World {
     if (!this.systemMouse) {
       /* Do not move this to the constructor! The Scene.Input object will not
        * yet be instantiated and things will fail. */
-      this.systemMouse = new SysMouse(this.topLevelScene);
+      this.systemMouse = new SysMouse();
     }
   }
 
