@@ -10,7 +10,7 @@ import CompMouseSensitive from '../engine/core_components/CompMouseSensitive';
 import CompNamed from '../engine/core_components/CompNamed';
 import { MouseEvent, MouseSubSystem } from '../engine/core_systems/SysMouse';
 
-export class SysPointedAtHex extends MouseSubSystem {
+export class SysPointingAtHexgrid extends MouseSubSystem {
   private pointed_at_hex: Entity | null = null;
 
   constructor() {
@@ -27,20 +27,16 @@ export class SysPointedAtHex extends MouseSubSystem {
   ): boolean {
     const hex_grid = world.getComponent(entity, CompHexGrid)!.hexgrid;
     const transform = world.getComponent(entity, CompTransform)!;
-    const mouse_sensitivity = world.getComponent(entity, CompMouseSensitive)!;
-    if (mouse_sensitivity.activate && mouse_sensitivity.activate_on_motion) {
-      const hex_coordinates = hex_grid.hex_coordinates_from_vector2d(
-        context.last_position
-          .clone()
-          .subtract(transform.position)
-          .rotate(-transform.rotation),
-      );
-      console.log(
-        `Pointing at position: (${context.last_position.x}, ${context.last_position.y}), corresponding to coordinates: (${hex_coordinates.q}, ${hex_coordinates.r})`,
-      );
-      return hex_grid.is_hex_in_grid(hex_coordinates);
-    }
-    return false;
+    const hex_coordinates = hex_grid.hex_coordinates_from_vector2d(
+      context.last_position
+        .clone()
+        .subtract(transform.position)
+        .rotate(-transform.rotation),
+    );
+    console.log(
+      `Pointing at position: (${context.last_position.x}, ${context.last_position.y}), corresponding to coordinates: (${hex_coordinates.q}, ${hex_coordinates.r})`,
+    );
+    return hex_grid.is_hex_in_grid(hex_coordinates);
   }
 
   public on_mouse_event(

@@ -14,7 +14,7 @@ import { DrawHex, DrawHexGrid } from './draw/DrawHexes';
 import Scene from './engine/core/Scene';
 import CompLineStyle from './engine/core_components/CompLineStyle';
 import CompFillStyle from './engine/core_components/CompFillStyle';
-import { SysPointedAtHex } from './systems/SysPointedAtHex';
+import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
 import CompMouseSensitive from './engine/core_components/CompMouseSensitive';
 import CompNamed from './engine/core_components/CompNamed';
 
@@ -36,7 +36,7 @@ class MainScene extends Scene {
     this.world.registerComponent(CompTransform);
 
     this.world.addMouse();
-    this.world.getMouseSystem()!.add_sub_system(new SysPointedAtHex());
+    this.world.getMouseSystem()!.add_sub_system(new SysPointingAtHexgrid());
 
     this.world.addDraw();
     this.world.getDrawSystem()!.add_sub_system(new DrawHexGrid());
@@ -53,18 +53,25 @@ class MainScene extends Scene {
   create() {
     // Initialize game objects
     const hex_grid = this.world.newEntity();
-    const red_hex = this.world.newEntity();
-    const green_hex = this.world.newEntity();
-    const blue_hex = this.world.newEntity();
     this.world.addComponents(
       hex_grid,
       new CompNamed('The Hex Grid'),
       new CompHexGrid(new HexGrid(3, 50, HorizontalLayout)),
       new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
-      new CompDrawable(-1),
+      new CompDrawable(0),
       new CompLineStyle(5, 0x000000, 1),
       new CompFillStyle(0x888888, 1),
-      new CompMouseSensitive(),
+      new CompMouseSensitive(true),
+    );
+    // This grid blocks the mouse events from reaching the other hex grid due to being higher up
+    const partly_blocking_grid = this.world.newEntity();
+    this.world.addComponents(
+      partly_blocking_grid,
+      new CompNamed('The Blocking Grid'),
+      new CompHexGrid(new HexGrid(2, 50, HorizontalLayout)),
+      new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
+      new CompDrawable(1),
+      new CompMouseSensitive(false),
     );
   }
 
