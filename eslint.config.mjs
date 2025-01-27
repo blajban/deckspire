@@ -38,7 +38,14 @@ export default [
       ],
       '@typescript-eslint/no-unused-vars': ['off'],
       'unused-imports/no-unused-imports': 'warn',
-      'unused-imports/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'unused-imports/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/naming-convention': [
@@ -93,7 +100,7 @@ export default [
           leadingUnderscore: 'forbid',
         },
         {
-          selector: ['parameter'],
+          selector: ['variable', 'parameter'],
           modifiers: ['unused'],
           format: ['snake_case'],
           leadingUnderscore: 'allow',
@@ -126,10 +133,7 @@ export default [
           prefix: ['is_', 'should_', 'has_', 'can_', 'did_', 'will_'],
         },
       ],
-      'prettier/prettier': [
-        'warn',
-        PrettierConfig
-      ],
+      'prettier/prettier': ['warn', PrettierConfig],
     },
   },
 ];
