@@ -96,7 +96,7 @@ describe('ComponentMap', () => {
 
     expect(componentMap.isEmpty()).toBe(true);
     expect(componentMap.size()).toBe(0);
-    expect(componentMap.getEntities()).toEqual([]);
+    expect(componentMap.getEntities()).toEqual(new Set());
     expect(componentMap.getComponents()).toEqual([]);
   });
 
@@ -121,7 +121,7 @@ describe('ComponentMap', () => {
     componentMap.add(1, new MockComponent(10));
     componentMap.add(2, new MockComponent(20));
 
-    expect(componentMap.getEntities()).toEqual([1, 2]);
+    expect(componentMap.getEntities()).toEqual(new Set([1, 2]));
   });
 
   test('retrieves all components', () => {
@@ -136,12 +136,12 @@ describe('ComponentMap', () => {
 
   test('updates cache on add and delete', () => {
     componentMap.add(1, new MockComponent(10));
-    expect(componentMap.getEntities()).toEqual([1]);
+    expect(componentMap.getEntities()).toEqual(new Set([1]));
 
     componentMap.add(2, new MockComponent(20));
-    expect(componentMap.getEntities()).toEqual([1, 2]);
+    expect(componentMap.getEntities()).toEqual(new Set([1, 2]));
 
     componentMap.delete(1);
-    expect(componentMap.getEntities()).toEqual([2]);
+    expect(componentMap.getEntities()).toEqual(new Set([2]));
   });
 });

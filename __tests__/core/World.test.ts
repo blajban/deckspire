@@ -24,8 +24,7 @@ describe('World', () => {
   beforeEach(() => {
     const entityStore = new EntityStore();
     const componentStore = new ComponentStore();
-    const scene = new Scene();
-    world = new World(scene, entityStore, componentStore);
+    world = new World(entityStore, componentStore);
 
     world.registerComponent(CompParent);
     world.registerComponent(CompChild);
@@ -74,14 +73,16 @@ describe('World', () => {
     expect(world.getComponent(entity, AnotherMockComponent)).toBeUndefined();
   });
 
-  it('should not add a parent to a child that already has one.', ()=>{
+  it('should not add a parent to a child that already has one.', () => {
     const parent1 = world.newEntity();
     const parent2 = world.newEntity();
     const child = world.newEntity();
 
     world.addParentChildRelationship(parent1, child);
-    expect(()=> world.addParentChildRelationship(parent2, child) ).toThrow('already has a parent');
-  })
+    expect(() => world.addParentChildRelationship(parent2, child)).toThrow(
+      'already has a parent',
+    );
+  });
 
   test('removes parent entity and its children when removeChildren is true', () => {
     const parentEntity = world.newEntity();

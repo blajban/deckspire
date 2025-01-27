@@ -7,7 +7,7 @@ import { Entity } from './Entity';
 export default class ComponentMap<T extends Component> {
   private components: Map<Entity, T> = new Map();
   private componentType: string;
-  private cachedEntities: Entity[] | null = null;
+  private cachedEntities: Set<Entity> | null = null;
 
   constructor(componentType: string) {
     if (!componentType) {
@@ -92,11 +92,11 @@ export default class ComponentMap<T extends Component> {
    * Retrieves all entities with this component type.
    * @returns a cloned array of entities.
    */
-  getEntities(): Entity[] {
+  getEntities(): Set<Entity> {
     if (!this.cachedEntities) {
-      this.cachedEntities = Array.from(this.components.keys());
+      this.cachedEntities = new Set(this.components.keys());
     }
-    return [...this.cachedEntities];
+    return this.cachedEntities;
   }
 
   /**
