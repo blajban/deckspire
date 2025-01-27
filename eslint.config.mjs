@@ -1,32 +1,13 @@
-import typescriptEslint from '@typescript-eslint/eslint-plugin';
-import stylisticJs from '@stylistic/eslint-plugin-js';
+import tseslint from 'typescript-eslint';
 import prettier from 'eslint-plugin-prettier';
 import globals from 'globals';
-import tsParser from '@typescript-eslint/parser';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
 
 export default [
-  ...compat.extends(
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
-  ),
   {
     files: ['src/**/*.ts', '__tests__/**/*.ts'],
+
     plugins: {
-      '@typescript-eslint': typescriptEslint,
-      '@stylistic/js': stylisticJs,
+      '@typescript-eslint': tseslint.plugin,
       prettier,
     },
 
@@ -34,21 +15,102 @@ export default [
       globals: {
         ...globals.browser,
       },
-
-      parser: tsParser,
+      parser: tseslint.parser,
+      parserOptions: {
+        project: ['tsconfig.json'],
+      },
     },
 
     rules: {
       semi: ['error', 'always'],
       quotes: ['warn', 'single'],
-      indent: ['warn', 2, { switchCase: 1 }],
+      indent: ['warn', 2, { SwitchCase: 1 }],
       eqeqeq: 'warn',
       curly: ['error', 'all'],
       'prefer-const': 'warn',
-      'no-unused-vars': 'warn',
-      '@typescript-eslint/no-unused-vars': ['warn'],
+      'no-useless-assignment': ['warn'],
+      '@typescript-eslint/no-unused-vars': ['warn', {argsIgnorePattern: '^_'}],
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: ['default'],
+          format: ['camelCase'],
+          leadingUnderscore: 'allow',
+          trailingUnderscore: 'allow',
+        },
+        {
+          selector: 'import',
+          format: [],
+        },
+        {
+          selector: ['typeLike'],
+          format: ['PascalCase'],
+          leadingUnderscore: 'forbid',
+          trailingUnderscore: 'forbid',
+        },
+        {
+          selector: ['class', 'interface'],
+          format: ['PascalCase'],
+          leadingUnderscore: 'forbid',
+        },
+        {
+          selector: ['classMethod', 'function'],
+          format: ['camelCase'],
+          leadingUnderscore: 'forbid',
+        },
+        {
+          selector: ['classMethod'],
+          modifiers: ['private'],
+          format: ['camelCase'],
+          leadingUnderscore: 'require',
+        },
+        {
+          selector: [
+            'variable',
+            'classProperty',
+            'accessor',
+            'parameter',
+            'parameterProperty',
+          ],
+          format: ['snake_case'],
+          leadingUnderscore: 'forbid',
+        },
+        {
+          selector: ['parameter'],
+          modifiers: ['unused'],
+          format: ['snake_case'],
+          leadingUnderscore: 'allow',
+        },
+        {
+          selector: ['variable', 'classProperty', 'parameterProperty'],
+          modifiers: ['private'],
+          format: ['snake_case'],
+          leadingUnderscore: 'require',
+        },
+        {
+          selector: [
+            'variable',
+            'classProperty',
+            'accessor',
+            'parameter',
+            'parameterProperty',
+          ],
+          types: ['boolean'],
+          format: ['snake_case'],
+          leadingUnderscore: 'forbid',
+          prefix: ['is_', 'should_', 'has_', 'can_', 'did_', 'will_'],
+        },
+        {
+          selector: ['variable', 'classProperty', 'parameterProperty'],
+          modifiers: ['private'],
+          types: ['boolean'],
+          format: ['snake_case'],
+          leadingUnderscore: 'require',
+          prefix: ['is_', 'should_', 'has_', 'can_', 'did_', 'will_'],
+        },
+      ],
       'prettier/prettier': 'warn',
     },
   },
