@@ -14,17 +14,19 @@ import { DrawHex, DrawHexGrid } from './draw/DrawHexes';
 import Scene from './engine/core/Scene';
 import CompLineStyle from './engine/core_components/CompLineStyle';
 import CompFillStyle from './engine/core_components/CompFillStyle';
-import SysDraw from './engine/core_systems/SysDraw';
+import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
+import CompMouseSensitive from './engine/core_components/CompMouseSensitive';
+import CompNamed from './engine/core_components/CompNamed';
 
 class MainScene extends Scene {
   private entityStore = new EntityStore();
   private componentStore = new ComponentStore();
-  private world = new World(this, this.entityStore, this.componentStore);
   private parentChildExampleSystem = new ParentChildExampleSystem();
-  private draw_everything = new SysDraw(this);
+  private world: World;
 
   constructor() {
     super('MainScene');
+    this.world = new World(this.entityStore, this.componentStore);
   }
 
   preload() {
@@ -33,58 +35,42 @@ class MainScene extends Scene {
     this.world.registerComponent(CompHexGrid);
     this.world.registerComponent(CompTransform);
 
-    this.draw_everything.add_sub_system(new DrawHexGrid());
-    this.draw_everything.add_sub_system(new DrawHex());
+    this.world.addMouse();
+    this.world.getMouseSystem()!.add_sub_system(new SysPointingAtHexgrid());
 
-    loadJsonFile('/world.json')
-      .then((data) => {
-        console.log('Loaded JSON:', data);
-        this.world.deserialize(JSON.stringify(data));
-      })
-      .catch((error) => console.error('Error:', error));
+    this.world.addDraw();
+    this.world.getDrawSystem()!.add_sub_system(new DrawHexGrid());
+    this.world.getDrawSystem()!.add_sub_system(new DrawHex());
   }
 
   create() {
     // Initialize game objects
     const hex_grid = this.world.newEntity();
-    const red_hex = this.world.newEntity();
-    const green_hex = this.world.newEntity();
-    const blue_hex = this.world.newEntity();
     this.world.addComponents(
       hex_grid,
+      new CompNamed('The Hex Grid'),
       new CompHexGrid(new HexGrid(3, 50, HorizontalLayout)),
-      new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9) ),
-      new CompDrawable(-1),
+      new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
+      new CompDrawable(0),
       new CompLineStyle(5, 0x000000, 1),
       new CompFillStyle(0x888888, 1),
+      new CompMouseSensitive(0, true, false, true, true),
     );
+    // This grid blocks the mouse events from reaching the other hex grid due to being higher up
+    const partly_blocking_grid = this.world.newEntity();
     this.world.addComponents(
-      red_hex,
-      new CompHex(new HexCoordinates(-1, 1)),
-      new CompDrawable(1),
-      new CompLineStyle(5, 0xff0000, 0.5),
+      partly_blocking_grid,
+      new CompNamed('The Blocking Grid'),
+      new CompHexGrid(new HexGrid(2, 50, HorizontalLayout)),
+      new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
+      new CompMouseSensitive(1, false),
     );
-    this.world.addComponents(
-      green_hex,
-      new CompHex(new HexCoordinates(0, 0)),
-      new CompDrawable(1),
-      new CompLineStyle(5, 0x00ff00, 0.5),
-    );
-    this.world.addComponents(
-      blue_hex,
-      new CompHex(new HexCoordinates(1, 0)),
-      new CompDrawable(1),
-      new CompLineStyle(5, 0x0000ff, 0.5),
-      new CompFillStyle(0xffffff, 0.5),
-    );
-    this.world.addParentChildRelationship(hex_grid, red_hex);
-    this.world.addParentChildRelationship(hex_grid, green_hex);
-    this.world.addParentChildRelationship(hex_grid, blue_hex);
   }
 
   update(time: number, delta: number) {
-    this.parentChildExampleSystem.update(this.world, time, delta);
-    this.draw_everything.update(this.world, time, delta);
+    console.log(`FPS: ${game.loop.actualFps}`);
+    this.world.getMouseSystem()?.update(this.world, this, time, delta);
+    this.world.getDrawSystem()?.update(this.world, this, time, delta);
   }
 }
 

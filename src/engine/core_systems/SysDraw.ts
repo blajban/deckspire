@@ -1,57 +1,52 @@
-import Component, { ComponentClass } from '../core/Component';
 import Scene from '../core/Scene';
-import System from '../core/System';
+import { SubSystem, SystemWithSubsystems } from '../core/System';
 import World from '../core/World';
 import CompDrawable from '../core_components/CompDrawable';
 
-export abstract class DrawSubSystem {
-  constructor(private archetype: ComponentClass<Component>[]) {}
-
-  update(
+/**
+ * Specialised class for drawing specific objects.
+ */
+export abstract class DrawSubSystem extends SubSystem {
+  public abstract update(
     world: World,
     scene: Scene,
     cache: GraphicsCacheObject,
     time: number,
     delta: number,
     entity: number,
-  ) {
-    throw new Error('Update method not implemented in DrawSubSystem.');
-  }
-  public applicable_archetype(): ComponentClass<Component>[] {
-    return this.archetype;
-  }
+  ): void;
 }
 
-export default class SysDraw extends System {
-  private sub_systems: Array<DrawSubSystem> = [];
+/**
+ * Owns and handles sub systems, that does the actual drawing.
+ */
+export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
   private graphics_cache = new GraphicsCache();
 
-  constructor(private scene: Scene) {
-    super();
+  constructor() {
+    super([[CompDrawable]]);
   }
 
-  public add_sub_system(sub_system: DrawSubSystem) {
-    this.sub_systems.push(sub_system);
-  }
-
-  public update(world: World, time: number, delta: number) {
+  public update(world: World, scene: Scene, time: number, delta: number) {
     this.sub_systems.forEach((sub_system) => {
-      world
-        .getEntitiesWithArchetype(...sub_system.applicable_archetype())
-        .forEach((entity) => {
-          const drawable = world.getComponent(entity, CompDrawable)!;
-          sub_system.update(
-            world,
-            this.scene,
-            this.graphics_cache.get_component_cache(drawable),
-            time,
-            delta,
-            entity,
-          );
-        });
+      sub_system.all_matching_entities(world).forEach((entity) => {
+        const drawable = world.getComponent(entity, CompDrawable)!;
+        sub_system.update(
+          world,
+          scene,
+          this.graphics_cache.get_component_cache(drawable),
+          time,
+          delta,
+          entity,
+        );
+      });
     });
   }
 
+  /**
+   * Since we are using Phaser the graphics objects need to be
+   *  de-registered from Phaser as the componenet is removed.
+   */
   public cleanup(drawable: CompDrawable) {
     const component_cache = this.graphics_cache.get_component_cache(drawable);
     if (!component_cache) {
@@ -63,7 +58,8 @@ export default class SysDraw extends System {
 }
 
 export class GraphicsCacheObject {
-  // This is a reference to the Phaser object that will be drawn by Phaser. Might need to add options for other classes in the future.
+  /* This is a reference to the Phaser object that will be drawn by Phaser.
+   * We might need to add options for other classes in the future. */
   public graphics_object: Phaser.GameObjects.Graphics | null = null;
 }
 
@@ -81,5 +77,9 @@ export class GraphicsCache {
 
   public delete_cache(drawable: CompDrawable) {
     this.component_caches.delete(drawable);
+  }
+
+  public get size(): number {
+    return this.component_caches.size;
   }
 }

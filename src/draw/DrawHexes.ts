@@ -8,7 +8,11 @@ import CompChild from '../engine/core_components/CompChild';
 import CompDrawable from '../engine/core_components/CompDrawable';
 import CompFillStyle from '../engine/core_components/CompFillStyle';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
-import { DrawSubSystem, GraphicsCacheObject } from '../engine/core_systems/SysDraw';
+import CompNamed from '../engine/core_components/CompNamed';
+import {
+  DrawSubSystem,
+  GraphicsCacheObject,
+} from '../engine/core_systems/SysDraw';
 import HexGrid from '../math/hexgrid/HexGrid';
 import { HexCoordinates } from '../math/hexgrid/HexVectors';
 
@@ -17,9 +21,18 @@ import { HexCoordinates } from '../math/hexgrid/HexVectors';
  */
 export class DrawHexGrid extends DrawSubSystem {
   constructor() {
-    super([CompDrawable, CompHexGrid, CompTransform]);
+    super([[CompDrawable, CompHexGrid, CompTransform]]);
   }
 
+  /**
+   * The cached Graphics object must be cleared before drawing to it again.
+   * @param world 
+   * @param scene 
+   * @param cache 
+   * @param time 
+   * @param delta 
+   * @param entity 
+   */
   update(
     world: World,
     scene: Scene,
@@ -38,12 +51,12 @@ export class DrawHexGrid extends DrawSubSystem {
       cache.graphics_object = scene.add.graphics();
     }
     const gfx = cache.graphics_object;
+    gfx.clear();
     gfx.setDepth(drawable.depth);
 
     hex_grid.all_hexes().forEach((hex) => {
       draw_hex(gfx, hex, hex_grid, transform, line_style, fill_style);
     });
-    console.log('Just pretend we drew something nice here');
   }
 }
 
@@ -52,7 +65,7 @@ export class DrawHexGrid extends DrawSubSystem {
  */
 export class DrawHex extends DrawSubSystem {
   constructor() {
-    super([CompDrawable, CompHex, CompChild]);
+    super([[CompDrawable, CompHex, CompChild]]);
   }
 
   update(
@@ -70,13 +83,15 @@ export class DrawHex extends DrawSubSystem {
     const parent = world.getComponent(entity, CompChild)!.parent;
     let hex_grid = world.getComponent(parent, CompHexGrid)!.hexgrid;
     let transform = world.getComponent(parent, CompTransform);
-    if (!transform)
+    if (!transform) {
       throw new Error('Parent does not have a transform component');
+    }
 
     if (!cache.graphics_object) {
       cache.graphics_object = scene.add.graphics();
     }
     const gfx = cache.graphics_object;
+    gfx.clear();
     gfx.setDepth(drawable.depth);
 
     draw_hex(gfx, hex, hex_grid, transform, line_style, fill_style);
@@ -95,6 +110,12 @@ function draw_hex(
     .vector2d_from_hex_distance(hex.distance_from_origin())
     .multiply(transform.scale)
     .add(transform.position);
+  if (!fill_style && !line_style) {
+    console.warn(
+      'Warning: Hex entity lacks both FillStyle and LineStyle components.',
+    );
+    return;
+  }
   if (fill_style) {
     gfx.fillStyle(fill_style.color, fill_style.alpha);
     gfx.fillEllipse(
