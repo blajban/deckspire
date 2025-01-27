@@ -2,6 +2,7 @@ import tseslint from 'typescript-eslint';
 import unusedImports from 'eslint-plugin-unused-imports';
 import prettier from 'eslint-plugin-prettier';
 import globals from 'globals';
+import PrettierConfig from './.prettier.config.mjs';
 
 export default [
   {
@@ -44,7 +45,7 @@ export default [
         'error',
         {
           selector: ['default'],
-          format: ['camelCase'],
+          format: ['strictCamelCase'],
           leadingUnderscore: 'allow',
           trailingUnderscore: 'allow',
         },
@@ -54,18 +55,18 @@ export default [
         },
         {
           selector: ['typeLike', 'class', 'interface', 'enumMember'],
-          format: ['PascalCase'],
+          format: ['StrictPascalCase'],
           leadingUnderscore: 'forbid',
         },
         {
           selector: ['classMethod', 'function'],
-          format: ['camelCase'],
+          format: ['strictCamelCase'],
           leadingUnderscore: 'forbid',
         },
         {
           selector: ['classMethod'],
           modifiers: ['private'],
-          format: ['camelCase'],
+          format: ['strictCamelCase'],
           leadingUnderscore: 'require',
         },
         {
@@ -77,6 +78,18 @@ export default [
             'parameterProperty',
           ],
           format: ['snake_case'],
+          leadingUnderscore: 'forbid',
+        },
+        {
+          selector: [
+            'variable',
+            'classProperty',
+            'accessor',
+            'parameter',
+            'parameterProperty',
+          ],
+          modifiers: ['readonly'],
+          format: ['UPPER_CASE'],
           leadingUnderscore: 'forbid',
         },
         {
@@ -115,15 +128,7 @@ export default [
       ],
       'prettier/prettier': [
         'warn',
-        {
-          arrowParens: 'always',
-          bracketSpacing: true,
-          printWidth: 80,
-          semi: true,
-          singleQuote: true,
-          tabWidth: 2,
-          trailingComma: 'all',
-        },
+        PrettierConfig
       ],
     },
   },
