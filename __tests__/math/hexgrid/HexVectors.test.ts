@@ -3,8 +3,6 @@ import {
   HexCoordinates,
 } from '../../../src/math/hexgrid/HexVectors';
 
-const FLOAT_DIGITS: number = 8;
-
 describe('Creating Hexes', () => {
   test('Using ctors', () => {
     const vec1 = new HexCoordinates(1, 2);
@@ -35,7 +33,7 @@ describe('Creating Hexes', () => {
   test('HexDistance from HexPosition', () => {
     const hex1 = new HexCoordinates(1, 2);
     const hex2 = new HexCoordinates(3, 4);
-    const distance = hex1.distance_to(hex2);
+    const distance = hex1.distanceTo(hex2);
     expect(distance.q).toBe(2);
     expect(distance.r).toBe(2);
   });
@@ -124,68 +122,68 @@ describe('Hex grid operations and calculations.', () => {
 
 describe('Rotations', () => {
   test('Wedge rotation', () => {
-    expect(() => new HexCoordinates(0, 0).hex_sector_rotation(0.5)).toThrow(
+    expect(() => new HexCoordinates(0, 0).hexSectorRotation(0.5)).toThrow(
       'must be integral',
     );
     let vec;
-    (vec = new HexCoordinates(3, -2)).hex_sector_rotation(0);
+    (vec = new HexCoordinates(3, -2)).hexSectorRotation(0);
     expect(vec.q).toBe(3);
     expect(vec.r).toBe(-2);
-    (vec = new HexCoordinates(3, -2)).hex_sector_rotation(1);
+    (vec = new HexCoordinates(3, -2)).hexSectorRotation(1);
     expect(vec.q).toBe(2);
     expect(vec.r).toBe(1);
-    (vec = new HexCoordinates(3, -2)).hex_sector_rotation(2);
+    (vec = new HexCoordinates(3, -2)).hexSectorRotation(2);
     expect(vec.q).toBe(-1);
     expect(vec.r).toBe(3);
-    (vec = new HexCoordinates(3, -2)).hex_sector_rotation(-3);
+    (vec = new HexCoordinates(3, -2)).hexSectorRotation(-3);
     expect(vec.q).toBe(-3);
     expect(vec.r).toBe(2);
-    (vec = new HexCoordinates(3, -2)).hex_sector_rotation(7);
+    (vec = new HexCoordinates(3, -2)).hexSectorRotation(7);
     expect(vec.q).toBe(2);
     expect(vec.r).toBe(1);
   });
   test('Step rotation', () => {
-    expect(() => new HexCoordinates(0, 0).step_rotation(0.5)).toThrow(
+    expect(() => new HexCoordinates(0, 0).stepRotation(0.5)).toThrow(
       'must be integral',
     );
     let vec;
-    (vec = new HexCoordinates(3, -2)).step_rotation(0);
+    (vec = new HexCoordinates(3, -2)).stepRotation(0);
     expect(vec.q).toBe(3);
     expect(vec.r).toBe(-2);
-    (vec = new HexCoordinates(3, -2)).step_rotation(1);
+    (vec = new HexCoordinates(3, -2)).stepRotation(1);
     expect(vec.q).toBe(3);
     expect(vec.r).toBe(-1);
-    (vec = new HexCoordinates(3, -2)).step_rotation(2);
+    (vec = new HexCoordinates(3, -2)).stepRotation(2);
     expect(vec.q).toBe(3);
     expect(vec.r).toBe(0);
-    (vec = new HexCoordinates(3, -2)).step_rotation(3);
+    (vec = new HexCoordinates(3, -2)).stepRotation(3);
     expect(vec.q).toBe(2);
     expect(vec.r).toBe(1);
-    (vec = new HexCoordinates(3, -2)).step_rotation(4);
+    (vec = new HexCoordinates(3, -2)).stepRotation(4);
     expect(vec.q).toBe(1);
     expect(vec.r).toBe(2);
-    (vec = new HexCoordinates(-1, 3)).step_rotation(1);
+    (vec = new HexCoordinates(-1, 3)).stepRotation(1);
     expect(vec.q).toBe(-2);
     expect(vec.r).toBe(3);
-    (vec = new HexCoordinates(-3, 2)).step_rotation(1);
+    (vec = new HexCoordinates(-3, 2)).stepRotation(1);
     expect(vec.q).toBe(-3);
     expect(vec.r).toBe(1);
-    (vec = new HexCoordinates(-2, -1)).step_rotation(1);
+    (vec = new HexCoordinates(-2, -1)).stepRotation(1);
     expect(vec.q).toBe(-1);
     expect(vec.r).toBe(-2);
-    (vec = new HexCoordinates(1, -3)).step_rotation(1);
+    (vec = new HexCoordinates(1, -3)).stepRotation(1);
     expect(vec.q).toBe(2);
     expect(vec.r).toBe(-3);
-    (vec = new HexCoordinates(0, 0)).step_rotation(255);
+    (vec = new HexCoordinates(0, 0)).stepRotation(255);
     expect(vec.q).toBe(0);
     expect(vec.r).toBe(0);
-    (vec = new HexCoordinates(3, -2)).step_rotation(15);
+    (vec = new HexCoordinates(3, -2)).stepRotation(15);
     expect(vec.q).toBe(1);
     expect(vec.r).toBe(-3);
-    (vec = new HexCoordinates(3, -2)).step_rotation(24);
+    (vec = new HexCoordinates(3, -2)).stepRotation(24);
     expect(vec.q).toBe(-1);
     expect(vec.r).toBe(3);
-    (vec = new HexCoordinates(3, -2)).step_rotation(-10);
+    (vec = new HexCoordinates(3, -2)).stepRotation(-10);
     expect(vec.q).toBe(-3);
     expect(vec.r).toBe(3);
   });

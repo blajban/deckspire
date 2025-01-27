@@ -4,7 +4,6 @@ import Component from '../../src/engine/core/Component';
 import ComponentStore from '../../src/engine/core/ComponentStore';
 import EntityStore from '../../src/engine/core/EntityStore';
 import World from '../../src/engine/core/World';
-import Scene from '../../src/engine/core/Scene';
 
 class MockComponent extends Component {
   constructor(public value: number) {
@@ -154,13 +153,13 @@ describe('World', () => {
     expect(() => {
       world.addComponent(entity, new CompParent([1]));
     }).toThrow(
-      `Add CompParent through the addParentChildRelationship() function.`,
+      'Add CompParent through the addParentChildRelationship() function.',
     );
 
     expect(() => {
       world.addComponent(entity, new CompChild(1));
     }).toThrow(
-      `Add CompChild through the addParentChildRelationship() function.`,
+      'Add CompChild through the addParentChildRelationship() function.',
     );
   });
 

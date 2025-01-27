@@ -73,7 +73,7 @@ describe('ComponentStore', () => {
     const mockComponent = new MockComponent(10);
 
     expect(() => store.addComponent(entity, mockComponent)).toThrow(
-      `Component type MockComponent must be registered first (add component)`,
+      'Component type MockComponent must be registered first (add component)',
     );
   });
 
@@ -92,7 +92,7 @@ describe('ComponentStore', () => {
     const entity: Entity = 1;
 
     expect(() => store.getComponent(entity, MockComponent)).toThrow(
-      `Component type MockComponent must be registered first (get component)`,
+      'Component type MockComponent must be registered first (get component)',
     );
   });
 
@@ -111,7 +111,7 @@ describe('ComponentStore', () => {
     const entity: Entity = 1;
 
     expect(() => store.removeComponent(entity, MockComponent)).toThrow(
-      `Component type MockComponent must be registered first (remove component)`,
+      'Component type MockComponent must be registered first (remove component)',
     );
   });
 
@@ -157,7 +157,7 @@ describe('ComponentStore', () => {
     expect(() =>
       store.getEntitiesWithArchetype(MockComponent, AnotherMockComponent),
     ).toThrow(
-      `Component type AnotherMockComponent must be registered first (get entities with archetype)`,
+      'Component type AnotherMockComponent must be registered first (get entities with archetype)',
     );
   });
 
@@ -179,7 +179,9 @@ describe('ComponentStore', () => {
   });
 
   test('getEntitiesWithArchetype should return an empty array for no component types', () => {
-    expect(() => store.getEntitiesWithArchetype()).toThrow('Archetype cannot be empty');
+    expect(() => store.getEntitiesWithArchetype()).toThrow(
+      'Archetype cannot be empty',
+    );
   });
 
   test('clear should remove all components and registered component types', () => {
@@ -191,11 +193,11 @@ describe('ComponentStore', () => {
     store.clear();
 
     expect(() => store.getComponent(entity, MockComponent)).toThrow(
-      `Component type MockComponent must be registered first (get component)`,
+      'Component type MockComponent must be registered first (get component)',
     );
 
     expect(() => store.getEntitiesWithComponent(MockComponent)).toThrow(
-      `Component type MockComponent must be registered first (get entities with component)`,
+      'Component type MockComponent must be registered first (get entities with component)',
     );
   });
 });

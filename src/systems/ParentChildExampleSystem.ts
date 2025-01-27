@@ -8,15 +8,15 @@ export default class ParentChildExampleSystem extends System {
     super([[CompParent]]);
   }
 
-  private last_update: number = 0;
-  update(world: World, scene: Scene, time: number, delta: number) {
-    if (time - this.last_update > 10000) {
-      this.last_update = time;
+  private _last_update: number = 0;
+  update(world: World, scene: Scene, time: number, _delta: number): void {
+    if (time - this._last_update > 10000) {
+      this._last_update = time;
       const parents = world.getEntitiesWithComponent(CompParent);
       for (const parent of parents) {
-        const parentComp = world.getComponent(parent, CompParent);
+        const parent_comp = world.getComponent(parent, CompParent);
         console.log(`Parent #${parent} has children:`);
-        parentComp?.children.forEach((child) => {
+        parent_comp?.children.forEach((child) => {
           console.log(`Child #${child}`);
         });
       }

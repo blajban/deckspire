@@ -4,11 +4,11 @@ import Scene from '../core/Scene';
 import { SubSystem, SystemWithSubsystems } from '../core/System';
 import World from '../core/World';
 import CompMouseSensitive from '../core_components/CompMouseSensitive';
-import { set_intersection } from '../util/set_utility_functions';
+import { setIntersection } from '../util/setUtilityFunctions';
 
 export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
   // This event object is updated each call to update, if needed.
-  private mouse_event = new MouseEvent();
+  private _mouse_event = new MouseEvent();
 
   constructor() {
     super([[CompMouseSensitive]]);
@@ -25,10 +25,10 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
    * @param {number} delta
    * @returns
    */
-  public update(world: World, scene: Scene, time: number, delta: number) {
-    this.mouse_event.update_mouse_status(scene, time);
+  public update(world: World, scene: Scene, time: number, delta: number): void {
+    this._mouse_event.updateMouseStatus(scene, time);
     // No action if the mouse state was unchanged.
-    if (!this.mouse_event.unhandled) {
+    if (!this._mouse_event.is_unhandled) {
       return;
     }
     /* The following code will do the following:
@@ -40,15 +40,15 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
     let top_depth = Number.NEGATIVE_INFINITY;
     let on_top_entity: Entity | undefined = undefined;
     this.sub_systems.forEach((sub_system) => {
-      const sub_system_entities = sub_system.all_matching_entities(world);
+      const sub_system_entities = sub_system.allMatchingEntities(world);
       sub_system_entity_sets.set(sub_system, sub_system_entities);
       sub_system_entities.forEach((entity) => {
         // Checking whether entity is pointed at.
         if (
-          sub_system.is_entity_pointed_at(
+          sub_system.isEntityPointedAt(
             world,
             scene,
-            this.mouse_event,
+            this._mouse_event,
             time,
             delta,
             entity,
@@ -66,30 +66,30 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
           }
         }
       });
-      this.mouse_event.entity_on_top = on_top_entity;
+      this._mouse_event.entity_on_top = on_top_entity;
       /* Only activates the sub systems with the proper pointed at entities,
        * taking into account the properties of CompMouseSensitivity. */
       sub_system_entity_sets.forEach((set) => {
-        set_intersection(set, pointed_at_entities).forEach((entity) => {
+        setIntersection(set, pointed_at_entities).forEach((entity) => {
           const mouse_sensitivity = world.getComponent(
             entity,
             CompMouseSensitive,
           )!;
           if (
-            mouse_sensitivity.activate &&
+            mouse_sensitivity.should_activate &&
             (on_top_entity === entity ||
-              mouse_sensitivity.activate_even_if_not_on_top)
+              mouse_sensitivity.should_activate_even_if_not_on_top)
           ) {
             if (
-              (mouse_sensitivity.activate_on_move &&
-                this.mouse_event.has_moved) ||
-              (mouse_sensitivity.activate_on_click &&
-                this.mouse_event.has_clicked)
+              (mouse_sensitivity.should_activate_on_move &&
+                this._mouse_event.has_moved) ||
+              (mouse_sensitivity.should_activate_on_click &&
+                this._mouse_event.has_clicked)
             ) {
-              sub_system.on_mouse_event(
+              sub_system.onMouseEvent(
                 world,
                 scene,
-                this.mouse_event,
+                this._mouse_event,
                 time,
                 delta,
                 entity,
@@ -100,14 +100,12 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
       });
     });
     // Signals that the event has been handled and does not need to be processed again.
-    this.mouse_event.unhandled = false;
+    this._mouse_event.is_unhandled = false;
   }
-
-  private find_pointed_at_entities() {}
 }
 
 export abstract class MouseSubSystem extends SubSystem {
-  public abstract is_entity_pointed_at(
+  public abstract isEntityPointedAt(
     world: World,
     scene: Scene,
     context: MouseEvent,
@@ -116,7 +114,7 @@ export abstract class MouseSubSystem extends SubSystem {
     entity: Entity,
   ): boolean;
 
-  public abstract on_mouse_event(
+  public abstract onMouseEvent(
     world: World,
     scene: Scene,
     context: MouseEvent,
@@ -138,50 +136,50 @@ export class MouseEvent {
   public time_of_previous_event: number = 0;
   public time_of_event: number = 0;
   public entity_on_top: Entity | undefined = undefined;
-  public unhandled = false;
+  public is_unhandled = false;
   public has_moved = false;
   public has_clicked = false;
-  private mouse_buttons_states: Map<number, MouseButtonStatus> = new Map();
-  private mouse_buttons: number = 0;
+  private _mouse_buttons_states: Map<number, MouseButtonStatus> = new Map();
+  private _mouse_buttons: number = 0;
 
-  public update_mouse_status(scene: Scene, current_time: number): MouseEvent {
+  public updateMouseStatus(scene: Scene, current_time: number): MouseEvent {
     const pointer = scene.input.activePointer;
-    this.update_position(pointer.position);
-    this.update_mouse_button_status(pointer.buttons);
+    this._updatePosition(pointer.position);
+    this._updateMouseButtonStatus(pointer.buttons);
     if (!this.has_moved && !this.has_clicked) {
       return this;
     }
     this.time_of_previous_event = this.time_of_event;
     this.time_of_event = current_time;
-    this.unhandled = true;
+    this.is_unhandled = true;
     return this;
   }
 
-  private update_position(position: Vector2D) {
+  private _updatePosition(position: Vector2D): void {
     if (!position.equals(this.last_position)) {
       this.last_position = position.clone();
       this.has_moved = true;
     }
   }
 
-  private update_mouse_button_status(buttons: number) {
+  private _updateMouseButtonStatus(buttons: number): void {
     for (let n = 1; n <= 16; n *= 2) {
-      let old_pressed = (this.mouse_buttons & n) > 0;
-      let new_pressed = (buttons & n) > 0;
+      const is_pressed_old = (this._mouse_buttons & n) > 0;
+      const is_pressed_new = (buttons & n) > 0;
       let state;
-      if (old_pressed && !new_pressed) {
+      if (is_pressed_old && !is_pressed_new) {
         state = MouseButtonStatus.Up;
-      } else if (!old_pressed && new_pressed) {
+      } else if (!is_pressed_old && is_pressed_new) {
         state = MouseButtonStatus.Down;
-      } else if (old_pressed && new_pressed) {
+      } else if (is_pressed_old && is_pressed_new) {
         state = MouseButtonStatus.Held;
       } else {
         state = MouseButtonStatus.None;
       }
-      this.mouse_buttons_states.set(n, state);
+      this._mouse_buttons_states.set(n, state);
     }
-    if (this.mouse_buttons !== buttons) {
-      this.mouse_buttons = buttons;
+    if (this._mouse_buttons !== buttons) {
+      this._mouse_buttons = buttons;
       this.has_clicked = true;
     }
   }
@@ -190,9 +188,9 @@ export class MouseEvent {
    * @param {number} button - Which button to get status for, starting at 0 for the left mouse button.
    * @returns - The status of the button or the None state if the button does not exist.
    */
-  public mouse_button_state(button: number): MouseButtonStatus {
+  public mouseButtonState(button: number): MouseButtonStatus {
     return (
-      this.mouse_buttons_states.get(Math.pow(2, button)) ??
+      this._mouse_buttons_states.get(Math.pow(2, button)) ??
       MouseButtonStatus.None
     );
   }

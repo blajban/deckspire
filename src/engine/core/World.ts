@@ -255,9 +255,13 @@ export default class World {
         currentEntity,
         CompChild,
       );
-      if (!childComp) return false;
+      if (!childComp) {
+        return false;
+      }
 
-      if (childComp.parent === potentialAncestor) return true;
+      if (childComp.parent === potentialAncestor) {
+        return true;
+      }
 
       currentEntity = childComp.parent;
     }

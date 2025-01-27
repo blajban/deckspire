@@ -1,4 +1,4 @@
-import { set_intersection } from '../util/set_utility_functions';
+import { setIntersection } from '../util/setUtilityFunctions';
 import Component, { ComponentClass } from './Component';
 import ComponentMap from './ComponentMap';
 import { Entity } from './Entity';
@@ -129,9 +129,7 @@ export default class ComponentStore {
    * @returns An array of entities that have all the specified component types.
    * @throws Will throw an error if any of the component types have not been registered.
    */
-  getEntitiesWithArchetype(
-    ...componentClasses: Archetype
-  ): Set<Entity> {
+  getEntitiesWithArchetype(...componentClasses: Archetype): Set<Entity> {
     if (componentClasses.length === 0) {
       throw new Error('Archetype cannot be empty.');
     }
@@ -150,9 +148,9 @@ export default class ComponentStore {
       return new Set(componentMap.getEntities());
     });
 
-    return set_intersection(...entitySets);
+    return setIntersection(...entitySets);
   }
-  
+
   /**
    * Retrieves all components associated with a specific entity.
    * @param entity - The entity whose components are being retrieved.
