@@ -1,4 +1,5 @@
 import tseslint from 'typescript-eslint';
+import unusedImports from 'eslint-plugin-unused-imports';
 import prettier from 'eslint-plugin-prettier';
 import globals from 'globals';
 
@@ -8,7 +9,8 @@ export default [
 
     plugins: {
       '@typescript-eslint': tseslint.plugin,
-      prettier,
+      'unused-imports': unusedImports,
+      prettier: prettier,
     },
 
     languageOptions: {
@@ -29,7 +31,13 @@ export default [
       curly: ['error', 'all'],
       'prefer-const': 'warn',
       'no-useless-assignment': ['warn'],
-      '@typescript-eslint/no-unused-vars': ['warn', {argsIgnorePattern: '^_'}],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_' },
+      ],
+      '@typescript-eslint/no-unused-vars': ['off'],
+      'unused-imports/no-unused-imports': 'warn',
+      'unused-imports/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/naming-convention': [
@@ -45,13 +53,7 @@ export default [
           format: [],
         },
         {
-          selector: ['typeLike'],
-          format: ['PascalCase'],
-          leadingUnderscore: 'forbid',
-          trailingUnderscore: 'forbid',
-        },
-        {
-          selector: ['class', 'interface'],
+          selector: ['typeLike', 'class', 'interface', 'enumMember'],
           format: ['PascalCase'],
           leadingUnderscore: 'forbid',
         },
@@ -111,7 +113,18 @@ export default [
           prefix: ['is_', 'should_', 'has_', 'can_', 'did_', 'will_'],
         },
       ],
-      'prettier/prettier': 'warn',
+      'prettier/prettier': [
+        'warn',
+        {
+          arrowParens: 'always',
+          bracketSpacing: true,
+          printWidth: 80,
+          semi: true,
+          singleQuote: true,
+          tabWidth: 2,
+          trailingComma: 'all',
+        },
+      ],
     },
   },
 ];
