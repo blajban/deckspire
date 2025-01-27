@@ -1,11 +1,11 @@
-import { Archetype } from '../core/ComponentStore';
-import { Entity } from '../core/Entity';
 import Scene from '../core/Scene';
 import { SubSystem, SystemWithSubsystems } from '../core/System';
 import World from '../core/World';
 import CompDrawable from '../core_components/CompDrawable';
-import { set_union } from '../util/set_utility_functions';
 
+/**
+ * Specialised class for drawing specific objects.
+ */
 export abstract class DrawSubSystem extends SubSystem {
   public abstract update(
     world: World,
@@ -17,6 +17,9 @@ export abstract class DrawSubSystem extends SubSystem {
   ): void;
 }
 
+/**
+ * Owns and handles sub systems, that does the actual drawing.
+ */
 export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
   private graphics_cache = new GraphicsCache();
 
@@ -40,6 +43,10 @@ export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
     });
   }
 
+  /**
+   * Since we are using Phaser the graphics objects need to be
+   *  de-registered from Phaser as the componenet is removed.
+   */
   public cleanup(drawable: CompDrawable) {
     const component_cache = this.graphics_cache.get_component_cache(drawable);
     if (!component_cache) {
@@ -51,7 +58,8 @@ export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
 }
 
 export class GraphicsCacheObject {
-  // This is a reference to the Phaser object that will be drawn by Phaser. Might need to add options for other classes in the future.
+  /* This is a reference to the Phaser object that will be drawn by Phaser.
+   * We might need to add options for other classes in the future. */
   public graphics_object: Phaser.GameObjects.Graphics | null = null;
 }
 
@@ -71,7 +79,7 @@ export class GraphicsCache {
     this.component_caches.delete(drawable);
   }
 
-  public size(): number{
+  public get size(): number {
     return this.component_caches.size;
   }
 }

@@ -7,17 +7,34 @@ import CompMouseSensitive from '../core_components/CompMouseSensitive';
 import { set_intersection } from '../util/set_utility_functions';
 
 export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
+  // This event object is updated each call to update, if needed.
   private mouse_event = new MouseEvent();
 
   constructor() {
     super([[CompMouseSensitive]]);
   }
 
+  /**
+   * Checks all sub systems and corresponding matching entities, for entities
+   * being pointed or clicked at. Also determines which entity is on top, and
+   * then calls the sub systems handling that entity and any entity that is
+   * mouse sensitive even if not on top.
+   * @param {World} world
+   * @param {Scene} scene
+   * @param {number} time
+   * @param {number} delta
+   * @returns
+   */
   public update(world: World, scene: Scene, time: number, delta: number) {
-    this.mouse_event.update_mouse_status(scene.input.activePointer, time);
+    this.mouse_event.update_mouse_status(scene, time);
+    // No action if the mouse state was unchanged.
     if (!this.mouse_event.unhandled) {
       return;
     }
+    /* The following code will do the following:
+     * 1) Ask each subsystem if their corresponding entities are being pointed at or not.
+     * 2) Determine which entity is one top of all the pointed at entities.
+     * 3) Call the corresponding sub systems to take action on apropriate entities. */
     const pointed_at_entities = new Set<Entity>();
     const sub_system_entity_sets = new Map<SubSystem, Set<Entity>>();
     let top_depth = Number.NEGATIVE_INFINITY;
@@ -26,6 +43,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
       const sub_system_entities = sub_system.all_matching_entities(world);
       sub_system_entity_sets.set(sub_system, sub_system_entities);
       sub_system_entities.forEach((entity) => {
+        // Checking whether entity is pointed at.
         if (
           sub_system.is_entity_pointed_at(
             world,
@@ -37,6 +55,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
           )
         ) {
           pointed_at_entities.add(entity);
+          // Checking depth value
           const depth = world.getComponent(
             entity,
             CompMouseSensitive,
@@ -48,6 +67,8 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
         }
       });
       this.mouse_event.entity_on_top = on_top_entity;
+      /* Only activates the sub systems with the proper pointed at entities,
+       * taking into account the properties of CompMouseSensitivity. */
       sub_system_entity_sets.forEach((set) => {
         set_intersection(set, pointed_at_entities).forEach((entity) => {
           const mouse_sensitivity = world.getComponent(
@@ -78,8 +99,11 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
         });
       });
     });
+    // Signals that the event has been handled and does not need to be processed again.
     this.mouse_event.unhandled = false;
   }
+
+  private find_pointed_at_entities() {}
 }
 
 export abstract class MouseSubSystem extends SubSystem {
@@ -103,10 +127,10 @@ export abstract class MouseSubSystem extends SubSystem {
 }
 
 export enum MouseButtonStatus {
-  None,
-  Down,
-  Held,
-  Up,
+  None, // Neutral unpressed state
+  Down, // Pressed state
+  Held, // Pressed state and was Down or Helf last frame.
+  Up, // Unpressed state, but was Down or Held last frame
 }
 
 export class MouseEvent {
@@ -120,10 +144,8 @@ export class MouseEvent {
   private mouse_buttons_states: Map<number, MouseButtonStatus> = new Map();
   private mouse_buttons: number = 0;
 
-  public update_mouse_status(
-    pointer: Phaser.Input.Pointer,
-    current_time: number,
-  ): MouseEvent {
+  public update_mouse_status(scene: Scene, current_time: number): MouseEvent {
+    const pointer = scene.input.activePointer;
     this.update_position(pointer.position);
     this.update_mouse_button_status(pointer.buttons);
     if (!this.has_moved && !this.has_clicked) {
