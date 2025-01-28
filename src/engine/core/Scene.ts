@@ -1,10 +1,10 @@
-import ECS from './ECS';
+import Ecs from './Ecs';
 import EntityStore from './EntityStore';
 import ComponentStore from './ComponentStore';
 import Engine from './Engine';
 
 export default abstract class Scene {
-  private _ecs: ECS = new ECS(new EntityStore(), new ComponentStore());
+  private _ecs: Ecs = new Ecs(new EntityStore(), new ComponentStore());
 
   protected engine!: Engine;
 
@@ -12,7 +12,7 @@ export default abstract class Scene {
     this.engine = engine;
   }
 
-  get ecs(): ECS {
+  get ecs(): Ecs {
     return this._ecs;
   }
 

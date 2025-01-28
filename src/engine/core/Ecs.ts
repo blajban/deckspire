@@ -12,7 +12,7 @@ import ComponentStore, { Archetype } from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
 
-export default class ECS {
+export default class Ecs {
   private _system_draw: SysDraw | null = null;
   private _system_mouse: SysMouse | null = null;
 

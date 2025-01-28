@@ -9,7 +9,7 @@
     "open-coverage": "open coverage/lcov-report/index.html",
     "docs": "npx typedoc && open docs/index.html",
     "generate-docs": "npx typedoc",
-    "lint": "eslint src/."
+    "lint": "npx eslint ./src ./__tests__"
   },
   "keywords": [],
   "author": "",

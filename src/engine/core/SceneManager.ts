@@ -21,7 +21,7 @@ export default class SceneManager {
   startScene(key: string): void {
     const scene = this._registered_scenes.get(key);
     if (!scene) {
-      throw new Error(`Cannot start scene ${key}, it's not registered.`);
+      throw new Error(`Cannot start scene ${key}, it is not registered.`);
     }
 
     if (this._active_scenes.has(key)) {
@@ -63,7 +63,7 @@ export default class SceneManager {
   resumeScene(key: string): void {
     const scene = this._registered_scenes.get(key);
     if (!scene) {
-      throw new Error(`Cannot resume scene ${key}, it's not registered.`);
+      throw new Error(`Cannot resume scene ${key}, it is not registered.`);
     }
 
     if (this._active_scenes.has(key)) {
