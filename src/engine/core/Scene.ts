@@ -14,7 +14,7 @@ export default abstract class Scene {
 
   get world(): World { return this._world; }
 
-  abstract on_load(): void;
+  abstract on_start(): void;
   abstract on_update(time: number, delta: number): void;
   abstract on_exit(): void;
 }

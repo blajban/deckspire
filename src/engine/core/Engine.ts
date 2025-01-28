@@ -35,7 +35,7 @@ export default class Engine extends Phaser.Scene {
   start_scene(key: string) {
     const scene = this._registered_scenes.get(key);
     if (scene) {
-      scene.on_load();
+      scene.on_start();
       this._active_scenes.set(key, scene);
     }
   }

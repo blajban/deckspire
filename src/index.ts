@@ -16,7 +16,7 @@ import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
 
 
 class MyScene extends Scene {
-  on_load(): void {
+  on_start(): void {
     console.log('Loading MyScene!');
 
     this.world.registerComponent(CompHex);
