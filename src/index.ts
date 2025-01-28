@@ -9,38 +9,38 @@ import CompFillStyle from './engine/core_components/CompFillStyle';
 import CompLineStyle from './engine/core_components/CompLineStyle';
 import CompMouseSensitive from './engine/core_components/CompMouseSensitive';
 import CompNamed from './engine/core_components/CompNamed';
-import { DrawSubSystem } from './engine/core_systems/SysDraw';
 import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
 import Vector2D from './math/Vector2D';
 import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
 
 class AnotherScene extends Scene {
-  on_register(): void {
+  onRegister(): void {
     console.log('Registering AnotherScene!');
   }
 
-  on_start(): void {
+  onStart(): void {
     console.log('Starting AnotherScene!');
 
     this.engine.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
-      if (event.code === 'ArrowUp') {
+      if (event.code === 'ArrowDown') {
         console.log('Arrow Up key was pressed!');
-        // Add logic for Arrow Up
+        this.engine.resumeScene('MyScene');
+        this.engine.pauseScene('AnotherScene');
       }
     });
   }
 
-  on_exit(): void {
+  onExit(): void {
     console.log('Exiting AnotherScene!');
   }
 
-  on_update(time: number, delta: number): void {
+  onUpdate(time: number, delta: number): void {
     console.log('Updating AnotherScene!');
   }
 }
 
 class MyScene extends Scene {
-  on_register(): void {
+  onRegister(): void {
     console.log('Registering MyScene!');
 
     this.world.registerComponent(CompHex);
@@ -55,8 +55,16 @@ class MyScene extends Scene {
     this.world.getDrawSystem()!.addSubSystem(new DrawHex());
   }
 
-  on_start(): void {
+  onStart(): void {
     console.log('Starting MyScene!');
+
+    // Scene transition example (will get some errors due to using phaser input, this is just as an example)
+    this.engine.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
+      if (event.code === 'ArrowUp') {
+        this.engine.pauseScene('MyScene');
+        this.engine.startScene('AnotherScene');
+      }
+    });
 
     const hex_grid = this.world.newEntity();
     this.world.addComponents(
@@ -80,29 +88,22 @@ class MyScene extends Scene {
     );
   }
 
-  on_exit(): void {
+  onExit(): void {
     console.log('Exiting MyScene!');
   }
 
-  on_update(time: number, delta: number): void {
+  onUpdate(time: number, delta: number): void {
+    console.log('Updating MyScene!');
     this.world.getMouseSystem()?.update(this.world, this.engine, time, delta);
     this.world.getDrawSystem()?.update(this.world, this.engine, time, delta);
   }
 }
 
-
-
 const game = new Engine(800, 600);
 
 game.ready().then(() => {
-  game.register_scene('My_scene', new MyScene());
-  game.register_scene('AnotherScene', new AnotherScene());
+  game.registerScene('MyScene', new MyScene());
+  game.registerScene('AnotherScene', new AnotherScene());
 
-  game.start_scene('My_scene');
-  game.start_scene('AnotherScene');
+  game.startScene('MyScene');
 });
-
-
-
-
-

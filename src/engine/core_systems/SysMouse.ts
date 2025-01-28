@@ -25,7 +25,12 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
    * @param {number} delta
    * @returns
    */
-  public update(world: World, engine: Engine, time: number, delta: number): void {
+  public update(
+    world: World,
+    engine: Engine,
+    time: number,
+    delta: number,
+  ): void {
     this._mouse_event.updateMouseStatus(engine, time);
     // No action if the mouse state was unchanged.
     if (!this._mouse_event.is_unhandled) {

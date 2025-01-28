@@ -28,7 +28,12 @@ export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
     super([[CompDrawable]]);
   }
 
-  public update(world: World, engine: Engine, time: number, delta: number): void {
+  public update(
+    world: World,
+    engine: Engine,
+    time: number,
+    delta: number,
+  ): void {
     this.sub_systems.forEach((sub_system) => {
       sub_system.allMatchingEntities(world).forEach((entity) => {
         const drawable = world.getComponent(entity, CompDrawable)!;
@@ -56,6 +61,10 @@ export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
     component_cache.graphics_object?.destroy();
     this._graphics_cache.deleteCache(drawable);
   }
+
+  public cleanupAll(): void {
+    this._graphics_cache.deleteAllCache();
+  }
 }
 
 export class GraphicsCacheObject {
@@ -78,6 +87,17 @@ export class GraphicsCache {
 
   public deleteCache(drawable: CompDrawable): void {
     this._component_caches.delete(drawable);
+  }
+
+  public deleteAllCache(): void {
+    this._component_caches.forEach((cache, drawable) => {
+      if (cache?.graphics_object) {
+        cache.graphics_object.destroy();
+        cache.graphics_object = null;
+      }
+  
+      this._component_caches.delete(drawable);
+    })
   }
 
   public get size(): number {

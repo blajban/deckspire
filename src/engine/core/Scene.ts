@@ -8,18 +8,18 @@ export default abstract class Scene {
 
   protected engine!: Engine;
 
-  initialize(engine: Engine) {
+  initialize(engine: Engine): void {
     this.engine = engine;
   }
 
-  get world(): World { return this._world; }
+  get world(): World {
+    return this._world;
+  }
 
-  abstract on_register(): void;
-  abstract on_start(): void;
-  abstract on_update(time: number, delta: number): void;
-  abstract on_exit(): void;
+  onRegister(): void {}
+  onStart(): void {}
+  abstract onUpdate(time: number, delta: number): void;
+  onExit(): void {}
+  onPause(): void {}
+  onResume(): void {}
 }
-
-
-
-
