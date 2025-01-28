@@ -1,6 +1,6 @@
-export async function loadJsonFile(filePath: string): Promise<any> {
+export async function loadJsonFile(file_path: string): Promise<any> {
   try {
-    const response = await fetch(filePath);
+    const response = await fetch(file_path);
     if (!response.ok) {
       throw new Error(`Failed to load file: ${response.statusText}`);
     }

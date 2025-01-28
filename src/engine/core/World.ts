@@ -13,42 +13,41 @@ import { Entity } from './Entity';
 import EntityStore from './EntityStore';
 
 export default class World {
-  private entityStore: EntityStore;
-  private componentStore: ComponentStore;
-  private systemDraw: SysDraw | null = null;
-  private systemMouse: SysMouse | null = null;
+  private _system_draw: SysDraw | null = null;
+  private _system_mouse: SysMouse | null = null;
 
-  constructor(entityStore: EntityStore, componentStore: ComponentStore) {
-    this.entityStore = entityStore;
-    this.componentStore = componentStore;
+  constructor(
+    private _entity_store: EntityStore,
+    private _component_store: ComponentStore,
+  ) {
     // Core components are always registered.
-    this.registerCoreComponents();
+    this._registerCoreComponents();
   }
 
   /**
    * Adds the core system for drawing entities to the world.
    */
-  public addDraw() {
-    if (!this.systemDraw) {
-      this.systemDraw = new SysDraw();
+  public addDraw(): void {
+    if (!this._system_draw) {
+      this._system_draw = new SysDraw();
     }
   }
 
   /**
    * Adds the core system for handling mouse input to the world,
    */
-  public addMouse() {
-    if (!this.systemMouse) {
+  public addMouse(): void {
+    if (!this._system_mouse) {
       /* Do not move this to the constructor! The Scene.Input object will not
        * yet be instantiated and things will fail. */
-      this.systemMouse = new SysMouse();
+      this._system_mouse = new SysMouse();
     }
   }
 
   /**
    * Registers all core components.
    */
-  private registerCoreComponents() {
+  private _registerCoreComponents(): void {
     this.registerComponent(CompChild);
     this.registerComponent(CompDrawable);
     this.registerComponent(CompFillStyle);
@@ -63,32 +62,32 @@ export default class World {
    * @returns {SysDraw | null} the draw system if it exists.
    */
   public getDrawSystem(): SysDraw | null {
-    return this.systemDraw;
+    return this._system_draw;
   }
 
   /**
    * @returns {SysMouse | null} the mouse handling system if it exists.
    */
   public getMouseSystem(): SysMouse | null {
-    return this.systemMouse;
+    return this._system_mouse;
   }
 
   newEntity(): Entity {
-    return this.entityStore.newEntity();
+    return this._entity_store.newEntity();
   }
 
   entityExists(entity: Entity): boolean {
-    return this.entityStore.entityExists(entity);
+    return this._entity_store.entityExists(entity);
   }
 
-  removeEntity(entity: Entity, removeChildren: boolean = true) {
+  removeEntity(entity: Entity, should_remove_children: boolean = true): void {
     // Handle children if entity is a parent.
-    const parentComp = this.getComponent(entity, CompParent);
-    if (parentComp) {
-      for (const child of parentComp.children) {
-        const childComp = this.getComponent(child, CompChild);
-        if (childComp && childComp.parent === entity) {
-          if (removeChildren) {
+    const parent_comp = this.getComponent(entity, CompParent);
+    if (parent_comp) {
+      for (const child of parent_comp.children) {
+        const child_comp = this.getComponent(child, CompChild);
+        if (child_comp && child_comp.parent === entity) {
+          if (should_remove_children) {
             this.removeEntity(child, true); // Remove the child
             continue;
           }
@@ -99,53 +98,59 @@ export default class World {
     }
 
     // Remove the parent from its own parent's child list if it is a child.
-    const childComp = this.getComponent(entity, CompChild);
-    if (childComp) {
-      const parent = childComp.parent;
-      const parentComp = this.getComponent(parent, CompParent);
-      if (parentComp) {
-        parentComp.children = parentComp.children.filter((e) => e !== entity);
+    const child_comp = this.getComponent(entity, CompChild);
+    if (child_comp) {
+      const parent = child_comp.parent;
+      const parent_comp = this.getComponent(parent, CompParent);
+      if (parent_comp) {
+        parent_comp.children = parent_comp.children.filter((e) => e !== entity);
       }
     }
 
     // Clean up Phaser objects if the Drawable has created any.
     const drawable = this.getComponent(entity, CompDrawable);
     if (drawable) {
-      this.systemDraw?.cleanup(drawable);
+      this._system_draw?.cleanup(drawable);
     }
 
     // Remove all components
-    const components = this.componentStore.getComponentsForEntity(entity);
+    const components = this._component_store.getComponentsForEntity(entity);
 
     for (const component of components) {
-      const componentClass = component.constructor as ComponentClass<Component>;
-      this.componentStore.removeComponent(entity, componentClass);
+      const component_class =
+        component.constructor as ComponentClass<Component>;
+      this._component_store.removeComponent(entity, component_class);
     }
 
-    this.entityStore.removeEntity(entity);
+    this._entity_store.removeEntity(entity);
   }
 
   getAllEntities(): Entity[] {
-    return this.entityStore.getAllEntities();
+    return this._entity_store.getAllEntities();
   }
 
-  registerComponent<T extends Component>(componentClass: ComponentClass<T>) {
-    this.componentStore.registerComponent(componentClass);
+  registerComponent<T extends Component>(
+    component_class: ComponentClass<T>,
+  ): void {
+    this._component_store.registerComponent(component_class);
   }
 
-  addComponent<T extends Component>(entity: Entity, component: T) {
-    const componentType = component.constructor.name;
+  addComponent<T extends Component>(entity: Entity, component: T): void {
+    const component_type = component.constructor.name;
 
-    if (componentType === CompParent.name || componentType === CompChild.name) {
+    if (
+      component_type === CompParent.name ||
+      component_type === CompChild.name
+    ) {
       throw new Error(
-        `Add ${componentType} through the addParentChildRelationship() function.`,
+        `Add ${component_type} through the addParentChildRelationship() function.`,
       );
     }
 
-    this.componentStore.addComponent(entity, component);
+    this._component_store.addComponent(entity, component);
   }
 
-  addComponents(entity: Entity, ...components: Component[]) {
+  addComponents(entity: Entity, ...components: Component[]): void {
     for (const component of components) {
       this.addComponent(entity, component);
     }
@@ -153,57 +158,59 @@ export default class World {
 
   getComponent<T extends Component>(
     entity: Entity,
-    componentClass: ComponentClass<T>,
+    component_class: ComponentClass<T>,
   ): T | undefined {
-    return this.componentStore.getComponent(entity, componentClass);
+    return this._component_store.getComponent(entity, component_class);
   }
 
   removeComponent<T extends Component>(
     entity: Entity,
-    componentClass: ComponentClass<T>,
-  ) {
-    const componentType = this.componentStore.getRegisteredComponentClass(
-      componentClass.name,
+    component_class: ComponentClass<T>,
+  ): void {
+    const component_type = this._component_store.getRegisteredComponentClass(
+      component_class.name,
     );
 
-    if (componentType == CompParent) {
-      const parentComp = this.getComponent(entity, CompParent);
-      if (parentComp) {
-        for (const child of parentComp.children) {
-          const childComp = this.getComponent(child, CompChild);
-          if (childComp && childComp.parent === entity) {
+    if (component_type === CompParent) {
+      const parent_comp = this.getComponent(entity, CompParent);
+      if (parent_comp) {
+        for (const child of parent_comp.children) {
+          const child_comp = this.getComponent(child, CompChild);
+          if (child_comp && child_comp.parent === entity) {
             this.removeComponent(child, CompChild); // Orphan the child.
           }
         }
       }
     }
 
-    if (componentType == CompChild) {
-      const childComp = this.getComponent(entity, CompChild);
-      if (childComp) {
-        const parent = childComp.parent;
-        const parentComp = this.getComponent(parent, CompParent);
-        if (parentComp) {
-          parentComp.children = parentComp.children.filter((e) => e !== entity);
+    if (component_type === CompChild) {
+      const child_comp = this.getComponent(entity, CompChild);
+      if (child_comp) {
+        const parent = child_comp.parent;
+        const parent_comp = this.getComponent(parent, CompParent);
+        if (parent_comp) {
+          parent_comp.children = parent_comp.children.filter(
+            (e) => e !== entity,
+          );
         }
       }
     }
 
-    this.componentStore.removeComponent(entity, componentClass);
+    this._component_store.removeComponent(entity, component_class);
   }
 
   getEntitiesWithComponent<T extends Component>(
-    componentClass: ComponentClass<T>,
+    component_class: ComponentClass<T>,
   ): Set<Entity> {
-    return this.componentStore.getEntitiesWithComponent(componentClass);
+    return this._component_store.getEntitiesWithComponent(component_class);
   }
 
-  getEntitiesWithArchetype(...componentClasses: Archetype): Set<Entity> {
-    return this.componentStore.getEntitiesWithArchetype(...componentClasses);
+  getEntitiesWithArchetype(...component_classes: Archetype): Set<Entity> {
+    return this._component_store.getEntitiesWithArchetype(...component_classes);
   }
 
   getComponentsForEntity(entity: Entity): Component[] {
-    return this.componentStore.getComponentsForEntity(entity);
+    return this._component_store.getComponentsForEntity(entity);
   }
 
   /**
@@ -212,66 +219,76 @@ export default class World {
    * - Ensures no cyclic relationships are created in the hierarchy.
    * - Automatically adds the required `CompParent` and `CompChild` components if they don't exist.
    *
-   * @param parentEntity - The entity to become the parent.
-   * @param childEntity - The entity to become the child.
+   * @param parent_entity - The entity to become the parent.
+   * @param child_entity - The entity to become the child.
    * @throws Will throw an error if:
    * - Adding the relationship would create a cycle in the hierarchy.
    * - The `childEntity` already has a parent.
    */
-  addParentChildRelationship(parentEntity: Entity, childEntity: Entity) {
-    if (this.isAncestor(parentEntity, childEntity)) {
+  addParentChildRelationship(
+    parent_entity: Entity,
+    child_entity: Entity,
+  ): void {
+    if (this.isAncestor(parent_entity, child_entity)) {
       throw new Error(
-        `Cannot add Entity ${childEntity} as a child of Entity ${parentEntity}: it would create a cyclic relationship.`,
+        `Cannot add Entity ${child_entity} as a child of Entity ${parent_entity}: it would create a cyclic relationship.`,
       );
     }
 
-    let parentComp = this.getComponent(parentEntity, CompParent);
-    if (!parentComp) {
-      parentComp = new CompParent([]);
-      this.componentStore.addComponent(parentEntity, parentComp);
+    let parent_comp = this.getComponent(parent_entity, CompParent);
+    if (!parent_comp) {
+      parent_comp = new CompParent([]);
+      this._component_store.addComponent(parent_entity, parent_comp);
     }
 
-    parentComp.children.push(childEntity);
+    parent_comp.children.push(child_entity);
 
-    const childComp = this.getComponent(childEntity, CompChild);
-    if (childComp) {
-      throw new Error(`Entity ${childEntity} already has a parent.`);
+    const child_comp = this.getComponent(child_entity, CompChild);
+    if (child_comp) {
+      throw new Error(`Entity ${child_entity} already has a parent.`);
     }
 
-    this.componentStore.addComponent(childEntity, new CompChild(parentEntity));
+    this._component_store.addComponent(
+      child_entity,
+      new CompChild(parent_entity),
+    );
   }
 
   /**
    * Checks if `potentialAncestor` is an ancestor of `entity`.
    * @param entity - The entity being checked.
-   * @param potentialAncestor - The potential ancestor entity.
+   * @param potential_ancestor - The potential ancestor entity.
    * @returns True if `potentialAncestor` is an ancestor of `entity`, false otherwise.
    */
-  isAncestor(entity: Entity, potentialAncestor: Entity): boolean {
-    let currentEntity: Entity | null = entity;
+  isAncestor(entity: Entity, potential_ancestor: Entity): boolean {
+    let current_entity: Entity | null = entity;
 
-    while (currentEntity !== null) {
-      const childComp: CompChild | undefined = this.getComponent(
-        currentEntity,
+    while (current_entity !== null) {
+      const child_comp: CompChild | undefined = this.getComponent(
+        current_entity,
         CompChild,
       );
-      if (!childComp) return false;
+      if (!child_comp) {
+        return false;
+      }
 
-      if (childComp.parent === potentialAncestor) return true;
+      if (child_comp.parent === potential_ancestor) {
+        return true;
+      }
 
-      currentEntity = childComp.parent;
+      current_entity = child_comp.parent;
     }
 
     return false;
   }
 
   serialize(): string {
-    const serializedWorld = this.getAllEntities().map((entity) => {
+    const serialized_world = this.getAllEntities().map((entity) => {
       const components = this.getComponentsForEntity(entity).map(
         (component) => {
           return {
             type: component.constructor.name,
-            data: component.toJSON(),
+            data: component.toJson(),
           };
         },
       );
@@ -279,25 +296,25 @@ export default class World {
       return { components };
     });
 
-    return JSON.stringify(serializedWorld);
+    return JSON.stringify(serialized_world);
   }
 
   deserialize(json: string): void {
-    const parsedWorld = JSON.parse(json);
+    const parsed_world = JSON.parse(json);
 
-    for (const { components } of parsedWorld) {
+    for (const { components } of parsed_world) {
       const entity = this.newEntity();
 
       for (const { type, data } of components) {
-        const ComponentClass =
-          this.componentStore.getRegisteredComponentClass(type);
+        const component_class =
+          this._component_store.getRegisteredComponentClass(type);
 
         // Add validation(?). Proposed solution:
         // Add an optional static validate function on components.
         // The validate function throws error if invalid data.
         // Deserialize function could handle the error by logging and skipping component.
-        const component = new ComponentClass(...Object.values(data));
-        this.componentStore.addComponent(entity, component);
+        const component = new component_class(...Object.values(data));
+        this._component_store.addComponent(entity, component);
       }
     }
   }

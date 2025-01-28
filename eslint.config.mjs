@@ -1,6 +1,8 @@
 import tseslint from 'typescript-eslint';
+import unusedImports from 'eslint-plugin-unused-imports';
 import prettier from 'eslint-plugin-prettier';
 import globals from 'globals';
+import PrettierConfig from './prettier.config.mjs';
 
 export default [
   {
@@ -8,7 +10,8 @@ export default [
 
     plugins: {
       '@typescript-eslint': tseslint.plugin,
-      prettier,
+      'unused-imports': unusedImports,
+      prettier: prettier,
     },
 
     languageOptions: {
@@ -29,14 +32,23 @@ export default [
       curly: ['error', 'all'],
       'prefer-const': 'warn',
       'no-useless-assignment': ['warn'],
-      '@typescript-eslint/no-unused-vars': ['warn', {argsIgnorePattern: '^_'}],
+      '@typescript-eslint/no-unused-vars': ['off'],
+      'unused-imports/no-unused-imports': 'warn',
+      'unused-imports/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/naming-convention': [
         'error',
         {
           selector: ['default'],
-          format: ['camelCase'],
+          format: ['strictCamelCase'],
           leadingUnderscore: 'allow',
           trailingUnderscore: 'allow',
         },
@@ -45,25 +57,19 @@ export default [
           format: [],
         },
         {
-          selector: ['typeLike'],
-          format: ['PascalCase'],
-          leadingUnderscore: 'forbid',
-          trailingUnderscore: 'forbid',
-        },
-        {
-          selector: ['class', 'interface'],
-          format: ['PascalCase'],
+          selector: ['typeLike', 'class', 'interface', 'enumMember'],
+          format: ['StrictPascalCase'],
           leadingUnderscore: 'forbid',
         },
         {
           selector: ['classMethod', 'function'],
-          format: ['camelCase'],
+          format: ['strictCamelCase'],
           leadingUnderscore: 'forbid',
         },
         {
           selector: ['classMethod'],
           modifiers: ['private'],
-          format: ['camelCase'],
+          format: ['strictCamelCase'],
           leadingUnderscore: 'require',
         },
         {
@@ -78,7 +84,19 @@ export default [
           leadingUnderscore: 'forbid',
         },
         {
-          selector: ['parameter'],
+          selector: [
+            'variable',
+            'classProperty',
+            'accessor',
+            'parameter',
+            'parameterProperty',
+          ],
+          modifiers: ['readonly'],
+          format: ['UPPER_CASE'],
+          leadingUnderscore: 'forbid',
+        },
+        {
+          selector: ['variable', 'parameter'],
           modifiers: ['unused'],
           format: ['snake_case'],
           leadingUnderscore: 'allow',
@@ -111,7 +129,7 @@ export default [
           prefix: ['is_', 'should_', 'has_', 'can_', 'did_', 'will_'],
         },
       ],
-      'prettier/prettier': 'warn',
+      'prettier/prettier': ['warn', PrettierConfig],
     },
   },
 ];

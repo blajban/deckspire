@@ -21,20 +21,20 @@ export abstract class DrawSubSystem extends SubSystem {
  * Owns and handles sub systems, that does the actual drawing.
  */
 export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
-  private graphics_cache = new GraphicsCache();
+  private _graphics_cache = new GraphicsCache();
 
   constructor() {
     super([[CompDrawable]]);
   }
 
-  public update(world: World, scene: Scene, time: number, delta: number) {
+  public update(world: World, scene: Scene, time: number, delta: number): void {
     this.sub_systems.forEach((sub_system) => {
-      sub_system.all_matching_entities(world).forEach((entity) => {
+      sub_system.allMatchingEntities(world).forEach((entity) => {
         const drawable = world.getComponent(entity, CompDrawable)!;
         sub_system.update(
           world,
           scene,
-          this.graphics_cache.get_component_cache(drawable),
+          this._graphics_cache.getComponentCache(drawable),
           time,
           delta,
           entity,
@@ -47,13 +47,13 @@ export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
    * Since we are using Phaser the graphics objects need to be
    *  de-registered from Phaser as the componenet is removed.
    */
-  public cleanup(drawable: CompDrawable) {
-    const component_cache = this.graphics_cache.get_component_cache(drawable);
+  public cleanup(drawable: CompDrawable): void {
+    const component_cache = this._graphics_cache.getComponentCache(drawable);
     if (!component_cache) {
       return;
     }
     component_cache.graphics_object?.destroy();
-    this.graphics_cache.delete_cache(drawable);
+    this._graphics_cache.deleteCache(drawable);
   }
 }
 
@@ -64,22 +64,22 @@ export class GraphicsCacheObject {
 }
 
 export class GraphicsCache {
-  private component_caches = new Map<CompDrawable, GraphicsCacheObject>();
+  private _component_caches = new Map<CompDrawable, GraphicsCacheObject>();
 
-  public get_component_cache(drawable: CompDrawable): GraphicsCacheObject {
-    let cache = this.component_caches.get(drawable);
+  public getComponentCache(drawable: CompDrawable): GraphicsCacheObject {
+    let cache = this._component_caches.get(drawable);
     if (!cache) {
       cache = new GraphicsCacheObject();
-      this.component_caches.set(drawable, cache);
+      this._component_caches.set(drawable, cache);
     }
     return cache;
   }
 
-  public delete_cache(drawable: CompDrawable) {
-    this.component_caches.delete(drawable);
+  public deleteCache(drawable: CompDrawable): void {
+    this._component_caches.delete(drawable);
   }
 
   public get size(): number {
-    return this.component_caches.size;
+    return this._component_caches.size;
   }
 }

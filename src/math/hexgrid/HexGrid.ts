@@ -1,5 +1,5 @@
 import { HexDistance, HexCoordinates } from './HexVectors';
-import Vector2D, { Vector2DLike } from '../Vector2D';
+import Vector2D, { Vector2dLike } from '../Vector2D';
 
 const sqrt3over2 = 0.5 * Math.sqrt(3);
 
@@ -34,10 +34,10 @@ export default class HexGrid {
     HorizontalLayout.SE,
   ];
 
-  private constraints: HexGridConstraint[] = [];
-  private max_radius: number;
-  private hex_size: number = 0; // Will be set in ctor.
-  private layout: HorizontalLayout | VerticalLayout;
+  private _constraints: HexGridConstraint[] = [];
+  private _max_radius: number;
+  private _hex_size: number = 0; // Will be set in ctor.
+  private _layout: HorizontalLayout | VerticalLayout;
 
   /**
    * Represents a hex grid.
@@ -50,28 +50,28 @@ export default class HexGrid {
     hex_size: number,
     layout: HorizontalLayout | VerticalLayout = HorizontalLayout,
   ) {
-    this.max_radius = max_radius;
-    this.layout = layout;
-    this.set_size(hex_size);
+    this._max_radius = max_radius;
+    this._layout = layout;
+    this.size = hex_size;
   }
 
-  public size(): number {
-    return this.hex_size;
+  public get size(): number {
+    return this._hex_size;
   }
 
-  public set_size(hex_size: number) {
+  public set size(hex_size: number) {
     if (hex_size <= 0) {
       throw new Error('Hex size must be positive.');
     }
-    this.hex_size = hex_size;
+    this._hex_size = hex_size;
   }
 
   /**
    * Eliminates any hex from the grid, for which the grid constraint returns false.
    * @param grid_guard - A function that returns true if a hex is part of the grid.
    */
-  public add_constraint(constraint: HexGridConstraint) {
-    this.constraints.push(constraint);
+  public addConstraint(constraint: HexGridConstraint): void {
+    this._constraints.push(constraint);
   }
 
   /**
@@ -79,11 +79,11 @@ export default class HexGrid {
    * @param hex
    * @returns true if the hex coordinates is part of the grid.
    */
-  public is_hex_in_grid(hex: HexCoordinates): boolean {
-    if (hex.distance_from_origin().manhattan() > this.max_radius) {
+  public isHexInGrid(hex: HexCoordinates): boolean {
+    if (hex.distanceFromOrigin().manhattan() > this._max_radius) {
       return false;
     }
-    for (let constraint of this.constraints) {
+    for (const constraint of this._constraints) {
       if (!constraint(hex)) {
         return false;
       }
@@ -92,15 +92,15 @@ export default class HexGrid {
   }
 
   /**
-   * @param {Vector2DLike} vec - Vector pointing from the origin.
+   * @param {Vector2dLike} vec - Vector pointing from the origin.
    * @param {number} [scale=1] - The distance between two adjacent hexes.
    * @returns {HexCoordinates} - Hex coordinates of the hex that (x,y) is inside.
    * @throws if an invalid hex grid orientation is supplied.
    */
-  public hex_coordinates_from_vector2d(vec: Vector2DLike): HexCoordinates {
-    let vec2d = new Vector2D(vec.x / this.hex_size, vec.y / this.hex_size);
+  public hexCoordinatesFromVector2D(vec: Vector2dLike): HexCoordinates {
+    let vec2d = new Vector2D(vec.x / this._hex_size, vec.y / this._hex_size);
 
-    if (this.layout === VerticalLayout) {
+    if (this._layout === VerticalLayout) {
       vec2d = new Vector2D(
         sqrt3over2 * vec2d.x + 0.5 * vec2d.y,
         -0.5 * vec2d.x + sqrt3over2 * vec2d.y,
@@ -108,10 +108,7 @@ export default class HexGrid {
     }
     const fractional_q = vec2d.x / sqrt3over2;
     const fractional_r = vec2d.y - 0.5 * fractional_q;
-    return HexCoordinates.from_fractional_coordinates(
-      fractional_q,
-      fractional_r,
-    );
+    return HexCoordinates.fromFractionalCoordinates(fractional_q, fractional_r);
   }
 
   /**
@@ -121,12 +118,12 @@ export default class HexGrid {
    * @returns {Vector2D} - A vector pointing from the origin to the center of the hex.
    * @throws if the size is not positive or an invalid orientation is supplied.
    */
-  public vector2d_from_hex_distance(distance: HexDistance): Vector2D {
+  public vector2dFromHexDistance(distance: HexDistance): Vector2D {
     let vec2d = new Vector2D(
-      this.hex_size * sqrt3over2 * distance.q,
-      this.hex_size * (0.5 * distance.q + distance.r),
+      this._hex_size * sqrt3over2 * distance.q,
+      this._hex_size * (0.5 * distance.q + distance.r),
     );
-    if (this.layout === VerticalLayout) {
+    if (this._layout === VerticalLayout) {
       vec2d = new Vector2D(
         sqrt3over2 * vec2d.x - 0.5 * vec2d.y,
         0.5 * vec2d.x + sqrt3over2 * vec2d.y,
@@ -139,10 +136,10 @@ export default class HexGrid {
    * Returns all hexes in the grid.
    * @returns an array of all hexes in the grid.
    */
-  public all_hexes(): HexCoordinates[] {
-    return this.hexes_within_manhattan_radius(
+  public get all_hexes(): HexCoordinates[] {
+    return this.hexesWithinManhattanRadius(
       new HexCoordinates(0, 0),
-      this.max_radius,
+      this._max_radius,
     );
   }
 
@@ -152,7 +149,7 @@ export default class HexGrid {
    * @param range - the manhattan radius.
    * @returns an array of hexes within the manhattan radius.
    */
-  public hexes_within_manhattan_radius(
+  public hexesWithinManhattanRadius(
     center: HexCoordinates,
     range: number,
   ): HexCoordinates[] {
@@ -163,8 +160,8 @@ export default class HexGrid {
         dr <= Math.min(range, range - dq);
         dr++
       ) {
-        let hex = HexCoordinates.translate(center, new HexDistance(dq, dr));
-        if (this.is_hex_in_grid(hex)) {
+        const hex = HexCoordinates.translate(center, new HexDistance(dq, dr));
+        if (this.isHexInGrid(hex)) {
           results.push(hex);
         }
       }
@@ -178,7 +175,7 @@ export default class HexGrid {
    * @param steps - How many steps to take.
    * @returns an array of hexes within the step limit.
    */
-  public hexes_within_steps(
+  public hexesWithinSteps(
     center: HexCoordinates,
     steps: number,
   ): HexCoordinates[] {
@@ -191,12 +188,12 @@ export default class HexGrid {
       path_heads.push([]);
       for (const path_head of path_heads[path_heads.length - 2]) {
         for (const direction of this.ALL_UNIT_DISTANCES) {
-          let hex = HexCoordinates.translate(path_head, direction);
+          const hex = HexCoordinates.translate(path_head, direction);
           if (visited.some((h) => h.equals(hex))) {
             continue;
           }
           visited.push(hex);
-          if (this.is_hex_in_grid(hex)) {
+          if (this.isHexInGrid(hex)) {
             path_heads[path_heads.length - 1].push(hex);
             results.push(hex);
           }

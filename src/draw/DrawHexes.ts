@@ -8,7 +8,6 @@ import CompChild from '../engine/core_components/CompChild';
 import CompDrawable from '../engine/core_components/CompDrawable';
 import CompFillStyle from '../engine/core_components/CompFillStyle';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
-import CompNamed from '../engine/core_components/CompNamed';
 import {
   DrawSubSystem,
   GraphicsCacheObject,
@@ -26,12 +25,12 @@ export class DrawHexGrid extends DrawSubSystem {
 
   /**
    * The cached Graphics object must be cleared before drawing to it again.
-   * @param world 
-   * @param scene 
-   * @param cache 
-   * @param time 
-   * @param delta 
-   * @param entity 
+   * @param world
+   * @param scene
+   * @param cache
+   * @param time
+   * @param delta
+   * @param entity
    */
   update(
     world: World,
@@ -40,10 +39,10 @@ export class DrawHexGrid extends DrawSubSystem {
     time: number,
     delta: number,
     entity: Entity,
-  ) {
-    let drawable = world.getComponent(entity, CompDrawable)!;
-    let hex_grid = world.getComponent(entity, CompHexGrid)!.hexgrid;
-    let transform = world.getComponent(entity, CompTransform)!;
+  ): void {
+    const drawable = world.getComponent(entity, CompDrawable)!;
+    const hex_grid = world.getComponent(entity, CompHexGrid)!.hexgrid;
+    const transform = world.getComponent(entity, CompTransform)!;
     const line_style = world.getComponent(entity, CompLineStyle);
     const fill_style = world.getComponent(entity, CompFillStyle);
 
@@ -54,8 +53,8 @@ export class DrawHexGrid extends DrawSubSystem {
     gfx.clear();
     gfx.setDepth(drawable.depth);
 
-    hex_grid.all_hexes().forEach((hex) => {
-      draw_hex(gfx, hex, hex_grid, transform, line_style, fill_style);
+    hex_grid.all_hexes.forEach((hex) => {
+      drawHex(gfx, hex, hex_grid, transform, line_style, fill_style);
     });
   }
 }
@@ -75,14 +74,14 @@ export class DrawHex extends DrawSubSystem {
     time: number,
     delta: number,
     entity: Entity,
-  ) {
+  ): void {
     const drawable = world.getComponent(entity, CompDrawable)!;
     const hex = world.getComponent(entity, CompHex)!.coordinates;
     const line_style = world.getComponent(entity, CompLineStyle);
     const fill_style = world.getComponent(entity, CompFillStyle);
     const parent = world.getComponent(entity, CompChild)!.parent;
-    let hex_grid = world.getComponent(parent, CompHexGrid)!.hexgrid;
-    let transform = world.getComponent(parent, CompTransform);
+    const hex_grid = world.getComponent(parent, CompHexGrid)!.hexgrid;
+    const transform = world.getComponent(parent, CompTransform);
     if (!transform) {
       throw new Error('Parent does not have a transform component');
     }
@@ -94,20 +93,20 @@ export class DrawHex extends DrawSubSystem {
     gfx.clear();
     gfx.setDepth(drawable.depth);
 
-    draw_hex(gfx, hex, hex_grid, transform, line_style, fill_style);
+    drawHex(gfx, hex, hex_grid, transform, line_style, fill_style);
   }
 }
 
-function draw_hex(
+function drawHex(
   gfx: Phaser.GameObjects.Graphics,
   hex: HexCoordinates,
   hex_grid: HexGrid,
   transform: CompTransform,
   line_style: CompLineStyle | null = null,
   fill_style: CompFillStyle | null = null,
-) {
-  let hex_center = hex_grid
-    .vector2d_from_hex_distance(hex.distance_from_origin())
+): void {
+  const hex_center = hex_grid
+    .vector2dFromHexDistance(hex.distanceFromOrigin())
     .multiply(transform.scale)
     .add(transform.position);
   if (!fill_style && !line_style) {
@@ -121,8 +120,8 @@ function draw_hex(
     gfx.fillEllipse(
       hex_center.x,
       hex_center.y,
-      transform.scale.x * hex_grid.size(),
-      transform.scale.y * hex_grid.size(),
+      transform.scale.x * hex_grid.size,
+      transform.scale.y * hex_grid.size,
     );
   }
   // Draw lines on top of fill, if any.
@@ -131,8 +130,8 @@ function draw_hex(
     gfx.strokeEllipse(
       hex_center.x,
       hex_center.y,
-      transform.scale.x * hex_grid.size() - line_style.width / 2,
-      transform.scale.y * hex_grid.size() - line_style.width / 2,
+      transform.scale.x * hex_grid.size - line_style.width / 2,
+      transform.scale.y * hex_grid.size - line_style.width / 2,
     );
   }
 }

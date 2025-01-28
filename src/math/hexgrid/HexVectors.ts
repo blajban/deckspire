@@ -54,7 +54,7 @@ export class HexCoordinates extends HexGeneric {
     return new HexCoordinates(this.q, this.r);
   }
 
-  public static from_fractional_coordinates(
+  public static fromFractionalCoordinates(
     fractional_q: number,
     fractional_r: number,
   ): HexCoordinates {
@@ -101,7 +101,7 @@ export class HexCoordinates extends HexGeneric {
    * @param {HexCoordinates} [hex] - The other hex.
    * @returns {HexDistance} - A vector pointing from this hex to the other.
    */
-  public distance_to(hex: HexCoordinates): HexDistance {
+  public distanceTo(hex: HexCoordinates): HexDistance {
     return new HexDistance(hex.q - this.q, hex.r - this.r);
   }
 
@@ -109,14 +109,14 @@ export class HexCoordinates extends HexGeneric {
    * Calculates vector pointing from the origin hex to this one.
    * @returns {HexDistance} - A vector pointing from hex1 to hex2
    */
-  public distance_from_origin(): HexDistance {
+  public distanceFromOrigin(): HexDistance {
     return new HexDistance(this.q, this.r);
   }
   /**
    * Which direction does the current wedge's edge go in?
    * @returns {[HexDistance, number]} - The direction of the wedge edge and how many steps are left to reach the next corner counter clockwise.
    */
-  private wedge_edge(): [HexDistance, number] {
+  private _wedgeEdge(): [HexDistance, number] {
     let hex_wedge;
     let steps_left_to_corner;
     if (
@@ -142,12 +142,14 @@ export class HexCoordinates extends HexGeneric {
    * @returns {HexCoordinates} - The hex after rotation.
    * @throws if the number of sector rotations is not integral.
    */
-  public hex_sector_rotation(n: number): HexCoordinates {
+  public hexSectorRotation(n: number): HexCoordinates {
     if (!Number.isInteger(n)) {
       throw new Error('Number of wedges must be integral.');
     }
     n %= 6;
-    if (n === 0) return this;
+    if (n === 0) {
+      return this;
+    }
     n = n < 0 ? n + 6 : n;
     const sign_shift = 1 - (n % 2) * 2;
     const coordinate_shift = n % 3;
@@ -163,30 +165,34 @@ export class HexCoordinates extends HexGeneric {
    * @returns {HexCoordinates} - The vector after rotation.
    * @throws if the number of steps is not integral.
    */
-  public step_rotation(n: number): HexCoordinates {
+  public stepRotation(n: number): HexCoordinates {
     if (!Number.isInteger(n)) {
       throw new Error('Number of steps must be integral.');
     }
-    if (n === 0) return this;
-    const hexes_per_sector = this.distance_from_origin().manhattan();
-    if (hexes_per_sector === 0) return this;
+    if (n === 0) {
+      return this;
+    }
+    const hexes_per_sector = this.distanceFromOrigin().manhattan();
+    if (hexes_per_sector === 0) {
+      return this;
+    }
     const circumference = 6 * hexes_per_sector;
     n %= circumference;
     n = n < 0 ? n + circumference : n; // 0 <= n < circumference
-    n -= this.rotate_to_corner(n);
+    n -= this._rotateToCorner(n);
     const sector_rotations = Math.trunc(n / hexes_per_sector);
-    this.hex_sector_rotation(sector_rotations);
+    this.hexSectorRotation(sector_rotations);
     n -= sector_rotations * hexes_per_sector;
-    let [wedge_edge, steps] = this.wedge_edge();
+    const [wedge_edge, _steps] = this._wedgeEdge();
     this.translate(wedge_edge.multiply(n));
     return this;
   }
 
   /** Rotates counter clockwise until either a corner is reached or max_steps
    * steps has been taken */
-  private rotate_to_corner(max_steps: number): number {
+  private _rotateToCorner(max_steps: number): number {
     // Rotate hex wise until a corner is reached
-    const [direction, steps_left_to_corner] = this.wedge_edge();
+    const [direction, steps_left_to_corner] = this._wedgeEdge();
     const steps = Math.min(max_steps, steps_left_to_corner);
     direction.multiply(steps);
     this.translate(direction);
