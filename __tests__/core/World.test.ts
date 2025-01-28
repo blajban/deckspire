@@ -143,7 +143,7 @@ describe('World', () => {
       MockComponent,
     );
 
-    world.removeComponent(entity, MockComponent);
+    world.remove_component(entity, MockComponent);
     expect(world.getComponent(entity, MockComponent)).toBeUndefined();
   });
 
@@ -169,7 +169,7 @@ describe('World', () => {
 
     world.addParentChildRelationship(parentEntity, childEntity);
 
-    world.removeComponent(parentEntity, CompParent);
+    world.remove_component(parentEntity, CompParent);
 
     const parentComp = world.getComponent(parentEntity, CompParent);
     expect(parentComp).toBeUndefined();
@@ -184,7 +184,7 @@ describe('World', () => {
 
     world.addParentChildRelationship(parentEntity, childEntity);
 
-    world.removeComponent(childEntity, CompChild);
+    world.remove_component(childEntity, CompChild);
 
     const parentComp = world.getComponent(parentEntity, CompParent);
     expect(parentComp?.children).toHaveLength(0);

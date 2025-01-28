@@ -4,15 +4,15 @@ import { Entity } from './Entity';
  * Manages creation, validation, and removal of entities.
  */
 export default class EntityStore {
-  private entities: Set<Entity> = new Set();
-  private currentId: Entity = 0;
+  private _entities: Set<Entity> = new Set();
+  private _current_id: Entity = 0;
 
   /**
    * Generates the next entity ID.
    * @returns The next available entity ID.
    */
-  private nextId(): Entity {
-    return this.currentId++;
+  private _nextId(): Entity {
+    return this._current_id++;
   }
 
   /**
@@ -20,9 +20,9 @@ export default class EntityStore {
    * @returns The created entity ID.
    */
   newEntity(): Entity {
-    const newEntity = this.nextId();
-    this.entities.add(newEntity);
-    return newEntity;
+    const new_entity = this._nextId();
+    this._entities.add(new_entity);
+    return new_entity;
   }
 
   /**
@@ -31,7 +31,7 @@ export default class EntityStore {
    * @returns `true` if the entity exists, otherwise `false`.
    */
   entityExists(entity: Entity): boolean {
-    return this.entities.has(entity);
+    return this._entities.has(entity);
   }
 
   /**
@@ -41,10 +41,10 @@ export default class EntityStore {
    * @throws Will throw an error if the entity does not exist in the store.
    */
   removeEntity(entity: Entity): void {
-    if (!this.entities.has(entity)) {
+    if (!this._entities.has(entity)) {
       throw new Error(`Entity ${entity} does not exist.`);
     }
-    this.entities.delete(entity);
+    this._entities.delete(entity);
   }
 
   /**
@@ -52,6 +52,6 @@ export default class EntityStore {
    * @returns An array of all entities currently in the store.
    */
   getAllEntities(): Entity[] {
-    return Array.from(this.entities);
+    return Array.from(this._entities);
   }
 }
