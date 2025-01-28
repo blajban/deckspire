@@ -25,17 +25,13 @@ export default [
     },
 
     rules: {
-      //semi: ['error', 'always'],
-      //quotes: ['warn', 'single'],
-      //indent: ['warn', 2, { SwitchCase: 1 }],
+      semi: ['error', 'always'],
+      quotes: ['warn', 'single'],
+      indent: ['warn', 2, { SwitchCase: 1 }],
       eqeqeq: 'warn',
       curly: ['error', 'all'],
       'prefer-const': 'warn',
       'no-useless-assignment': ['warn'],
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_' },
-      ],
       '@typescript-eslint/no-unused-vars': ['off'],
       'unused-imports/no-unused-imports': 'warn',
       'unused-imports/no-unused-vars': [
