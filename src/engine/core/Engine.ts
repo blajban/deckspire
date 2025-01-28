@@ -14,11 +14,11 @@ export default class Engine extends Phaser.Scene {
   // Assets
   // Systems
   // Global objects
-  // Scene transitions/fade in/fade out (handled manually for now)
+  // [OK] Scene transitions/fade in/fade out (handled manually for now)
   // - Stop scene
   // - Pause scene
-  // Add scene managager
-  // Pass scene instead of world to systems
+  // Add scene manager
+  // ** Pass scene instead of world to systems
   // Serialization
   // Testing
   // Comments

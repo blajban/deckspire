@@ -1,7 +1,7 @@
 import Engine from '../core/Engine';
 import { Entity } from '../core/Entity';
+import Scene from '../core/Scene';
 import { SubSystem, SystemWithSubsystems } from '../core/System';
-import World from '../core/World';
 import CompDrawable from '../core_components/CompDrawable';
 
 /**
@@ -9,7 +9,7 @@ import CompDrawable from '../core_components/CompDrawable';
  */
 export abstract class DrawSubSystem extends SubSystem {
   public abstract update(
-    world: World,
+    scene: Scene,
     engine: Engine,
     cache: GraphicsCacheObject,
     time: number,
@@ -29,16 +29,16 @@ export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
   }
 
   public update(
-    world: World,
+    scene: Scene,
     engine: Engine,
     time: number,
     delta: number,
   ): void {
     this.sub_systems.forEach((sub_system) => {
-      sub_system.allMatchingEntities(world).forEach((entity) => {
-        const drawable = world.getComponent(entity, CompDrawable)!;
+      sub_system.allMatchingEntities(scene).forEach((entity) => {
+        const drawable = scene.world.getComponent(entity, CompDrawable)!;
         sub_system.update(
-          world,
+          scene,
           engine,
           this._graphics_cache.getComponentCache(drawable),
           time,

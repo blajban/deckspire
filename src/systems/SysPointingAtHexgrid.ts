@@ -3,7 +3,7 @@ import CompHexGrid from '../components/CompHexGrid';
 import CompTransform from '../components/CompTransform';
 import Engine from '../engine/core/Engine';
 import { Entity } from '../engine/core/Entity';
-import World from '../engine/core/World';
+import Scene from '../engine/core/Scene';
 import CompDrawable from '../engine/core_components/CompDrawable';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
 import CompMouseSensitive from '../engine/core_components/CompMouseSensitive';
@@ -22,15 +22,15 @@ export class SysPointingAtHexgrid extends MouseSubSystem {
   }
 
   public isEntityPointedAt(
-    world: World,
+    scene: Scene,
     engine: Engine,
     event: MouseEvent,
     time: number,
     delta: number,
     entity: Entity,
   ): boolean {
-    const hex_grid = world.getComponent(entity, CompHexGrid)!.hexgrid;
-    const transform = world.getComponent(entity, CompTransform)!;
+    const hex_grid = scene.world.getComponent(entity, CompHexGrid)!.hexgrid;
+    const transform = scene.world.getComponent(entity, CompTransform)!;
     const hex_coordinates = hex_grid.hexCoordinatesFromVector2D(
       event.last_position
         .clone()
@@ -41,34 +41,34 @@ export class SysPointingAtHexgrid extends MouseSubSystem {
   }
 
   public onMouseEvent(
-    world: World,
+    scene: Scene,
     engine: Engine,
     event: MouseEvent,
     time: number,
     delta: number,
     entity: Entity,
   ): void {
-    const hex_grid = world.getComponent(entity, CompHexGrid)!.hexgrid;
-    const transform = world.getComponent(entity, CompTransform)!;
+    const hex_grid = scene.world.getComponent(entity, CompHexGrid)!.hexgrid;
+    const transform = scene.world.getComponent(entity, CompTransform)!;
     const vec2d = event.last_position.clone();
     const hex_coordinates = hex_grid.hexCoordinatesFromVector2D(
       vec2d.subtract(transform.position).rotate(-transform.rotation),
     );
     if (this._pointed_at_hex === null) {
-      this._pointed_at_hex = world.newEntity();
-      world.addComponents(
+      this._pointed_at_hex = scene.world.newEntity();
+      scene.world.addComponents(
         this._pointed_at_hex,
         new CompNamed('The Selected Hex'),
         new CompDrawable(10),
         new CompHex(hex_coordinates),
         new CompLineStyle(5, 0xff0000, 0.5),
       );
-      world.addParentChildRelationship(entity, this._pointed_at_hex);
+      scene.world.addParentChildRelationship(entity, this._pointed_at_hex);
     } else {
-      world.getComponent(this._pointed_at_hex, CompHex)!.coordinates =
+      scene.world.getComponent(this._pointed_at_hex, CompHex)!.coordinates =
         hex_coordinates;
     }
-    const line_style = world.getComponent(this._pointed_at_hex, CompLineStyle)!;
+    const line_style = scene.world.getComponent(this._pointed_at_hex, CompLineStyle)!;
     if (event.mouseButtonState(0) === MouseButtonStatus.Held) {
       line_style.color = 0x0000ff;
     } else {

@@ -2,15 +2,15 @@ import { setUnion } from '../util/setUtilityFunctions';
 import { Archetype } from './ComponentStore';
 import Engine from './Engine';
 import { Entity } from './Entity';
-import World from './World';
+import Scene from './Scene';
 
 abstract class HasApplicableArchetypes {
   constructor(public readonly ARCHETYPES: Archetype[]) {}
 
-  public allMatchingEntities(world: World): Set<Entity> {
+  public allMatchingEntities(scene: Scene): Set<Entity> {
     const entity_sets = new Array<Set<Entity>>();
     this.ARCHETYPES.forEach((archetype) => {
-      entity_sets.push(world.getEntitiesWithArchetype(...archetype));
+      entity_sets.push(scene.world.getEntitiesWithArchetype(...archetype));
     });
     return setUnion(...entity_sets);
   }
@@ -18,7 +18,7 @@ abstract class HasApplicableArchetypes {
 
 export default abstract class System extends HasApplicableArchetypes {
   abstract update(
-    world: World,
+    scene: Scene,
     engine: Engine,
     time: number,
     delta: number,

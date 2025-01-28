@@ -1,8 +1,8 @@
 import Vector2D from '../../math/Vector2D';
 import Engine from '../core/Engine';
 import { Entity } from '../core/Entity';
+import Scene from '../core/Scene';
 import { SubSystem, SystemWithSubsystems } from '../core/System';
-import World from '../core/World';
 import CompMouseSensitive from '../core_components/CompMouseSensitive';
 import { setIntersection } from '../util/setUtilityFunctions';
 
@@ -19,14 +19,14 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
    * being pointed or clicked at. Also determines which entity is on top, and
    * then calls the sub systems handling that entity and any entity that is
    * mouse sensitive even if not on top.
-   * @param {World} world
+   * @param {Scene} scene
    * @param {Engine} engine
    * @param {number} time
    * @param {number} delta
    * @returns
    */
   public update(
-    world: World,
+    scene: Scene,
     engine: Engine,
     time: number,
     delta: number,
@@ -45,13 +45,13 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
     let top_depth = Number.NEGATIVE_INFINITY;
     let on_top_entity: Entity | undefined = undefined;
     this.sub_systems.forEach((sub_system) => {
-      const sub_system_entities = sub_system.allMatchingEntities(world);
+      const sub_system_entities = sub_system.allMatchingEntities(scene);
       sub_system_entity_sets.set(sub_system, sub_system_entities);
       sub_system_entities.forEach((entity) => {
         // Checking whether entity is pointed at.
         if (
           sub_system.isEntityPointedAt(
-            world,
+            scene,
             engine,
             this._mouse_event,
             time,
@@ -61,7 +61,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
         ) {
           pointed_at_entities.add(entity);
           // Checking depth value
-          const depth = world.getComponent(
+          const depth = scene.world.getComponent(
             entity,
             CompMouseSensitive,
           )!.mouse_depth;
@@ -76,7 +76,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
        * taking into account the properties of CompMouseSensitivity. */
       sub_system_entity_sets.forEach((set) => {
         setIntersection(set, pointed_at_entities).forEach((entity) => {
-          const mouse_sensitivity = world.getComponent(
+          const mouse_sensitivity = scene.world.getComponent(
             entity,
             CompMouseSensitive,
           )!;
@@ -92,7 +92,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
                 this._mouse_event.has_clicked)
             ) {
               sub_system.onMouseEvent(
-                world,
+                scene,
                 engine,
                 this._mouse_event,
                 time,
@@ -111,7 +111,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
 
 export abstract class MouseSubSystem extends SubSystem {
   public abstract isEntityPointedAt(
-    world: World,
+    scene: Scene,
     engine: Engine,
     context: MouseEvent,
     time: number,
@@ -120,7 +120,7 @@ export abstract class MouseSubSystem extends SubSystem {
   ): boolean;
 
   public abstract onMouseEvent(
-    world: World,
+    scene: Scene,
     engine: Engine,
     context: MouseEvent,
     time: number,

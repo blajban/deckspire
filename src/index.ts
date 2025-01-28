@@ -94,8 +94,8 @@ class MyScene extends Scene {
 
   onUpdate(time: number, delta: number): void {
     console.log('Updating MyScene!');
-    this.world.getMouseSystem()?.update(this.world, this.engine, time, delta);
-    this.world.getDrawSystem()?.update(this.world, this.engine, time, delta);
+    this.world.getMouseSystem()?.update(this, this.engine, time, delta);
+    this.world.getDrawSystem()?.update(this, this.engine, time, delta);
   }
 }
 
