@@ -8,9 +8,13 @@ export default class Engine extends Phaser.Scene {
   private _registered_scenes: Map<string, Scene> = new Map();
   private _active_scenes: Map<string, Scene> = new Map();
 
-  // Asset store
-  // System store
-  // How to handle global objects
+  // Assets
+  // Systems
+  // Global objects
+  // Scene transitions
+  // Serialization
+  // Testing
+  // Comments
 
   constructor(width: number, height: number) {
     super('Engine');
@@ -25,9 +29,10 @@ export default class Engine extends Phaser.Scene {
     });
   }
 
-  add_scene(key: string, scene: Scene) {
+  register_scene(key: string, scene: Scene) {
     if (!this._registered_scenes.has(key)) {
       scene.initialize(this);
+      scene.on_register();
       this._registered_scenes.set(key, scene);
     }
   }

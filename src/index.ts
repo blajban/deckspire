@@ -16,8 +16,8 @@ import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
 
 
 class MyScene extends Scene {
-  on_start(): void {
-    console.log('Loading MyScene!');
+  on_register(): void {
+    console.log('Registering MyScene!');
 
     this.world.registerComponent(CompHex);
     this.world.registerComponent(CompHexGrid);
@@ -29,7 +29,10 @@ class MyScene extends Scene {
     this.world.addDraw();
     this.world.getDrawSystem()!.addSubSystem(new DrawHexGrid());
     this.world.getDrawSystem()!.addSubSystem(new DrawHex());
+  }
 
+  on_start(): void {
+    console.log('Starting MyScene!');
 
     const hex_grid = this.world.newEntity();
     this.world.addComponents(
@@ -67,7 +70,7 @@ class MyScene extends Scene {
 
 const game = new Engine(800, 600);
 
-game.add_scene('My_scene', new MyScene());
+game.register_scene('My_scene', new MyScene());
 
 game.start_scene('My_scene');
 
