@@ -43,16 +43,16 @@ class MyScene extends Scene {
   onRegister(): void {
     console.log('Registering MyScene!');
 
-    this.world.registerComponent(CompHex);
-    this.world.registerComponent(CompHexGrid);
-    this.world.registerComponent(CompTransform);
+    this.ecs.registerComponent(CompHex);
+    this.ecs.registerComponent(CompHexGrid);
+    this.ecs.registerComponent(CompTransform);
 
-    this.world.addMouse();
-    this.world.getMouseSystem()!.addSubSystem(new SysPointingAtHexgrid());
+    this.ecs.addMouse();
+    this.ecs.getMouseSystem()!.addSubSystem(new SysPointingAtHexgrid());
 
-    this.world.addDraw();
-    this.world.getDrawSystem()!.addSubSystem(new DrawHexGrid());
-    this.world.getDrawSystem()!.addSubSystem(new DrawHex());
+    this.ecs.addDraw();
+    this.ecs.getDrawSystem()!.addSubSystem(new DrawHexGrid());
+    this.ecs.getDrawSystem()!.addSubSystem(new DrawHex());
   }
 
   onStart(): void {
@@ -66,8 +66,8 @@ class MyScene extends Scene {
       }
     });
 
-    const hex_grid = this.world.newEntity();
-    this.world.addComponents(
+    const hex_grid = this.ecs.newEntity();
+    this.ecs.addComponents(
       hex_grid,
       new CompNamed('The Hex Grid'),
       new CompHexGrid(new HexGrid(3, 50, HorizontalLayout)),
@@ -78,8 +78,8 @@ class MyScene extends Scene {
       new CompMouseSensitive(0, true, false, true, true),
     );
     // This grid blocks the mouse events from reaching the other hex grid due to being higher up
-    const partly_blocking_grid = this.world.newEntity();
-    this.world.addComponents(
+    const partly_blocking_grid = this.ecs.newEntity();
+    this.ecs.addComponents(
       partly_blocking_grid,
       new CompNamed('The Blocking Grid'),
       new CompHexGrid(new HexGrid(2, 50, HorizontalLayout)),
@@ -94,8 +94,8 @@ class MyScene extends Scene {
 
   onUpdate(time: number, delta: number): void {
     console.log('Updating MyScene!');
-    this.world.getMouseSystem()?.update(this, this.engine, time, delta);
-    this.world.getDrawSystem()?.update(this, this.engine, time, delta);
+    this.ecs.getMouseSystem()?.update(this, this.engine, time, delta);
+    this.ecs.getDrawSystem()?.update(this, this.engine, time, delta);
   }
 }
 

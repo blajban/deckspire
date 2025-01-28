@@ -29,8 +29,8 @@ export class SysPointingAtHexgrid extends MouseSubSystem {
     delta: number,
     entity: Entity,
   ): boolean {
-    const hex_grid = scene.world.getComponent(entity, CompHexGrid)!.hexgrid;
-    const transform = scene.world.getComponent(entity, CompTransform)!;
+    const hex_grid = scene.ecs.getComponent(entity, CompHexGrid)!.hexgrid;
+    const transform = scene.ecs.getComponent(entity, CompTransform)!;
     const hex_coordinates = hex_grid.hexCoordinatesFromVector2D(
       event.last_position
         .clone()
@@ -48,27 +48,27 @@ export class SysPointingAtHexgrid extends MouseSubSystem {
     delta: number,
     entity: Entity,
   ): void {
-    const hex_grid = scene.world.getComponent(entity, CompHexGrid)!.hexgrid;
-    const transform = scene.world.getComponent(entity, CompTransform)!;
+    const hex_grid = scene.ecs.getComponent(entity, CompHexGrid)!.hexgrid;
+    const transform = scene.ecs.getComponent(entity, CompTransform)!;
     const vec2d = event.last_position.clone();
     const hex_coordinates = hex_grid.hexCoordinatesFromVector2D(
       vec2d.subtract(transform.position).rotate(-transform.rotation),
     );
     if (this._pointed_at_hex === null) {
-      this._pointed_at_hex = scene.world.newEntity();
-      scene.world.addComponents(
+      this._pointed_at_hex = scene.ecs.newEntity();
+      scene.ecs.addComponents(
         this._pointed_at_hex,
         new CompNamed('The Selected Hex'),
         new CompDrawable(10),
         new CompHex(hex_coordinates),
         new CompLineStyle(5, 0xff0000, 0.5),
       );
-      scene.world.addParentChildRelationship(entity, this._pointed_at_hex);
+      scene.ecs.addParentChildRelationship(entity, this._pointed_at_hex);
     } else {
-      scene.world.getComponent(this._pointed_at_hex, CompHex)!.coordinates =
+      scene.ecs.getComponent(this._pointed_at_hex, CompHex)!.coordinates =
         hex_coordinates;
     }
-    const line_style = scene.world.getComponent(this._pointed_at_hex, CompLineStyle)!;
+    const line_style = scene.ecs.getComponent(this._pointed_at_hex, CompLineStyle)!;
     if (event.mouseButtonState(0) === MouseButtonStatus.Held) {
       line_style.color = 0x0000ff;
     } else {

@@ -36,7 +36,7 @@ export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
   ): void {
     this.sub_systems.forEach((sub_system) => {
       sub_system.allMatchingEntities(scene).forEach((entity) => {
-        const drawable = scene.world.getComponent(entity, CompDrawable)!;
+        const drawable = scene.ecs.getComponent(entity, CompDrawable)!;
         sub_system.update(
           scene,
           engine,

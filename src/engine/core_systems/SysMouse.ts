@@ -61,7 +61,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
         ) {
           pointed_at_entities.add(entity);
           // Checking depth value
-          const depth = scene.world.getComponent(
+          const depth = scene.ecs.getComponent(
             entity,
             CompMouseSensitive,
           )!.mouse_depth;
@@ -76,7 +76,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
        * taking into account the properties of CompMouseSensitivity. */
       sub_system_entity_sets.forEach((set) => {
         setIntersection(set, pointed_at_entities).forEach((entity) => {
-          const mouse_sensitivity = scene.world.getComponent(
+          const mouse_sensitivity = scene.ecs.getComponent(
             entity,
             CompMouseSensitive,
           )!;

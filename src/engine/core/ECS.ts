@@ -12,7 +12,7 @@ import ComponentStore, { Archetype } from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
 
-export default class World {
+export default class ECS {
   private _system_draw: SysDraw | null = null;
   private _system_mouse: SysMouse | null = null;
 
@@ -38,7 +38,7 @@ export default class World {
    */
   public addMouse(): void {
     if (!this._system_mouse) {
-      /* Do not move this to the constructor! The Scene.Input object will not
+      /* Do not move this to the constructor! The Engine.Input object will not
        * yet be instantiated and things will fail. */
       this._system_mouse = new SysMouse();
     }

@@ -39,7 +39,7 @@ export default class SceneManager {
     }
 
     scene.onExit();
-    const drawSystem = scene.world.getDrawSystem();
+    const drawSystem = scene.ecs.getDrawSystem();
     if (drawSystem) {
       drawSystem.cleanupAll();
     }
@@ -53,7 +53,7 @@ export default class SceneManager {
     }
 
     scene.onPause();
-    const drawSystem = scene.world.getDrawSystem();
+    const drawSystem = scene.ecs.getDrawSystem();
     if (drawSystem) {
       drawSystem.cleanupAll();
     }

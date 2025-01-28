@@ -10,7 +10,7 @@ abstract class HasApplicableArchetypes {
   public allMatchingEntities(scene: Scene): Set<Entity> {
     const entity_sets = new Array<Set<Entity>>();
     this.ARCHETYPES.forEach((archetype) => {
-      entity_sets.push(scene.world.getEntitiesWithArchetype(...archetype));
+      entity_sets.push(scene.ecs.getEntitiesWithArchetype(...archetype));
     });
     return setUnion(...entity_sets);
   }
