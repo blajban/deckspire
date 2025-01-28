@@ -25,11 +25,9 @@ export default class SceneManager {
     }
 
     if (this._active_scenes.has(key)) {
-      console.warn(`Scene ${key} is already active.`);
-      return;
+      throw new Error(`Scene ${key} is already active.`);
     }
 
-    console.log(`Starting scene: ${key}`);
     scene.onStart();
     this._active_scenes.set(key, scene);
   }
@@ -40,7 +38,6 @@ export default class SceneManager {
       throw new Error(`Scene ${key} is not active.`);
     }
 
-    console.log(`Stopping scene: ${key}`);
     scene.onExit();
     const drawSystem = scene.world.getDrawSystem();
     if (drawSystem) {
@@ -55,7 +52,6 @@ export default class SceneManager {
       throw new Error(`Scene ${key} is not active and cannot be paused.`);
     }
 
-    console.log(`Pausing scene: ${key}`);
     scene.onPause();
     const drawSystem = scene.world.getDrawSystem();
     if (drawSystem) {
@@ -74,7 +70,6 @@ export default class SceneManager {
       throw new Error(`Scene ${key} is already active.`);
     }
 
-    console.log(`Resuming scene: ${key}`);
     scene.onResume();
     this._active_scenes.set(key, scene);
   }
