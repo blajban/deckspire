@@ -24,8 +24,8 @@ class AnotherScene extends Scene {
     this.engine.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
       if (event.code === 'ArrowDown') {
         console.log('Arrow Up key was pressed!');
-        this.engine.resumeScene('MyScene');
-        this.engine.pauseScene('AnotherScene');
+        this.engine.getSceneManager().resumeScene('MyScene');
+        this.engine.getSceneManager().pauseScene('AnotherScene');
       }
     });
   }
@@ -61,8 +61,8 @@ class MyScene extends Scene {
     // Scene transition example (will get some errors due to using phaser input, this is just as an example)
     this.engine.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
       if (event.code === 'ArrowUp') {
-        this.engine.pauseScene('MyScene');
-        this.engine.startScene('AnotherScene');
+        this.engine.getSceneManager().pauseScene('MyScene');
+        this.engine.getSceneManager().startScene('AnotherScene');
       }
     });
 
@@ -102,8 +102,8 @@ class MyScene extends Scene {
 const game = new Engine(800, 600);
 
 game.ready().then(() => {
-  game.registerScene('MyScene', new MyScene());
-  game.registerScene('AnotherScene', new AnotherScene());
+  game.getSceneManager().registerScene('MyScene', new MyScene());
+  game.getSceneManager().registerScene('AnotherScene', new AnotherScene());
 
-  game.startScene('MyScene');
+  game.getSceneManager().startScene('MyScene');
 });
