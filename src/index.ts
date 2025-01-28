@@ -14,6 +14,30 @@ import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
 import Vector2D from './math/Vector2D';
 import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
 
+class AnotherScene extends Scene {
+  on_register(): void {
+    console.log('Registering AnotherScene!');
+  }
+
+  on_start(): void {
+    console.log('Starting AnotherScene!');
+
+    this.engine.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
+      if (event.code === 'ArrowUp') {
+        console.log('Arrow Up key was pressed!');
+        // Add logic for Arrow Up
+      }
+    });
+  }
+
+  on_exit(): void {
+    console.log('Exiting AnotherScene!');
+  }
+
+  on_update(time: number, delta: number): void {
+    console.log('Updating AnotherScene!');
+  }
+}
 
 class MyScene extends Scene {
   on_register(): void {
@@ -70,9 +94,13 @@ class MyScene extends Scene {
 
 const game = new Engine(800, 600);
 
-game.register_scene('My_scene', new MyScene());
+game.ready().then(() => {
+  game.register_scene('My_scene', new MyScene());
+  game.register_scene('AnotherScene', new AnotherScene());
 
-game.start_scene('My_scene');
+  game.start_scene('My_scene');
+  game.start_scene('AnotherScene');
+});
 
 
 
