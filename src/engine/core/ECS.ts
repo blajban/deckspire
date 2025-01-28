@@ -25,7 +25,7 @@ export default class ECS {
   }
 
   /**
-   * Adds the core system for drawing entities to the world.
+   * Adds the core system for drawing entities to the ECS.
    */
   public addDraw(): void {
     if (!this._system_draw) {
@@ -34,7 +34,7 @@ export default class ECS {
   }
 
   /**
-   * Adds the core system for handling mouse input to the world,
+   * Adds the core system for handling mouse input to the ECS,
    */
   public addMouse(): void {
     if (!this._system_mouse) {
@@ -283,7 +283,7 @@ export default class ECS {
   }
 
   serialize(): string {
-    const serialized_world = this.getAllEntities().map((entity) => {
+    const serialized_ecs = this.getAllEntities().map((entity) => {
       const components = this.getComponentsForEntity(entity).map(
         (component) => {
           return {
@@ -296,13 +296,13 @@ export default class ECS {
       return { components };
     });
 
-    return JSON.stringify(serialized_world);
+    return JSON.stringify(serialized_ecs);
   }
 
   deserialize(json: string): void {
-    const parsed_world = JSON.parse(json);
+    const parsed_ecs = JSON.parse(json);
 
-    for (const { components } of parsed_world) {
+    for (const { components } of parsed_ecs) {
       const entity = this.newEntity();
 
       for (const { type, data } of components) {

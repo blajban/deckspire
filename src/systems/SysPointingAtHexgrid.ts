@@ -68,7 +68,10 @@ export class SysPointingAtHexgrid extends MouseSubSystem {
       scene.ecs.getComponent(this._pointed_at_hex, CompHex)!.coordinates =
         hex_coordinates;
     }
-    const line_style = scene.ecs.getComponent(this._pointed_at_hex, CompLineStyle)!;
+    const line_style = scene.ecs.getComponent(
+      this._pointed_at_hex,
+      CompLineStyle,
+    )!;
     if (event.mouseButtonState(0) === MouseButtonStatus.Held) {
       line_style.color = 0x0000ff;
     } else {

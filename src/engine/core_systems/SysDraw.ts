@@ -95,9 +95,9 @@ export class GraphicsCache {
         cache.graphics_object.destroy();
         cache.graphics_object = null;
       }
-  
+
       this._component_caches.delete(drawable);
-    })
+    });
   }
 
   public get size(): number {

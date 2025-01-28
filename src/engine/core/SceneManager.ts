@@ -39,9 +39,9 @@ export default class SceneManager {
     }
 
     scene.onExit();
-    const drawSystem = scene.ecs.getDrawSystem();
-    if (drawSystem) {
-      drawSystem.cleanupAll();
+    const draw_system = scene.ecs.getDrawSystem();
+    if (draw_system) {
+      draw_system.cleanupAll();
     }
     this._active_scenes.delete(key);
   }
@@ -53,9 +53,9 @@ export default class SceneManager {
     }
 
     scene.onPause();
-    const drawSystem = scene.ecs.getDrawSystem();
-    if (drawSystem) {
-      drawSystem.cleanupAll();
+    const draw_system = scene.ecs.getDrawSystem();
+    if (draw_system) {
+      draw_system.cleanupAll();
     }
     this._active_scenes.delete(key);
   }

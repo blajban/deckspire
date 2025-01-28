@@ -34,7 +34,7 @@ class AnotherScene extends Scene {
     console.log('Exiting AnotherScene!');
   }
 
-  onUpdate(time: number, delta: number): void {
+  onUpdate(_time: number, _delta: number): void {
     console.log('Updating AnotherScene!');
   }
 }

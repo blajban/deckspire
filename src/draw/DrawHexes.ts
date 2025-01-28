@@ -40,11 +40,11 @@ export class DrawHexGrid extends DrawSubSystem {
     delta: number,
     entity: Entity,
   ): void {
-    const drawable = scene.world.getComponent(entity, CompDrawable)!;
-    const hex_grid = scene.world.getComponent(entity, CompHexGrid)!.hexgrid;
-    const transform = scene.world.getComponent(entity, CompTransform)!;
-    const line_style = scene.world.getComponent(entity, CompLineStyle);
-    const fill_style = scene.world.getComponent(entity, CompFillStyle);
+    const drawable = scene.ecs.getComponent(entity, CompDrawable)!;
+    const hex_grid = scene.ecs.getComponent(entity, CompHexGrid)!.hexgrid;
+    const transform = scene.ecs.getComponent(entity, CompTransform)!;
+    const line_style = scene.ecs.getComponent(entity, CompLineStyle);
+    const fill_style = scene.ecs.getComponent(entity, CompFillStyle);
 
     if (!cache.graphics_object) {
       cache.graphics_object = engine.add.graphics();
@@ -75,13 +75,13 @@ export class DrawHex extends DrawSubSystem {
     delta: number,
     entity: Entity,
   ): void {
-    const drawable = scene.world.getComponent(entity, CompDrawable)!;
-    const hex = scene.world.getComponent(entity, CompHex)!.coordinates;
-    const line_style = scene.world.getComponent(entity, CompLineStyle);
-    const fill_style = scene.world.getComponent(entity, CompFillStyle);
-    const parent = scene.world.getComponent(entity, CompChild)!.parent;
-    const hex_grid = scene.world.getComponent(parent, CompHexGrid)!.hexgrid;
-    const transform = scene.world.getComponent(parent, CompTransform);
+    const drawable = scene.ecs.getComponent(entity, CompDrawable)!;
+    const hex = scene.ecs.getComponent(entity, CompHex)!.coordinates;
+    const line_style = scene.ecs.getComponent(entity, CompLineStyle);
+    const fill_style = scene.ecs.getComponent(entity, CompFillStyle);
+    const parent = scene.ecs.getComponent(entity, CompChild)!.parent;
+    const hex_grid = scene.ecs.getComponent(parent, CompHexGrid)!.hexgrid;
+    const transform = scene.ecs.getComponent(parent, CompTransform);
     if (!transform) {
       throw new Error('Parent does not have a transform component');
     }

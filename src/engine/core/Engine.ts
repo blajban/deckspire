@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import Scene from './Scene';
 import SceneManager from './SceneManager';
 
 export default class Engine extends Phaser.Scene {
@@ -36,13 +35,9 @@ export default class Engine extends Phaser.Scene {
     return this._scene_manager;
   }
 
-  preload(): void {
-    console.log('Engine preload() running');
-  }
+  preload(): void {}
 
   create(): void {
-    console.log('Engine create() running');
-
     if (this._ready_resolver) {
       this._ready_resolver();
     }
