@@ -1,9 +1,9 @@
 import CompHex from '../components/CompHex';
 import CompHexGrid from '../components/CompHexGrid';
 import CompTransform from '../components/CompTransform';
+import Engine from '../engine/core/Engine';
 import { Entity } from '../engine/core/Entity';
 import Scene from '../engine/core/Scene';
-import World from '../engine/core/World';
 import CompChild from '../engine/core_components/CompChild';
 import CompDrawable from '../engine/core_components/CompDrawable';
 import CompFillStyle from '../engine/core_components/CompFillStyle';
@@ -25,29 +25,29 @@ export class DrawHexGrid extends DrawSubSystem {
 
   /**
    * The cached Graphics object must be cleared before drawing to it again.
-   * @param world
    * @param scene
+   * @param engine
    * @param cache
    * @param time
    * @param delta
    * @param entity
    */
   update(
-    world: World,
     scene: Scene,
+    engine: Engine,
     cache: GraphicsCacheObject,
     time: number,
     delta: number,
     entity: Entity,
   ): void {
-    const drawable = world.getComponent(entity, CompDrawable)!;
-    const hex_grid = world.getComponent(entity, CompHexGrid)!.hexgrid;
-    const transform = world.getComponent(entity, CompTransform)!;
-    const line_style = world.getComponent(entity, CompLineStyle);
-    const fill_style = world.getComponent(entity, CompFillStyle);
+    const drawable = scene.ecs.getComponent(entity, CompDrawable)!;
+    const hex_grid = scene.ecs.getComponent(entity, CompHexGrid)!.hexgrid;
+    const transform = scene.ecs.getComponent(entity, CompTransform)!;
+    const line_style = scene.ecs.getComponent(entity, CompLineStyle);
+    const fill_style = scene.ecs.getComponent(entity, CompFillStyle);
 
     if (!cache.graphics_object) {
-      cache.graphics_object = scene.add.graphics();
+      cache.graphics_object = engine.add.graphics();
     }
     const gfx = cache.graphics_object;
     gfx.clear();
@@ -68,26 +68,26 @@ export class DrawHex extends DrawSubSystem {
   }
 
   update(
-    world: World,
     scene: Scene,
+    engine: Engine,
     cache: GraphicsCacheObject,
     time: number,
     delta: number,
     entity: Entity,
   ): void {
-    const drawable = world.getComponent(entity, CompDrawable)!;
-    const hex = world.getComponent(entity, CompHex)!.coordinates;
-    const line_style = world.getComponent(entity, CompLineStyle);
-    const fill_style = world.getComponent(entity, CompFillStyle);
-    const parent = world.getComponent(entity, CompChild)!.parent;
-    const hex_grid = world.getComponent(parent, CompHexGrid)!.hexgrid;
-    const transform = world.getComponent(parent, CompTransform);
+    const drawable = scene.ecs.getComponent(entity, CompDrawable)!;
+    const hex = scene.ecs.getComponent(entity, CompHex)!.coordinates;
+    const line_style = scene.ecs.getComponent(entity, CompLineStyle);
+    const fill_style = scene.ecs.getComponent(entity, CompFillStyle);
+    const parent = scene.ecs.getComponent(entity, CompChild)!.parent;
+    const hex_grid = scene.ecs.getComponent(parent, CompHexGrid)!.hexgrid;
+    const transform = scene.ecs.getComponent(parent, CompTransform);
     if (!transform) {
       throw new Error('Parent does not have a transform component');
     }
 
     if (!cache.graphics_object) {
-      cache.graphics_object = scene.add.graphics();
+      cache.graphics_object = engine.add.graphics();
     }
     const gfx = cache.graphics_object;
     gfx.clear();

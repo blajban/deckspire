@@ -1,46 +1,73 @@
-import ComponentStore from './engine/core/ComponentStore';
-import EntityStore from './engine/core/EntityStore';
-import World from './engine/core/World';
-import CompDrawable from './engine/core_components/CompDrawable';
 import CompHex from './components/CompHex';
 import CompHexGrid from './components/CompHexGrid';
 import CompTransform from './components/CompTransform';
-import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
-import Vector2D from './math/Vector2D';
 import { DrawHex, DrawHexGrid } from './draw/DrawHexes';
+import Engine from './engine/core/Engine';
 import Scene from './engine/core/Scene';
-import CompLineStyle from './engine/core_components/CompLineStyle';
+import CompDrawable from './engine/core_components/CompDrawable';
 import CompFillStyle from './engine/core_components/CompFillStyle';
-import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
+import CompLineStyle from './engine/core_components/CompLineStyle';
 import CompMouseSensitive from './engine/core_components/CompMouseSensitive';
 import CompNamed from './engine/core_components/CompNamed';
+import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
+import Vector2D from './math/Vector2D';
+import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
 
-class MainScene extends Scene {
-  private _world: World;
-
-  constructor() {
-    super('MainScene');
-    this._world = new World(new EntityStore(), new ComponentStore());
+class AnotherScene extends Scene {
+  onRegister(): void {
+    console.log('Registering AnotherScene!');
   }
 
-  preload(): void {
-    // Load assets
-    this._world.registerComponent(CompHex);
-    this._world.registerComponent(CompHexGrid);
-    this._world.registerComponent(CompTransform);
+  onStart(): void {
+    console.log('Starting AnotherScene!');
 
-    this._world.addMouse();
-    this._world.getMouseSystem()!.addSubSystem(new SysPointingAtHexgrid());
-
-    this._world.addDraw();
-    this._world.getDrawSystem()!.addSubSystem(new DrawHexGrid());
-    this._world.getDrawSystem()!.addSubSystem(new DrawHex());
+    this.engine.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
+      if (event.code === 'ArrowDown') {
+        console.log('Arrow Up key was pressed!');
+        this.engine.getSceneManager().resumeScene('MyScene');
+        this.engine.getSceneManager().pauseScene('AnotherScene');
+      }
+    });
   }
 
-  create(): void {
-    // Initialize game objects
-    const hex_grid = this._world.newEntity();
-    this._world.addComponents(
+  onExit(): void {
+    console.log('Exiting AnotherScene!');
+  }
+
+  onUpdate(_time: number, _delta: number): void {
+    console.log('Updating AnotherScene!');
+  }
+}
+
+class MyScene extends Scene {
+  onRegister(): void {
+    console.log('Registering MyScene!');
+
+    this.ecs.registerComponent(CompHex);
+    this.ecs.registerComponent(CompHexGrid);
+    this.ecs.registerComponent(CompTransform);
+
+    this.ecs.addMouse();
+    this.ecs.getMouseSystem()!.addSubSystem(new SysPointingAtHexgrid());
+
+    this.ecs.addDraw();
+    this.ecs.getDrawSystem()!.addSubSystem(new DrawHexGrid());
+    this.ecs.getDrawSystem()!.addSubSystem(new DrawHex());
+  }
+
+  onStart(): void {
+    console.log('Starting MyScene!');
+
+    // Scene transition example (will get some errors due to using phaser input, this is just as an example)
+    this.engine.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
+      if (event.code === 'ArrowUp') {
+        this.engine.getSceneManager().pauseScene('MyScene');
+        this.engine.getSceneManager().startScene('AnotherScene');
+      }
+    });
+
+    const hex_grid = this.ecs.newEntity();
+    this.ecs.addComponents(
       hex_grid,
       new CompNamed('The Hex Grid'),
       new CompHexGrid(new HexGrid(3, 50, HorizontalLayout)),
@@ -51,8 +78,8 @@ class MainScene extends Scene {
       new CompMouseSensitive(0, true, false, true, true),
     );
     // This grid blocks the mouse events from reaching the other hex grid due to being higher up
-    const partly_blocking_grid = this._world.newEntity();
-    this._world.addComponents(
+    const partly_blocking_grid = this.ecs.newEntity();
+    this.ecs.addComponents(
       partly_blocking_grid,
       new CompNamed('The Blocking Grid'),
       new CompHexGrid(new HexGrid(2, 50, HorizontalLayout)),
@@ -61,18 +88,22 @@ class MainScene extends Scene {
     );
   }
 
-  update(time: number, delta: number): void {
-    console.log(`FPS: ${game.loop.actualFps}`);
-    this._world.getMouseSystem()?.update(this._world, this, time, delta);
-    this._world.getDrawSystem()?.update(this._world, this, time, delta);
+  onExit(): void {
+    console.log('Exiting MyScene!');
+  }
+
+  onUpdate(time: number, delta: number): void {
+    console.log('Updating MyScene!');
+    this.ecs.getMouseSystem()?.update(this, this.engine, time, delta);
+    this.ecs.getDrawSystem()?.update(this, this.engine, time, delta);
   }
 }
 
-const config: Phaser.Types.Core.GameConfig = {
-  type: Phaser.AUTO,
-  width: 800,
-  height: 600,
-  scene: [MainScene],
-};
+const game = new Engine(800, 600);
 
-const game = new Phaser.Game(config);
+game.ready().then(() => {
+  game.getSceneManager().registerScene('MyScene', new MyScene());
+  game.getSceneManager().registerScene('AnotherScene', new AnotherScene());
+
+  game.getSceneManager().startScene('MyScene');
+});
