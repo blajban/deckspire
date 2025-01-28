@@ -1,46 +1,38 @@
-import ComponentStore from './engine/core/ComponentStore';
-import EntityStore from './engine/core/EntityStore';
-import World from './engine/core/World';
-import CompDrawable from './engine/core_components/CompDrawable';
 import CompHex from './components/CompHex';
 import CompHexGrid from './components/CompHexGrid';
 import CompTransform from './components/CompTransform';
-import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
-import Vector2D from './math/Vector2D';
 import { DrawHex, DrawHexGrid } from './draw/DrawHexes';
+import Engine from './engine/core/Engine';
 import Scene from './engine/core/Scene';
-import CompLineStyle from './engine/core_components/CompLineStyle';
+import CompDrawable from './engine/core_components/CompDrawable';
 import CompFillStyle from './engine/core_components/CompFillStyle';
-import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
+import CompLineStyle from './engine/core_components/CompLineStyle';
 import CompMouseSensitive from './engine/core_components/CompMouseSensitive';
 import CompNamed from './engine/core_components/CompNamed';
+import { DrawSubSystem } from './engine/core_systems/SysDraw';
+import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
+import Vector2D from './math/Vector2D';
+import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
 
-class MainScene extends Scene {
-  private _world: World;
 
-  constructor() {
-    super('MainScene');
-    this._world = new World(new EntityStore(), new ComponentStore());
-  }
+class MyScene extends Scene {
+  on_load(): void {
+    console.log('Loading MyScene!');
 
-  preload(): void {
-    // Load assets
-    this._world.registerComponent(CompHex);
-    this._world.registerComponent(CompHexGrid);
-    this._world.registerComponent(CompTransform);
+    this.world.registerComponent(CompHex);
+    this.world.registerComponent(CompHexGrid);
+    this.world.registerComponent(CompTransform);
 
-    this._world.addMouse();
-    this._world.getMouseSystem()!.addSubSystem(new SysPointingAtHexgrid());
+    this.world.addMouse();
+    this.world.getMouseSystem()!.addSubSystem(new SysPointingAtHexgrid());
 
-    this._world.addDraw();
-    this._world.getDrawSystem()!.addSubSystem(new DrawHexGrid());
-    this._world.getDrawSystem()!.addSubSystem(new DrawHex());
-  }
+    this.world.addDraw();
+    this.world.getDrawSystem()!.addSubSystem(new DrawHexGrid());
+    this.world.getDrawSystem()!.addSubSystem(new DrawHex());
 
-  create(): void {
-    // Initialize game objects
-    const hex_grid = this._world.newEntity();
-    this._world.addComponents(
+
+    const hex_grid = this.world.newEntity();
+    this.world.addComponents(
       hex_grid,
       new CompNamed('The Hex Grid'),
       new CompHexGrid(new HexGrid(3, 50, HorizontalLayout)),
@@ -51,8 +43,8 @@ class MainScene extends Scene {
       new CompMouseSensitive(0, true, false, true, true),
     );
     // This grid blocks the mouse events from reaching the other hex grid due to being higher up
-    const partly_blocking_grid = this._world.newEntity();
-    this._world.addComponents(
+    const partly_blocking_grid = this.world.newEntity();
+    this.world.addComponents(
       partly_blocking_grid,
       new CompNamed('The Blocking Grid'),
       new CompHexGrid(new HexGrid(2, 50, HorizontalLayout)),
@@ -61,18 +53,25 @@ class MainScene extends Scene {
     );
   }
 
-  update(time: number, delta: number): void {
-    console.log(`FPS: ${game.loop.actualFps}`);
-    this._world.getMouseSystem()?.update(this._world, this, time, delta);
-    this._world.getDrawSystem()?.update(this._world, this, time, delta);
+  on_exit(): void {
+    console.log('Exiting MyScene!');
+  }
+
+  on_update(time: number, delta: number): void {
+    this.world.getMouseSystem()?.update(this.world, this.engine, time, delta);
+    this.world.getDrawSystem()?.update(this.world, this.engine, time, delta);
   }
 }
 
-const config: Phaser.Types.Core.GameConfig = {
-  type: Phaser.AUTO,
-  width: 800,
-  height: 600,
-  scene: [MainScene],
-};
 
-const game = new Phaser.Game(config);
+
+const game = new Engine(800, 600);
+
+game.add_scene('My_scene', new MyScene());
+
+game.start_scene('My_scene');
+
+
+
+
+

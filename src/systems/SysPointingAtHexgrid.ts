@@ -1,8 +1,8 @@
 import CompHex from '../components/CompHex';
 import CompHexGrid from '../components/CompHexGrid';
 import CompTransform from '../components/CompTransform';
+import Engine from '../engine/core/Engine';
 import { Entity } from '../engine/core/Entity';
-import Scene from '../engine/core/Scene';
 import World from '../engine/core/World';
 import CompDrawable from '../engine/core_components/CompDrawable';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
@@ -23,7 +23,7 @@ export class SysPointingAtHexgrid extends MouseSubSystem {
 
   public isEntityPointedAt(
     world: World,
-    scene: Scene,
+    engine: Engine,
     event: MouseEvent,
     time: number,
     delta: number,
@@ -42,7 +42,7 @@ export class SysPointingAtHexgrid extends MouseSubSystem {
 
   public onMouseEvent(
     world: World,
-    scene: Scene,
+    engine: Engine,
     event: MouseEvent,
     time: number,
     delta: number,

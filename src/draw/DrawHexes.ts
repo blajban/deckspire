@@ -1,8 +1,8 @@
 import CompHex from '../components/CompHex';
 import CompHexGrid from '../components/CompHexGrid';
 import CompTransform from '../components/CompTransform';
+import Engine from '../engine/core/Engine';
 import { Entity } from '../engine/core/Entity';
-import Scene from '../engine/core/Scene';
 import World from '../engine/core/World';
 import CompChild from '../engine/core_components/CompChild';
 import CompDrawable from '../engine/core_components/CompDrawable';
@@ -26,7 +26,7 @@ export class DrawHexGrid extends DrawSubSystem {
   /**
    * The cached Graphics object must be cleared before drawing to it again.
    * @param world
-   * @param scene
+   * @param engine
    * @param cache
    * @param time
    * @param delta
@@ -34,7 +34,7 @@ export class DrawHexGrid extends DrawSubSystem {
    */
   update(
     world: World,
-    scene: Scene,
+    engine: Engine,
     cache: GraphicsCacheObject,
     time: number,
     delta: number,
@@ -47,7 +47,7 @@ export class DrawHexGrid extends DrawSubSystem {
     const fill_style = world.getComponent(entity, CompFillStyle);
 
     if (!cache.graphics_object) {
-      cache.graphics_object = scene.add.graphics();
+      cache.graphics_object = engine.add.graphics();
     }
     const gfx = cache.graphics_object;
     gfx.clear();
@@ -69,7 +69,7 @@ export class DrawHex extends DrawSubSystem {
 
   update(
     world: World,
-    scene: Scene,
+    engine: Engine,
     cache: GraphicsCacheObject,
     time: number,
     delta: number,
@@ -87,7 +87,7 @@ export class DrawHex extends DrawSubSystem {
     }
 
     if (!cache.graphics_object) {
-      cache.graphics_object = scene.add.graphics();
+      cache.graphics_object = engine.add.graphics();
     }
     const gfx = cache.graphics_object;
     gfx.clear();
