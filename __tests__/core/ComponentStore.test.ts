@@ -34,9 +34,9 @@ describe('ComponentStore', () => {
 
   it('should return the registered component class when it exists', () => {
     store.registerComponent(MockComponent);
-    const componentClass = store.getRegisteredComponentClass('MockComponent');
+    const component_class = store.getRegisteredComponentClass('MockComponent');
 
-    expect(componentClass).toBe(MockComponent);
+    expect(component_class).toBe(MockComponent);
   });
 
   it('should throw an error if the component type is not registered', () => {
@@ -50,29 +50,29 @@ describe('ComponentStore', () => {
     store.registerComponent(AnotherMockComponent);
 
     // Retrieve and assert both components
-    const mockComponentClass =
+    const mock_component_class =
       store.getRegisteredComponentClass('MockComponent');
-    const anotherMockComponentClass = store.getRegisteredComponentClass(
+    const another_mock_component_class = store.getRegisteredComponentClass(
       'AnotherMockComponent',
     );
 
-    expect(mockComponentClass).toBe(MockComponent);
-    expect(anotherMockComponentClass).toBe(AnotherMockComponent);
+    expect(mock_component_class).toBe(MockComponent);
+    expect(another_mock_component_class).toBe(AnotherMockComponent);
   });
 
   test('addComponent should add a component to an entity', () => {
     const entity: Entity = 1;
     store.registerComponent(MockComponent);
 
-    const mockComponent = new MockComponent(10);
-    expect(() => store.addComponent(entity, mockComponent)).not.toThrow();
+    const mock_component = new MockComponent(10);
+    expect(() => store.addComponent(entity, mock_component)).not.toThrow();
   });
 
   test('addComponent should throw an error if the component type is not registered', () => {
     const entity: Entity = 1;
-    const mockComponent = new MockComponent(10);
+    const mock_component = new MockComponent(10);
 
-    expect(() => store.addComponent(entity, mockComponent)).toThrow(
+    expect(() => store.addComponent(entity, mock_component)).toThrow(
       'Component type MockComponent must be registered first (add component)',
     );
   });
@@ -81,11 +81,11 @@ describe('ComponentStore', () => {
     const entity: Entity = 1;
     store.registerComponent(MockComponent);
 
-    const mockComponent = new MockComponent(10);
-    store.addComponent(entity, mockComponent);
+    const mock_component = new MockComponent(10);
+    store.addComponent(entity, mock_component);
 
     const retrieved = store.getComponent(entity, MockComponent);
-    expect(retrieved).toBe(mockComponent);
+    expect(retrieved).toBe(mock_component);
   });
 
   test('getComponent should throw an error if the component type is not registered', () => {
@@ -100,8 +100,8 @@ describe('ComponentStore', () => {
     const entity: Entity = 1;
     store.registerComponent(MockComponent);
 
-    const mockComponent = new MockComponent(10);
-    store.addComponent(entity, mockComponent);
+    const mock_component = new MockComponent(10);
+    store.addComponent(entity, mock_component);
 
     expect(() => store.removeComponent(entity, MockComponent)).not.toThrow();
     expect(store.getComponent(entity, MockComponent)).toBeUndefined();
@@ -140,15 +140,15 @@ describe('ComponentStore', () => {
     store.addComponent(entity1, new AnotherMockComponent(45));
     store.addComponent(entity2, new MockComponent(30));
 
-    const archetypeEntities = store.getEntitiesWithArchetype(
+    const archetype_entities = store.getEntitiesWithArchetype(
       MockComponent,
       AnotherMockComponent,
     );
-    expect(archetypeEntities).toContain(entity1);
-    expect(archetypeEntities).not.toContain(entity2);
+    expect(archetype_entities).toContain(entity1);
+    expect(archetype_entities).not.toContain(entity2);
   });
 
-  test("getEntitiesWithArchetype should throw when the component type isn't registered", () => {
+  test('getEntitiesWithArchetype should throw when the component type is not registered', () => {
     const entity: Entity = 1;
 
     store.registerComponent(MockComponent);
@@ -167,15 +167,15 @@ describe('ComponentStore', () => {
     store.registerComponent(MockComponent);
     store.registerComponent(AnotherMockComponent);
 
-    const mockComponent = new MockComponent(10);
-    const anotherMock = new AnotherMockComponent(45);
+    const mock_component = new MockComponent(10);
+    const another_mock = new AnotherMockComponent(45);
 
-    store.addComponent(entity, mockComponent);
-    store.addComponent(entity, anotherMock);
+    store.addComponent(entity, mock_component);
+    store.addComponent(entity, another_mock);
 
     const components = store.getComponentsForEntity(entity);
-    expect(components).toContain(mockComponent);
-    expect(components).toContain(anotherMock);
+    expect(components).toContain(mock_component);
+    expect(components).toContain(another_mock);
   });
 
   test('getEntitiesWithArchetype should return an empty array for no component types', () => {

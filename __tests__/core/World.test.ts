@@ -21,9 +21,9 @@ describe('World', () => {
   let world: World;
 
   beforeEach(() => {
-    const entityStore = new EntityStore();
-    const componentStore = new ComponentStore();
-    world = new World(entityStore, componentStore);
+    const entity_store = new EntityStore();
+    const component_store = new ComponentStore();
+    world = new World(entity_store, component_store);
 
     world.registerComponent(CompParent);
     world.registerComponent(CompChild);
@@ -84,45 +84,45 @@ describe('World', () => {
   });
 
   test('removes parent entity and its children when removeChildren is true', () => {
-    const parentEntity = world.newEntity();
-    const childEntity1 = world.newEntity();
-    const childEntity2 = world.newEntity();
+    const parent_entity = world.newEntity();
+    const child_entity1 = world.newEntity();
+    const child_entity2 = world.newEntity();
 
-    world.addParentChildRelationship(parentEntity, childEntity1);
-    world.addParentChildRelationship(parentEntity, childEntity2);
+    world.addParentChildRelationship(parent_entity, child_entity1);
+    world.addParentChildRelationship(parent_entity, child_entity2);
 
-    world.removeEntity(parentEntity, true);
+    world.removeEntity(parent_entity, true);
 
-    expect(world.entityExists(parentEntity)).toBe(false);
-    expect(world.entityExists(childEntity1)).toBe(false);
-    expect(world.entityExists(childEntity2)).toBe(false);
+    expect(world.entityExists(parent_entity)).toBe(false);
+    expect(world.entityExists(child_entity1)).toBe(false);
+    expect(world.entityExists(child_entity2)).toBe(false);
   });
 
   test('removes parent entity but orphans children when removeChildren is false', () => {
-    const parentEntity = world.newEntity();
-    const childEntity = world.newEntity();
+    const parent_entity = world.newEntity();
+    const child_entity = world.newEntity();
 
-    world.addParentChildRelationship(parentEntity, childEntity);
+    world.addParentChildRelationship(parent_entity, child_entity);
 
-    world.removeEntity(parentEntity, false);
+    world.removeEntity(parent_entity, false);
 
-    expect(world.entityExists(parentEntity)).toBe(false);
-    expect(world.entityExists(childEntity)).toBe(true);
-    const orphanedChild = world.getComponent(childEntity, CompChild);
-    expect(orphanedChild).toBeUndefined();
+    expect(world.entityExists(parent_entity)).toBe(false);
+    expect(world.entityExists(child_entity)).toBe(true);
+    const orphaned_child = world.getComponent(child_entity, CompChild);
+    expect(orphaned_child).toBeUndefined();
   });
 
   test('removes child entity and updates parent children list', () => {
-    const parentEntity = world.newEntity();
-    const childEntity = world.newEntity();
+    const parent_entity = world.newEntity();
+    const child_entity = world.newEntity();
 
-    world.addParentChildRelationship(parentEntity, childEntity);
+    world.addParentChildRelationship(parent_entity, child_entity);
 
-    world.removeEntity(childEntity);
+    world.removeEntity(child_entity);
 
-    expect(world.entityExists(childEntity)).toBe(false);
-    const parentComp = world.getComponent(parentEntity, CompParent);
-    expect(parentComp?.children).not.toContain(childEntity);
+    expect(world.entityExists(child_entity)).toBe(false);
+    const parent_comp = world.getComponent(parent_entity, CompParent);
+    expect(parent_comp?.children).not.toContain(child_entity);
   });
 
   test('should add and retrieve components for an entity', () => {
@@ -130,10 +130,10 @@ describe('World', () => {
     const position = new MockComponent(10);
 
     world.addComponent(entity, position);
-    const retrievedPosition = world.getComponent(entity, MockComponent);
+    const retrieved_position = world.getComponent(entity, MockComponent);
 
-    expect(retrievedPosition).toBe(position);
-    expect(retrievedPosition?.value).toBe(10);
+    expect(retrieved_position).toBe(position);
+    expect(retrieved_position?.value).toBe(10);
   });
 
   test('should remove a specific component from an entity', () => {
@@ -143,7 +143,7 @@ describe('World', () => {
       MockComponent,
     );
 
-    world.remove_component(entity, MockComponent);
+    world.removeComponent(entity, MockComponent);
     expect(world.getComponent(entity, MockComponent)).toBeUndefined();
   });
 
@@ -164,33 +164,33 @@ describe('World', () => {
   });
 
   test('removes parent component and orphans its children', () => {
-    const parentEntity = world.newEntity();
-    const childEntity = world.newEntity();
+    const parent_entity = world.newEntity();
+    const child_entity = world.newEntity();
 
-    world.addParentChildRelationship(parentEntity, childEntity);
+    world.addParentChildRelationship(parent_entity, child_entity);
 
-    world.remove_component(parentEntity, CompParent);
+    world.removeComponent(parent_entity, CompParent);
 
-    const parentComp = world.getComponent(parentEntity, CompParent);
-    expect(parentComp).toBeUndefined();
-    const orphanedChild = world.getComponent(childEntity, CompChild);
-    expect(orphanedChild).toBeUndefined();
-    expect(world.entityExists(childEntity)).toBeTruthy();
+    const parent_comp = world.getComponent(parent_entity, CompParent);
+    expect(parent_comp).toBeUndefined();
+    const orphaned_child = world.getComponent(child_entity, CompChild);
+    expect(orphaned_child).toBeUndefined();
+    expect(world.entityExists(child_entity)).toBeTruthy();
   });
 
   test('removes child component but keeps child entity intact', () => {
-    const parentEntity = world.newEntity();
-    const childEntity = world.newEntity();
+    const parent_entity = world.newEntity();
+    const child_entity = world.newEntity();
 
-    world.addParentChildRelationship(parentEntity, childEntity);
+    world.addParentChildRelationship(parent_entity, child_entity);
 
-    world.remove_component(childEntity, CompChild);
+    world.removeComponent(child_entity, CompChild);
 
-    const parentComp = world.getComponent(parentEntity, CompParent);
-    expect(parentComp?.children).toHaveLength(0);
-    const childComp = world.getComponent(childEntity, CompChild);
-    expect(childComp).toBeUndefined();
-    expect(world.entityExists(childEntity)).toBeTruthy();
+    const parent_comp = world.getComponent(parent_entity, CompParent);
+    expect(parent_comp?.children).toHaveLength(0);
+    const child_comp = world.getComponent(child_entity, CompChild);
+    expect(child_comp).toBeUndefined();
+    expect(world.entityExists(child_entity)).toBeTruthy();
   });
 
   test('should retrieve all entities with a specific component', () => {
@@ -200,9 +200,10 @@ describe('World', () => {
     world.addComponent(entity1, new MockComponent(10));
     world.addComponent(entity2, new AnotherMockComponent(5));
 
-    const entitiesWithPosition = world.getEntitiesWithComponent(MockComponent);
-    expect(entitiesWithPosition).toContain(entity1);
-    expect(entitiesWithPosition).not.toContain(entity2);
+    const entities_with_position =
+      world.getEntitiesWithComponent(MockComponent);
+    expect(entities_with_position).toContain(entity1);
+    expect(entities_with_position).not.toContain(entity2);
   });
 
   test('should retrieve all entities matching an archetype', () => {
@@ -217,13 +218,13 @@ describe('World', () => {
 
     world.addComponent(entity3, new AnotherMockComponent(10));
 
-    const entitiesWithArchetype = world.getEntitiesWithArchetype(
+    const entities_with_archetype = world.getEntitiesWithArchetype(
       MockComponent,
       AnotherMockComponent,
     );
-    expect(entitiesWithArchetype).toContain(entity1);
-    expect(entitiesWithArchetype).not.toContain(entity2);
-    expect(entitiesWithArchetype).not.toContain(entity3);
+    expect(entities_with_archetype).toContain(entity1);
+    expect(entities_with_archetype).not.toContain(entity2);
+    expect(entities_with_archetype).not.toContain(entity3);
   });
 
   test('should retrieve all components for an entity', () => {
@@ -240,10 +241,10 @@ describe('World', () => {
   test('should retrieve all entities', () => {
     const entity1 = world.newEntity();
     const entity2 = world.newEntity();
-    const allEntities = world.getAllEntities();
+    const all_entities = world.getAllEntities();
 
-    expect(allEntities).toContain(entity1);
-    expect(allEntities).toContain(entity2);
+    expect(all_entities).toContain(entity1);
+    expect(all_entities).toContain(entity2);
   });
 
   test('throws error when attempting to create a cyclic relationship', () => {

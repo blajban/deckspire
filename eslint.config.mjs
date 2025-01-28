@@ -2,7 +2,7 @@ import tseslint from 'typescript-eslint';
 import unusedImports from 'eslint-plugin-unused-imports';
 import prettier from 'eslint-plugin-prettier';
 import globals from 'globals';
-import PrettierConfig from './.prettier.config.mjs';
+import PrettierConfig from './prettier.config.mjs';
 
 export default [
   {
@@ -25,9 +25,9 @@ export default [
     },
 
     rules: {
-      semi: ['error', 'always'],
-      quotes: ['warn', 'single'],
-      indent: ['warn', 2, { SwitchCase: 1 }],
+      //semi: ['error', 'always'],
+      //quotes: ['warn', 'single'],
+      //indent: ['warn', 2, { SwitchCase: 1 }],
       eqeqeq: 'warn',
       curly: ['error', 'all'],
       'prefer-const': 'warn',

@@ -53,7 +53,7 @@ export class DrawHexGrid extends DrawSubSystem {
     gfx.clear();
     gfx.setDepth(drawable.depth);
 
-    hex_grid.all_hexes().forEach((hex) => {
+    hex_grid.all_hexes.forEach((hex) => {
       drawHex(gfx, hex, hex_grid, transform, line_style, fill_style);
     });
   }
@@ -120,8 +120,8 @@ function drawHex(
     gfx.fillEllipse(
       hex_center.x,
       hex_center.y,
-      transform.scale.x * hex_grid.size(),
-      transform.scale.y * hex_grid.size(),
+      transform.scale.x * hex_grid.size,
+      transform.scale.y * hex_grid.size,
     );
   }
   // Draw lines on top of fill, if any.
@@ -130,8 +130,8 @@ function drawHex(
     gfx.strokeEllipse(
       hex_center.x,
       hex_center.y,
-      transform.scale.x * hex_grid.size() - line_style.width / 2,
-      transform.scale.y * hex_grid.size() - line_style.width / 2,
+      transform.scale.x * hex_grid.size - line_style.width / 2,
+      transform.scale.y * hex_grid.size - line_style.width / 2,
     );
   }
 }
