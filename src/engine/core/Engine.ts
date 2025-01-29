@@ -25,6 +25,7 @@ export default class Engine {
       width: this._width,
       height: this._height,
       scene: [this._phaser_scene],
+      banner: false, // Clutters test outputs
     });
   }
 
