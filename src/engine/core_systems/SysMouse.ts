@@ -1,5 +1,5 @@
 import Vector2D from '../../math/Vector2D';
-import { EnginePhaserScene } from '../core/Engine';
+import { PhaserContext } from '../core/Engine';
 import { Entity } from '../core/Entity';
 import Scene from '../core/Scene';
 import { SubSystem, SystemWithSubsystems } from '../core/System';
@@ -20,18 +20,18 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
    * then calls the sub systems handling that entity and any entity that is
    * mouse sensitive even if not on top.
    * @param {Scene} scene
-   * @param {Engine} engine_phaser_scene
+   * @param {PhaserContext} context
    * @param {number} time
    * @param {number} delta
    * @returns
    */
   public update(
     scene: Scene,
-    engine_phaser_scene: EnginePhaserScene,
+    context: PhaserContext,
     time: number,
     delta: number,
   ): void {
-    this._mouse_event.updateMouseStatus(engine_phaser_scene, time);
+    this._mouse_event.updateMouseStatus(context, time);
     // No action if the mouse state was unchanged.
     if (!this._mouse_event.is_unhandled) {
       return;
@@ -52,7 +52,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
         if (
           sub_system.isEntityPointedAt(
             scene,
-            engine_phaser_scene,
+            context,
             this._mouse_event,
             time,
             delta,
@@ -93,7 +93,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
             ) {
               sub_system.onMouseEvent(
                 scene,
-                engine_phaser_scene,
+                context,
                 this._mouse_event,
                 time,
                 delta,
@@ -112,8 +112,8 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
 export abstract class MouseSubSystem extends SubSystem {
   public abstract isEntityPointedAt(
     scene: Scene,
-    engine_phaser_scene: EnginePhaserScene,
-    context: MouseEvent,
+    context: PhaserContext,
+    mouse_event: MouseEvent,
     time: number,
     delta: number,
     entity: Entity,
@@ -121,8 +121,8 @@ export abstract class MouseSubSystem extends SubSystem {
 
   public abstract onMouseEvent(
     scene: Scene,
-    engine: EnginePhaserScene,
-    context: MouseEvent,
+    context: PhaserContext,
+    mouse_event: MouseEvent,
     time: number,
     delta: number,
     entity: Entity,
@@ -148,7 +148,7 @@ export class MouseEvent {
   private _mouse_buttons: number = 0;
 
   public updateMouseStatus(
-    engine: EnginePhaserScene,
+    engine: PhaserContext,
     current_time: number,
   ): MouseEvent {
     const pointer = engine.input.activePointer;

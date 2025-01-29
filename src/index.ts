@@ -30,16 +30,13 @@ class AnotherScene extends Scene {
   onStart(): void {
     console.log('Starting AnotherScene!');
 
-    this.engine_phaser_scene.input.keyboard!.on(
-      'keydown',
-      (event: KeyboardEvent) => {
-        if (event.code === 'ArrowDown') {
-          console.log('Arrow Up key was pressed!');
-          game.getSceneManager().resumeScene('MyScene');
-          game.getSceneManager().pauseScene('AnotherScene');
-        }
-      },
-    );
+    this.context.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
+      if (event.code === 'ArrowDown') {
+        console.log('Arrow Up key was pressed!');
+        game.getSceneManager().resumeScene('MyScene');
+        game.getSceneManager().pauseScene('AnotherScene');
+      }
+    });
   }
 
   onExit(): void {
@@ -71,15 +68,12 @@ class MyScene extends Scene {
     console.log('Starting MyScene!');
 
     // Scene transition example (will get some errors due to using phaser input, this is just as an example)
-    this.engine_phaser_scene.input.keyboard!.on(
-      'keydown',
-      (event: KeyboardEvent) => {
-        if (event.code === 'ArrowUp') {
-          game.getSceneManager().pauseScene('MyScene');
-          game.getSceneManager().startScene('AnotherScene');
-        }
-      },
-    );
+    this.context.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
+      if (event.code === 'ArrowUp') {
+        game.getSceneManager().pauseScene('MyScene');
+        game.getSceneManager().startScene('AnotherScene');
+      }
+    });
 
     const hex_grid = this.ecs.newEntity();
     this.ecs.addComponents(
@@ -109,11 +103,7 @@ class MyScene extends Scene {
 
   onUpdate(time: number, delta: number): void {
     console.log('Updating MyScene!');
-    this.ecs
-      .getMouseSystem()
-      ?.update(this, this.engine_phaser_scene, time, delta);
-    this.ecs
-      .getDrawSystem()
-      ?.update(this, this.engine_phaser_scene, time, delta);
+    this.ecs.getMouseSystem()?.update(this, this.context, time, delta);
+    this.ecs.getDrawSystem()?.update(this, this.context, time, delta);
   }
 }

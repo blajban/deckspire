@@ -1,15 +1,15 @@
-import { EnginePhaserScene } from './Engine';
+import { PhaserContext } from './Engine';
 import Scene from './Scene';
 
 export default class SceneManager {
   private _registered_scenes: Map<string, Scene> = new Map();
   private _active_scenes: Map<string, Scene> = new Map();
 
-  constructor(private _engine_phaser_scene: EnginePhaserScene) {}
+  constructor(private _context: PhaserContext) {}
 
   registerScene(key: string, scene: Scene): void {
     if (!this._registered_scenes.has(key)) {
-      scene.initialize(this._engine_phaser_scene);
+      scene.initialize(this._context);
       scene.onRegister();
       this._registered_scenes.set(key, scene);
     }

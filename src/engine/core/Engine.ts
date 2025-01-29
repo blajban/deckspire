@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import SceneManager from './SceneManager';
 
-export class EnginePhaserScene extends Phaser.Scene {
+export class PhaserContext extends Phaser.Scene {
   private _ready_promise: Promise<void>;
   private _ready_resolver: (() => void) | null = null;
 
@@ -30,29 +30,29 @@ export class EnginePhaserScene extends Phaser.Scene {
 export default class Engine {
   private _width: number;
   private _height: number;
-  private _engine_phaser_scene: EnginePhaserScene;
-  private _phaser_context: Phaser.Game;
+  private _phaser_scene: PhaserContext;
+  private _phaser_game: Phaser.Game;
   private _scene_manager: SceneManager;
 
   constructor(width: number, height: number) {
-    this._engine_phaser_scene = new EnginePhaserScene((time, delta) =>
+    this._phaser_scene = new PhaserContext((time, delta) =>
       this.update(time, delta),
     );
-    this._scene_manager = new SceneManager(this._engine_phaser_scene);
+    this._scene_manager = new SceneManager(this._phaser_scene);
     this._width = width;
     this._height = height;
 
-    this._phaser_context = new Phaser.Game({
+    this._phaser_game = new Phaser.Game({
       type: Phaser.AUTO,
       width: this._width,
       height: this._height,
-      scene: [this._engine_phaser_scene],
+      scene: [this._phaser_scene],
       banner: false, // Clutters test outputs
     });
   }
 
   ready(): Promise<void> {
-    return this._engine_phaser_scene.ready();
+    return this._phaser_scene.ready();
   }
 
   getSceneManager(): SceneManager {

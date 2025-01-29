@@ -1,15 +1,15 @@
 import Ecs from './Ecs';
 import EntityStore from './EntityStore';
 import ComponentStore from './ComponentStore';
-import { EnginePhaserScene } from './Engine';
+import { PhaserContext } from './Engine';
 
 export default abstract class Scene {
   private _ecs: Ecs = new Ecs(new EntityStore(), new ComponentStore());
 
-  protected engine_phaser_scene!: EnginePhaserScene;
+  protected context!: PhaserContext;
 
-  initialize(engine_phaser_scene: EnginePhaserScene): void {
-    this.engine_phaser_scene = engine_phaser_scene;
+  initialize(context: PhaserContext): void {
+    this.context = context;
   }
 
   get ecs(): Ecs {
