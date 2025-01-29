@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import SceneManager from './SceneManager';
 
-export default class Engine extends Phaser.Scene {
+export default class Engine {
   private _width: number;
   private _height: number;
+  private _phaser_scene: Phaser.Scene;
   private _phaser_context: Phaser.Game;
   private _ready_resolver: (() => void) | null = null;
   private _ready_promise: Promise<void>;
@@ -11,7 +12,7 @@ export default class Engine extends Phaser.Scene {
   private _scene_manager: SceneManager = new SceneManager(this);
 
   constructor(width: number, height: number) {
-    super('Engine');
+    this._phaser_scene = new Phaser.Scene('Engine');
     this._width = width;
     this._height = height;
 
@@ -23,7 +24,7 @@ export default class Engine extends Phaser.Scene {
       type: Phaser.AUTO,
       width: this._width,
       height: this._height,
-      scene: [this],
+      scene: [this._phaser_scene],
     });
   }
 
