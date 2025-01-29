@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import SceneManager from './SceneManager';
 
-class EnginePhaserScene extends Phaser.Scene {
+export class EnginePhaserScene extends Phaser.Scene {
   private _ready_promise: Promise<void>;
   private _ready_resolver: (() => void) | null = null;
 
@@ -32,13 +32,13 @@ export default class Engine {
   private _height: number;
   private _engine_phaser_scene: EnginePhaserScene;
   private _phaser_context: Phaser.Game;
-
-  private _scene_manager: SceneManager = new SceneManager(this);
+  private _scene_manager: SceneManager;
 
   constructor(width: number, height: number) {
     this._engine_phaser_scene = new EnginePhaserScene((time, delta) =>
       this.update(time, delta),
     );
+    this._scene_manager = new SceneManager(this._engine_phaser_scene);
     this._width = width;
     this._height = height;
 
@@ -49,18 +49,6 @@ export default class Engine {
       scene: [this._engine_phaser_scene],
       banner: false, // Clutters test outputs
     });
-  }
-
-  get active_pointer(): Phaser.Input.Pointer {
-    return this._engine_phaser_scene.input.activePointer;
-  }
-
-  get keyboard(): Phaser.Input.Keyboard.KeyboardPlugin | null {
-    return this._engine_phaser_scene.input.keyboard;
-  }
-
-  addGraphics(): Phaser.GameObjects.Graphics {
-    return this._engine_phaser_scene.add.graphics();
   }
 
   ready(): Promise<void> {

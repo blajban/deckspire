@@ -13,6 +13,15 @@ import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
 import Vector2D from './math/Vector2D';
 import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
 
+const game = new Engine(800, 600);
+
+game.ready().then(() => {
+  game.getSceneManager().registerScene('MyScene', new MyScene());
+  game.getSceneManager().registerScene('AnotherScene', new AnotherScene());
+
+  game.getSceneManager().startScene('MyScene');
+});
+
 class AnotherScene extends Scene {
   onRegister(): void {
     console.log('Registering AnotherScene!');
@@ -21,13 +30,16 @@ class AnotherScene extends Scene {
   onStart(): void {
     console.log('Starting AnotherScene!');
 
-    this.engine.keyboard!.on('keydown', (event: KeyboardEvent) => {
-      if (event.code === 'ArrowDown') {
-        console.log('Arrow Up key was pressed!');
-        this.engine.getSceneManager().resumeScene('MyScene');
-        this.engine.getSceneManager().pauseScene('AnotherScene');
-      }
-    });
+    this.engine_phaser_scene.input.keyboard!.on(
+      'keydown',
+      (event: KeyboardEvent) => {
+        if (event.code === 'ArrowDown') {
+          console.log('Arrow Up key was pressed!');
+          game.getSceneManager().resumeScene('MyScene');
+          game.getSceneManager().pauseScene('AnotherScene');
+        }
+      },
+    );
   }
 
   onExit(): void {
@@ -59,12 +71,15 @@ class MyScene extends Scene {
     console.log('Starting MyScene!');
 
     // Scene transition example (will get some errors due to using phaser input, this is just as an example)
-    this.engine.keyboard!.on('keydown', (event: KeyboardEvent) => {
-      if (event.code === 'ArrowUp') {
-        this.engine.getSceneManager().pauseScene('MyScene');
-        this.engine.getSceneManager().startScene('AnotherScene');
-      }
-    });
+    this.engine_phaser_scene.input.keyboard!.on(
+      'keydown',
+      (event: KeyboardEvent) => {
+        if (event.code === 'ArrowUp') {
+          game.getSceneManager().pauseScene('MyScene');
+          game.getSceneManager().startScene('AnotherScene');
+        }
+      },
+    );
 
     const hex_grid = this.ecs.newEntity();
     this.ecs.addComponents(
@@ -94,16 +109,11 @@ class MyScene extends Scene {
 
   onUpdate(time: number, delta: number): void {
     console.log('Updating MyScene!');
-    this.ecs.getMouseSystem()?.update(this, this.engine, time, delta);
-    this.ecs.getDrawSystem()?.update(this, this.engine, time, delta);
+    this.ecs
+      .getMouseSystem()
+      ?.update(this, this.engine_phaser_scene, time, delta);
+    this.ecs
+      .getDrawSystem()
+      ?.update(this, this.engine_phaser_scene, time, delta);
   }
 }
-
-const game = new Engine(800, 600);
-
-game.ready().then(() => {
-  game.getSceneManager().registerScene('MyScene', new MyScene());
-  game.getSceneManager().registerScene('AnotherScene', new AnotherScene());
-
-  game.getSceneManager().startScene('MyScene');
-});
