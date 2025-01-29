@@ -148,7 +148,7 @@ export class MouseEvent {
   private _mouse_buttons: number = 0;
 
   public updateMouseStatus(engine: Engine, current_time: number): MouseEvent {
-    const pointer = engine.input.activePointer;
+    const pointer = engine.active_pointer;
     this._updatePosition(pointer.position);
     this._updateMouseButtonStatus(pointer.buttons);
     if (!this.has_moved && !this.has_clicked) {

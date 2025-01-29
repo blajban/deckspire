@@ -28,6 +28,10 @@ export default class Engine {
     });
   }
 
+  get active_pointer(): Phaser.Input.Pointer {
+    return this._phaser_scene.input.activePointer;
+  }
+
   ready(): Promise<void> {
     return this._ready_promise;
   }
