@@ -21,7 +21,7 @@ class AnotherScene extends Scene {
   onStart(): void {
     console.log('Starting AnotherScene!');
 
-    this.engine.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
+    this.engine.keyboard!.on('keydown', (event: KeyboardEvent) => {
       if (event.code === 'ArrowDown') {
         console.log('Arrow Up key was pressed!');
         this.engine.getSceneManager().resumeScene('MyScene');
@@ -59,7 +59,7 @@ class MyScene extends Scene {
     console.log('Starting MyScene!');
 
     // Scene transition example (will get some errors due to using phaser input, this is just as an example)
-    this.engine.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
+    this.engine.keyboard!.on('keydown', (event: KeyboardEvent) => {
       if (event.code === 'ArrowUp') {
         this.engine.getSceneManager().pauseScene('MyScene');
         this.engine.getSceneManager().startScene('AnotherScene');

@@ -33,6 +33,14 @@ export default class Engine {
     return this._phaser_scene.input.activePointer;
   }
 
+  get keyboard(): Phaser.Input.Keyboard.KeyboardPlugin | null {
+    return this._phaser_scene.input.keyboard;
+  }
+
+  addGraphics(): Phaser.GameObjects.Graphics {
+    return this._phaser_scene.add.graphics();
+  }
+
   ready(): Promise<void> {
     return this._ready_promise;
   }
