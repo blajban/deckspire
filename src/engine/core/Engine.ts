@@ -1,46 +1,62 @@
 import Phaser from 'phaser';
 import SceneManager from './SceneManager';
 
-export default class Engine extends Phaser.Scene {
-  private _width: number;
-  private _height: number;
-  private _phaser_context: Phaser.Game;
-  private _ready_resolver: (() => void) | null = null;
+export class PhaserContext extends Phaser.Scene {
   private _ready_promise: Promise<void>;
+  private _ready_resolver: (() => void) | null = null;
 
-  private _scene_manager: SceneManager = new SceneManager(this);
-
-  constructor(width: number, height: number) {
+  constructor(private _on_update: (time: number, delta: number) => void) {
     super('Engine');
-    this._width = width;
-    this._height = height;
-
     this._ready_promise = new Promise((resolve) => {
       this._ready_resolver = resolve;
     });
+  }
 
-    this._phaser_context = new Phaser.Game({
+  public create(): void {
+    if (this._ready_resolver) {
+      this._ready_resolver();
+    }
+  }
+
+  public ready(): Promise<void> {
+    return this._ready_promise;
+  }
+
+  public update(time: number, delta: number): void {
+    this._on_update(time, delta);
+  }
+}
+
+export default class Engine {
+  private _width: number;
+  private _height: number;
+  private _phaser_scene: PhaserContext;
+  private _phaser_game: Phaser.Game;
+  private _scene_manager: SceneManager;
+
+  constructor(width: number, height: number) {
+    this._phaser_scene = new PhaserContext((time, delta) =>
+      this.update(time, delta),
+    );
+    this._scene_manager = new SceneManager(this._phaser_scene);
+    this._width = width;
+    this._height = height;
+
+    this._phaser_game = new Phaser.Game({
       type: Phaser.AUTO,
       width: this._width,
       height: this._height,
-      scene: [this],
+      scene: [this._phaser_scene],
+      banner: false, // Clutters test outputs
     });
   }
 
   ready(): Promise<void> {
-    return this._ready_promise;
+    return this._phaser_scene.ready();
   }
 
   getSceneManager(): SceneManager {
     return this._scene_manager;
-  }
-
-  preload(): void {}
-
-  create(): void {
-    if (this._ready_resolver) {
-      this._ready_resolver();
-    }
   }
 
   update(time: number, delta: number): void {
