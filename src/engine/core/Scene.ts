@@ -3,6 +3,7 @@ import EntityStore from './EntityStore';
 import ComponentStore from './ComponentStore';
 import Engine from './Engine';
 
+
 export default abstract class Scene {
   private _ecs!: Ecs;
 

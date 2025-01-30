@@ -1,6 +1,6 @@
 import { setUnion } from '../util/setUtilityFunctions';
 import { Archetype } from './ComponentStore';
-import Engine from './Engine';
+import { PhaserContext } from './Engine';
 import { Entity } from './Entity';
 import Scene from './Scene';
 
@@ -19,7 +19,7 @@ abstract class HasApplicableArchetypes {
 export default abstract class System extends HasApplicableArchetypes {
   abstract update(
     scene: Scene,
-    engine: Engine,
+    context: PhaserContext,
     time: number,
     delta: number,
   ): void;

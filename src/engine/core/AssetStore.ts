@@ -77,11 +77,11 @@ export default class AssetStore {
 
     switch (asset_data.type) {
       case AssetType.Image:
-        this._engine.load.image(asset_data.key, asset_data.path);
+        this._engine.getPhaserContext().load.image(asset_data.key, asset_data.path);
         break;
 
       case AssetType.Spritesheet:
-        this._engine.load.spritesheet(
+        this._engine.getPhaserContext().load.spritesheet(
           asset_data.key,
           asset_data.path,
           asset_data.frameConfig,
@@ -89,11 +89,11 @@ export default class AssetStore {
         break;
 
       case AssetType.Audio:
-        this._engine.load.audio(asset_data.key, asset_data.path);
+        this._engine.getPhaserContext().load.audio(asset_data.key, asset_data.path);
         break;
 
       case AssetType.Font:
-        this._engine.load.bitmapFont(asset_data.key, asset_data.path);
+        this._engine.getPhaserContext().load.bitmapFont(asset_data.key, asset_data.path);
         // Todo: web fonts
         break;
 
@@ -201,10 +201,10 @@ export default class AssetStore {
     switch (asset_data.type) {
       case AssetType.Image:
       case AssetType.Spritesheet:
-        this._engine.textures.remove(asset_data.key);
+        this._engine.getPhaserContext().textures.remove(asset_data.key);
         break;
       case AssetType.Audio:
-        this._engine.sound.removeByKey(asset_data.key);
+        this._engine.getPhaserContext().sound.removeByKey(asset_data.key);
         break;
       case AssetType.Font:
         // Font unloading not supported by Phaser

@@ -1,6 +1,6 @@
 import CompParent from '../engine/core_components/CompParent';
 import System from '../engine/core/System';
-import Engine from '../engine/core/Engine';
+import { PhaserContext } from '../engine/core/Engine';
 import Scene from '../engine/core/Scene';
 
 export default class ParentChildExampleSystem extends System {
@@ -9,7 +9,12 @@ export default class ParentChildExampleSystem extends System {
   }
 
   private _last_update: number = 0;
-  update(scene: Scene, engine: Engine, time: number, _delta: number): void {
+  update(
+    scene: Scene,
+    engine_phaser_scene: PhaserContext,
+    time: number,
+    _delta: number,
+  ): void {
     if (time - this._last_update > 10000) {
       this._last_update = time;
       const parents = scene.ecs.getEntitiesWithComponent(CompParent);

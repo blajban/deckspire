@@ -74,11 +74,11 @@ class AnotherScene extends Scene {
   onStart(): void {
     console.log('Starting AnotherScene!');
 
-    this.engine.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
+    this.engine.getPhaserContext().input.keyboard!.on('keydown', (event: KeyboardEvent) => {
       if (event.code === 'ArrowDown') {
         console.log('Arrow Up key was pressed!');
-        this.engine.getSceneManager().resumeScene('MyScene');
-        this.engine.getSceneManager().pauseScene('AnotherScene');
+        game.getSceneManager().resumeScene('MyScene');
+        game.getSceneManager().pauseScene('AnotherScene');
       }
     });
   }
@@ -110,10 +110,10 @@ class MyScene extends Scene {
     console.log('Starting MyScene!');
 
     // Scene transition example (will get some errors due to using phaser input, this is just as an example)
-    this.engine.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
+    this.engine.getPhaserContext().input.keyboard!.on('keydown', (event: KeyboardEvent) => {
       if (event.code === 'ArrowUp') {
-        this.engine.getSceneManager().pauseScene('MyScene');
-        this.engine.getSceneManager().startScene('AnotherScene');
+        game.getSceneManager().pauseScene('MyScene');
+        game.getSceneManager().startScene('AnotherScene');
       }
     });
 
@@ -144,17 +144,19 @@ class MyScene extends Scene {
   }
 
   onUpdate(time: number, delta: number): void {
-    this.ecs.getMouseSystem()?.update(this, this.engine, time, delta);
-    this.ecs.getDrawSystem()?.update(this, this.engine, time, delta);
+    console.log('Updating MyScene!');
+    this.ecs.getMouseSystem()?.update(this, this.engine.getPhaserContext(), time, delta);
+    this.ecs.getDrawSystem()?.update(this, this.engine.getPhaserContext(), time, delta);
   }
 }
+
 
 const game = new Engine(800, 600);
 
 game.ready().then(() => {
-  game.getSceneManager().registerScene('MyScene', new MyScene());
   game.getSceneManager().registerScene('AssetScene', new AssetScene());
+  game.getSceneManager().registerScene('MyScene', new MyScene());
   game.getSceneManager().registerScene('AnotherScene', new AnotherScene());
 
-  game.getSceneManager().startScene('AnotherScene');
+  game.getSceneManager().startScene('MyScene');
 });

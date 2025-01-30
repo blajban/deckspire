@@ -1,4 +1,4 @@
-import Engine from './Engine';
+import Engine, { PhaserContext } from './Engine';
 import Scene from './Scene';
 
 export default class SceneManager {

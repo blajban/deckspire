@@ -5,14 +5,15 @@ import { Entity } from './Entity';
  */
 export default class EntityStore {
   private _entities: Set<Entity> = new Set();
-  private _current_id: Entity = 0;
+  // Needs to be protected in case we go multithreaded in the future.
+  private static _current_id: Entity = 0;
 
   /**
    * Generates the next entity ID.
    * @returns The next available entity ID.
    */
   private _nextId(): Entity {
-    return this._current_id++;
+    return EntityStore._current_id++;
   }
 
   /**

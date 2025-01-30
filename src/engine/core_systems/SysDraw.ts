@@ -1,4 +1,4 @@
-import Engine from '../core/Engine';
+import { PhaserContext } from '../core/Engine';
 import { Entity } from '../core/Entity';
 import Scene from '../core/Scene';
 import { SubSystem, SystemWithSubsystems } from '../core/System';
@@ -10,7 +10,7 @@ import CompDrawable from '../core_components/CompDrawable';
 export abstract class DrawSubSystem extends SubSystem {
   public abstract update(
     scene: Scene,
-    engine: Engine,
+    engine_phaser_scene: PhaserContext,
     cache: GraphicsCacheObject,
     time: number,
     delta: number,
@@ -30,7 +30,7 @@ export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
 
   public update(
     scene: Scene,
-    engine: Engine,
+    context: PhaserContext,
     time: number,
     delta: number,
   ): void {
@@ -39,7 +39,7 @@ export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
         const drawable = scene.ecs.getComponent(entity, CompDrawable)!;
         sub_system.update(
           scene,
-          engine,
+          context,
           this._graphics_cache.getComponentCache(drawable),
           time,
           delta,
