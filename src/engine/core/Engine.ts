@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import SceneManager from './SceneManager';
+import AssetStore from './AssetStore';
 
 export default class Engine extends Phaser.Scene {
   private _width: number;
@@ -8,6 +9,7 @@ export default class Engine extends Phaser.Scene {
   private _ready_resolver: (() => void) | null = null;
   private _ready_promise: Promise<void>;
 
+  private _asset_store: AssetStore = new AssetStore(this);
   private _scene_manager: SceneManager = new SceneManager(this);
 
   constructor(width: number, height: number) {
@@ -29,6 +31,10 @@ export default class Engine extends Phaser.Scene {
 
   ready(): Promise<void> {
     return this._ready_promise;
+  }
+
+  getAssetStore(): AssetStore {
+    return this._asset_store;
   }
 
   getSceneManager(): SceneManager {

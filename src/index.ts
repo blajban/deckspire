@@ -2,6 +2,7 @@ import CompHex from './components/CompHex';
 import CompHexGrid from './components/CompHexGrid';
 import CompTransform from './components/CompTransform';
 import { DrawHex, DrawHexGrid } from './draw/DrawHexes';
+import { AssetType } from './engine/core/AssetStore';
 import Engine from './engine/core/Engine';
 import Scene from './engine/core/Scene';
 import CompDrawable from './engine/core_components/CompDrawable';
@@ -12,10 +13,63 @@ import CompNamed from './engine/core_components/CompNamed';
 import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
 import Vector2D from './math/Vector2D';
 import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
+import CompSprite from './engine/core_components/CompSprite';
+
+class AssetScene extends Scene {
+  onRegister(): void {
+    const asset_store = this.engine.getAssetStore();
+
+    asset_store.registerAssets([
+      { key: 'Asset_A', path: 'a path', type: AssetType.Image },
+      {
+        key: 'Asset_B',
+        path: 'a path',
+        type: AssetType.Spritesheet,
+        frameConfig: { frameWidth: 32, frameHeight: 32 },
+      },
+      { key: 'Asset_C', path: 'a path', type: AssetType.Audio },
+      { key: 'Asset_D', path: 'a path', type: AssetType.Font },
+      { key: 'Asset_E', path: 'a path', type: AssetType.Image },
+    ]);
+
+    asset_store.registerAsset({
+      key: 'Asset F',
+      path: 'a path',
+      type: AssetType.Image,
+    });
+
+    asset_store.preloadAssets();
+  }
+
+  onStart(): void {}
+
+  onExit(): void {}
+
+  onUpdate(_time: number, _delta: number): void {}
+}
 
 class AnotherScene extends Scene {
   onRegister(): void {
-    console.log('Registering AnotherScene!');
+    this.ecs.registerComponent(CompSprite);
+    const asset_store = this.engine.getAssetStore();
+
+    const entity1 = this.ecs.newEntity();
+    const entity2 = this.ecs.newEntity();
+    const entity3 = this.ecs.newEntity();
+    const entity4 = this.ecs.newEntity();
+    const entity5 = this.ecs.newEntity();
+    const entity6 = this.ecs.newEntity();
+
+    this.ecs.addComponent(entity1, new CompSprite(asset_store, 'Asset_B'));
+    this.ecs.addComponent(entity2, new CompSprite(asset_store, 'Asset_B'));
+    this.ecs.addComponent(entity3, new CompSprite(asset_store, 'Asset_B'));
+    this.ecs.addComponent(entity4, new CompSprite(asset_store, 'Asset_B'));
+
+    this.ecs.addComponent(entity5, new CompSprite(asset_store, 'Asset_A'));
+    this.ecs.addComponent(entity6, new CompSprite(asset_store, 'Asset_C'));
+
+    this.ecs.removeEntity(entity1);
+    this.ecs.removeEntity(entity5);
   }
 
   onStart(): void {
@@ -34,9 +88,7 @@ class AnotherScene extends Scene {
     console.log('Exiting AnotherScene!');
   }
 
-  onUpdate(_time: number, _delta: number): void {
-    console.log('Updating AnotherScene!');
-  }
+  onUpdate(_time: number, _delta: number): void {}
 }
 
 class MyScene extends Scene {
@@ -93,7 +145,6 @@ class MyScene extends Scene {
   }
 
   onUpdate(time: number, delta: number): void {
-    console.log('Updating MyScene!');
     this.ecs.getMouseSystem()?.update(this, this.engine, time, delta);
     this.ecs.getDrawSystem()?.update(this, this.engine, time, delta);
   }
@@ -103,7 +154,8 @@ const game = new Engine(800, 600);
 
 game.ready().then(() => {
   game.getSceneManager().registerScene('MyScene', new MyScene());
+  game.getSceneManager().registerScene('AssetScene', new AssetScene());
   game.getSceneManager().registerScene('AnotherScene', new AnotherScene());
 
-  game.getSceneManager().startScene('MyScene');
+  game.getSceneManager().startScene('AnotherScene');
 });

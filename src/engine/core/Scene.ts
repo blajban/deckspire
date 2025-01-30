@@ -4,12 +4,17 @@ import ComponentStore from './ComponentStore';
 import Engine from './Engine';
 
 export default abstract class Scene {
-  private _ecs: Ecs = new Ecs(new EntityStore(), new ComponentStore());
+  private _ecs!: Ecs;
 
   protected engine!: Engine;
 
   initialize(engine: Engine): void {
     this.engine = engine;
+    this._ecs = new Ecs(
+      new EntityStore(),
+      new ComponentStore(),
+      engine.getAssetStore(),
+    );
   }
 
   get ecs(): Ecs {
