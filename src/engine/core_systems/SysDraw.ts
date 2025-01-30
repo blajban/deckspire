@@ -1,4 +1,4 @@
-import { PhaserContext } from '../core/Engine';
+import { Context, PhaserContext } from '../core/Engine';
 import { Entity } from '../core/Entity';
 import Scene from '../core/Scene';
 import { SubSystem, SystemWithSubsystems } from '../core/System';
@@ -10,7 +10,7 @@ import CompDrawable from '../core_components/CompDrawable';
 export abstract class DrawSubSystem extends SubSystem {
   public abstract update(
     scene: Scene,
-    engine_phaser_scene: PhaserContext,
+    context: Context,
     cache: GraphicsCacheObject,
     time: number,
     delta: number,
@@ -30,7 +30,7 @@ export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
 
   public update(
     scene: Scene,
-    context: PhaserContext,
+    context: Context,
     time: number,
     delta: number,
   ): void {

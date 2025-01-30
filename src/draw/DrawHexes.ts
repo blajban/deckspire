@@ -1,7 +1,7 @@
 import CompHex from '../components/CompHex';
 import CompHexGrid from '../components/CompHexGrid';
 import CompTransform from '../components/CompTransform';
-import { PhaserContext } from '../engine/core/Engine';
+import { Context, PhaserContext } from '../engine/core/Engine';
 import { Entity } from '../engine/core/Entity';
 import Scene from '../engine/core/Scene';
 import CompChild from '../engine/core_components/CompChild';
@@ -34,7 +34,7 @@ export class DrawHexGrid extends DrawSubSystem {
    */
   update(
     scene: Scene,
-    context: PhaserContext,
+    context: Context,
     cache: GraphicsCacheObject,
     time: number,
     delta: number,
@@ -47,7 +47,7 @@ export class DrawHexGrid extends DrawSubSystem {
     const fill_style = scene.ecs.getComponent(entity, CompFillStyle);
 
     if (!cache.graphics_object) {
-      cache.graphics_object = context.add.graphics();
+      cache.graphics_object = context.phaser_context!.add.graphics();
     }
     const gfx = cache.graphics_object;
     gfx.clear();
@@ -69,7 +69,7 @@ export class DrawHex extends DrawSubSystem {
 
   update(
     scene: Scene,
-    context: PhaserContext,
+    context: Context,
     cache: GraphicsCacheObject,
     time: number,
     delta: number,
@@ -87,7 +87,7 @@ export class DrawHex extends DrawSubSystem {
     }
 
     if (!cache.graphics_object) {
-      cache.graphics_object = context.add.graphics();
+      cache.graphics_object = context.phaser_context!.add.graphics();
     }
     const gfx = cache.graphics_object;
     gfx.clear();

@@ -1,5 +1,5 @@
 import Vector2D from '../../math/Vector2D';
-import { PhaserContext } from '../core/Engine';
+import { Context, PhaserContext } from '../core/Engine';
 import { Entity } from '../core/Entity';
 import Scene from '../core/Scene';
 import { SubSystem, SystemWithSubsystems } from '../core/System';
@@ -27,11 +27,11 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
    */
   public update(
     scene: Scene,
-    context: PhaserContext,
+    context: Context,
     time: number,
     delta: number,
   ): void {
-    this._mouse_event.updateMouseStatus(context, time);
+    this._mouse_event.updateMouseStatus(context.phaser_context!, time);
     // No action if the mouse state was unchanged.
     if (!this._mouse_event.is_unhandled) {
       return;
@@ -52,7 +52,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
         if (
           sub_system.isEntityPointedAt(
             scene,
-            context,
+            context.phaser_context!,
             this._mouse_event,
             time,
             delta,
@@ -93,7 +93,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
             ) {
               sub_system.onMouseEvent(
                 scene,
-                context,
+                context.phaser_context!,
                 this._mouse_event,
                 time,
                 delta,
@@ -112,7 +112,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
 export abstract class MouseSubSystem extends SubSystem {
   public abstract isEntityPointedAt(
     scene: Scene,
-    context: PhaserContext,
+    phaser_context: PhaserContext,
     mouse_event: MouseEvent,
     time: number,
     delta: number,
@@ -121,7 +121,7 @@ export abstract class MouseSubSystem extends SubSystem {
 
   public abstract onMouseEvent(
     scene: Scene,
-    context: PhaserContext,
+    phaser_context: PhaserContext,
     mouse_event: MouseEvent,
     time: number,
     delta: number,
@@ -148,10 +148,10 @@ export class MouseEvent {
   private _mouse_buttons: number = 0;
 
   public updateMouseStatus(
-    engine: PhaserContext,
+    phaser_context: PhaserContext,
     current_time: number,
   ): MouseEvent {
-    const pointer = engine.input.activePointer;
+    const pointer = phaser_context.input.activePointer;
     this._updatePosition(pointer.position);
     this._updateMouseButtonStatus(pointer.buttons);
     if (!this.has_moved && !this.has_clicked) {

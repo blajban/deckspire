@@ -1,20 +1,20 @@
 import Ecs from './Ecs';
 import EntityStore from './EntityStore';
 import ComponentStore from './ComponentStore';
-import Engine from './Engine';
+import Engine, { Context } from './Engine';
 
 
 export default abstract class Scene {
   private _ecs!: Ecs;
 
-  protected engine!: Engine;
+  protected context!: Context;
 
-  initialize(engine: Engine): void {
-    this.engine = engine;
+  initialize(context: Context): void {
+    this.context = context;
     this._ecs = new Ecs(
       new EntityStore(),
       new ComponentStore(),
-      engine.getAssetStore(),
+      context.asset_store!,
     );
   }
 

@@ -23,7 +23,7 @@ export class SysPointingAtHexgrid extends MouseSubSystem {
 
   public isEntityPointedAt(
     scene: Scene,
-    context: PhaserContext,
+    phaser_context: PhaserContext,
     event: MouseEvent,
     time: number,
     delta: number,
@@ -42,7 +42,7 @@ export class SysPointingAtHexgrid extends MouseSubSystem {
 
   public onMouseEvent(
     scene: Scene,
-    context: PhaserContext,
+    phaser_context: PhaserContext,
     event: MouseEvent,
     time: number,
     delta: number,

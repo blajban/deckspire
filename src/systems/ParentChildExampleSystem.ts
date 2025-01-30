@@ -1,6 +1,6 @@
 import CompParent from '../engine/core_components/CompParent';
 import System from '../engine/core/System';
-import { PhaserContext } from '../engine/core/Engine';
+import { Context, PhaserContext } from '../engine/core/Engine';
 import Scene from '../engine/core/Scene';
 
 export default class ParentChildExampleSystem extends System {
@@ -11,7 +11,7 @@ export default class ParentChildExampleSystem extends System {
   private _last_update: number = 0;
   update(
     scene: Scene,
-    engine_phaser_scene: PhaserContext,
+    context: Context,
     time: number,
     _delta: number,
   ): void {

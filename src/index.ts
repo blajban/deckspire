@@ -17,7 +17,7 @@ import CompSprite from './engine/core_components/CompSprite';
 
 class AssetScene extends Scene {
   onRegister(): void {
-    const asset_store = this.engine.getAssetStore();
+    const asset_store = this.context.asset_store!;
 
     asset_store.registerAssets([
       { key: 'Asset_A', path: 'a path', type: AssetType.Image },
@@ -50,7 +50,7 @@ class AssetScene extends Scene {
 
 class AnotherScene extends Scene {
   onRegister(): void {
-    const asset_store = this.engine.getAssetStore();
+    const asset_store = this.context.asset_store!;
 
     const entity1 = this.ecs.newEntity();
     const entity2 = this.ecs.newEntity();
@@ -74,11 +74,11 @@ class AnotherScene extends Scene {
   onStart(): void {
     console.log('Starting AnotherScene!');
 
-    this.engine.getPhaserContext().input.keyboard!.on('keydown', (event: KeyboardEvent) => {
+    this.context.phaser_context!.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
       if (event.code === 'ArrowDown') {
         console.log('Arrow Up key was pressed!');
-        game.getSceneManager().resumeScene('MyScene');
-        game.getSceneManager().pauseScene('AnotherScene');
+        this.context.scene_manager!.resumeScene('MyScene');
+        this.context.scene_manager!.pauseScene('AnotherScene');
       }
     });
   }
@@ -110,10 +110,10 @@ class MyScene extends Scene {
     console.log('Starting MyScene!');
 
     // Scene transition example (will get some errors due to using phaser input, this is just as an example)
-    this.engine.getPhaserContext().input.keyboard!.on('keydown', (event: KeyboardEvent) => {
+    this.context.phaser_context!.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
       if (event.code === 'ArrowUp') {
-        game.getSceneManager().pauseScene('MyScene');
-        game.getSceneManager().startScene('AnotherScene');
+        this.context.scene_manager!.pauseScene('MyScene');
+        this.context.scene_manager!.startScene('AnotherScene');
       }
     });
 
@@ -145,8 +145,8 @@ class MyScene extends Scene {
 
   onUpdate(time: number, delta: number): void {
     console.log('Updating MyScene!');
-    this.ecs.getMouseSystem()?.update(this, this.engine.getPhaserContext(), time, delta);
-    this.ecs.getDrawSystem()?.update(this, this.engine.getPhaserContext(), time, delta);
+    this.ecs.getMouseSystem()?.update(this, this.context, time, delta);
+    this.ecs.getDrawSystem()?.update(this, this.context, time, delta);
   }
 }
 
@@ -154,9 +154,9 @@ class MyScene extends Scene {
 const game = new Engine(800, 600);
 
 game.ready().then(() => {
-  game.getSceneManager().registerScene('AssetScene', new AssetScene());
-  game.getSceneManager().registerScene('MyScene', new MyScene());
-  game.getSceneManager().registerScene('AnotherScene', new AnotherScene());
+  game.getContext().scene_manager!.registerScene('AssetScene', new AssetScene());
+  game.getContext().scene_manager!.registerScene('MyScene', new MyScene());
+  game.getContext().scene_manager!.registerScene('AnotherScene', new AnotherScene());
 
-  game.getSceneManager().startScene('MyScene');
+  game.getContext().scene_manager!.startScene('MyScene');
 });

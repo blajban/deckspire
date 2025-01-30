@@ -1,4 +1,4 @@
-import Engine from './Engine';
+import Engine, { Context } from './Engine';
 
 export type AssetId = number;
 export type AssetKey = string;
@@ -49,11 +49,11 @@ export default class AssetStore {
   private _key_to_id: Map<AssetKey, AssetId> = new Map();
   private _loaded_assets: Set<AssetId> = new Set();
   private _asset_usage_count: Map<AssetId, number> = new Map();
-  private _engine: Engine;
+  private _context: Context;
   private _current_id: AssetId = 0;
 
-  constructor(engine: Engine) {
-    this._engine = engine;
+  constructor(context: Context) {
+    this._context = context;
   }
 
   private _nextId(): AssetId {
@@ -77,11 +77,11 @@ export default class AssetStore {
 
     switch (asset_data.type) {
       case AssetType.Image:
-        this._engine.getPhaserContext().load.image(asset_data.key, asset_data.path);
+        this._context.phaser_context!.load.image(asset_data.key, asset_data.path);
         break;
 
       case AssetType.Spritesheet:
-        this._engine.getPhaserContext().load.spritesheet(
+        this._context.phaser_context!.load.spritesheet(
           asset_data.key,
           asset_data.path,
           asset_data.frameConfig,
@@ -89,11 +89,11 @@ export default class AssetStore {
         break;
 
       case AssetType.Audio:
-        this._engine.getPhaserContext().load.audio(asset_data.key, asset_data.path);
+        this._context.phaser_context!.load.audio(asset_data.key, asset_data.path);
         break;
 
       case AssetType.Font:
-        this._engine.getPhaserContext().load.bitmapFont(asset_data.key, asset_data.path);
+        this._context.phaser_context!.load.bitmapFont(asset_data.key, asset_data.path);
         // Todo: web fonts
         break;
 
@@ -201,10 +201,10 @@ export default class AssetStore {
     switch (asset_data.type) {
       case AssetType.Image:
       case AssetType.Spritesheet:
-        this._engine.getPhaserContext().textures.remove(asset_data.key);
+        this._context.phaser_context!.textures.remove(asset_data.key);
         break;
       case AssetType.Audio:
-        this._engine.getPhaserContext().sound.removeByKey(asset_data.key);
+        this._context.phaser_context!.sound.removeByKey(asset_data.key);
         break;
       case AssetType.Font:
         // Font unloading not supported by Phaser
