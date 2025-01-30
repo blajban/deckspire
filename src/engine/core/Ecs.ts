@@ -5,6 +5,7 @@ import CompLineStyle from '../core_components/CompLineStyle';
 import CompMouseSensitive from '../core_components/CompMouseSensitive';
 import CompNamed from '../core_components/CompNamed';
 import CompParent from '../core_components/CompParent';
+import CompSprite from '../core_components/CompSprite';
 import SysDraw from '../core_systems/SysDraw';
 import SysMouse from '../core_systems/SysMouse';
 import AssetComponent from './AssetComponent';
@@ -58,6 +59,7 @@ export default class Ecs {
     this.registerComponent(CompMouseSensitive);
     this.registerComponent(CompNamed);
     this.registerComponent(CompParent);
+    this.registerComponent(CompSprite);
   }
 
   // Temporary until we have a system handler.

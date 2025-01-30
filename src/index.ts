@@ -50,7 +50,6 @@ class AssetScene extends Scene {
 
 class AnotherScene extends Scene {
   onRegister(): void {
-    this.ecs.registerComponent(CompSprite);
     const asset_store = this.engine.getAssetStore();
 
     const entity1 = this.ecs.newEntity();
