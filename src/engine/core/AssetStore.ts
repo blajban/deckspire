@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { Context } from './Engine';
 
 export type AssetId = number;

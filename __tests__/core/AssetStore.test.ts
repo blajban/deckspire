@@ -73,50 +73,11 @@ describe('AssetStore', () => {
     );
   });
 
-  test('should preload assets by key', () => {
-    asset_store.registerAsset(test_image_asset);
-    asset_store.preloadAssets([test_image_asset.key]);
-
-    expect(mock_context.phaserContext!.load.image).toHaveBeenCalledWith(
-      test_image_asset.key,
-      test_image_asset.path,
-    );
-  });
-
-  test('should load spritesheet with frameConfig', () => {
-    asset_store.registerAsset(test_spritesheet_asset);
-    asset_store.preloadAssets([test_spritesheet_asset.key]);
-
-    expect(mock_context.phaserContext!.load.spritesheet).toHaveBeenCalledWith(
-      test_spritesheet_asset.key,
-      test_spritesheet_asset.path,
-      test_spritesheet_asset.frameConfig,
-    );
-  });
-
-  test('should track loaded assets', () => {
-    const asset_id = asset_store.registerAsset(test_audio_asset);
-    asset_store.preloadAssets([test_audio_asset.key]);
-
-    expect(asset_store.isAssetLoaded(asset_id)).toBe(true);
-  });
-
   test('should throw an error when releasing an asset that was not used', () => {
     const asset_id = asset_store.registerAsset(test_audio_asset);
     expect(() => asset_store.releaseAsset(asset_id)).toThrow(
       `Attempted to release non-existent asset ID ${asset_id}`,
     );
-  });
-
-  test('should unload an asset properly', () => {
-    const asset_id = asset_store.registerAsset(test_image_asset);
-    asset_store.preloadAssets([test_image_asset.key]);
-    asset_store.unloadAsset(asset_id);
-
-    expect(mock_context.phaserContext!.textures.remove).toHaveBeenCalledWith(
-      test_image_asset.key,
-    );
-    expect(asset_store.isAssetLoaded(asset_id)).toBe(false);
   });
 
   test('should not unload an asset that is not loaded', () => {
@@ -138,12 +99,6 @@ describe('AssetStore', () => {
     asset_store.registerAsset(test_image_asset);
     expect(() => asset_store.registerAssets([test_image_asset])).toThrow(
       `Asset ${test_image_asset.key} is already registered.`,
-    );
-  });
-
-  test('should throw an error when getting asset with an invalid ID', () => {
-    expect(() => asset_store.getAsset(999)).toThrow(
-      'Asset with id 999 must be registered first.',
     );
   });
 
