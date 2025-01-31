@@ -15,6 +15,8 @@ import Vector2D from './math/Vector2D';
 import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
 import CompSprite from './engine/core_components/CompSprite';
 import { DrawSprite } from './draw/DrawSprite';
+import CompSpritesheet from './engine/core_components/CompSpritesheet';
+import { DrawSpritesheet } from './draw/DrawSpritesheet';
 
 class AssetScene extends Scene {
   onRegister(): void {
@@ -32,6 +34,7 @@ class AssetScene extends Scene {
       { key: 'Asset_D', path: 'a path', type: AssetType.Font },
       { key: 'Asset_E', path: 'a path', type: AssetType.Image },
       { key: 'samurai', path: 'assets/IDLE.png', type: AssetType.Image },
+      { key: 'samurai_two', path: 'assets/RUN.png', type: AssetType.Spritesheet, frameConfig: { frameWidth: 96, frameHeight: 96 } },
     ]);
 
     asset_store.registerAsset({
@@ -111,6 +114,7 @@ class MyScene extends Scene {
     this.ecs.getDrawSystem()!.addSubSystem(new DrawHex());
 
     this.ecs.getDrawSystem()!.addSubSystem(new DrawSprite());
+    this.ecs.getDrawSystem()!.addSubSystem(new DrawSpritesheet());
 
   }
 
@@ -156,6 +160,15 @@ class MyScene extends Scene {
       new CompTransform(new Vector2D(100, 100), 0, new Vector2D(1.0, 1.0)),
       new CompDrawable(1),
       new CompSprite(this.context.assetStore!, 'samurai'),
+    );
+
+
+    const test_spritesheet = this.ecs.newEntity();
+    this.ecs.addComponents(
+      test_spritesheet,
+      new CompTransform(new Vector2D(100, 200), 0, new Vector2D(1.0, 1.0)),
+      new CompDrawable(1),
+      new CompSpritesheet(this.context.assetStore!, 'samurai_two', 8),
     );
 
     
