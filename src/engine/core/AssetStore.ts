@@ -68,52 +68,56 @@ export default class AssetStore {
     return asset_data;
   }
 
-  private _loadAsset(id: AssetId): void {
-    if (this.isAssetLoaded(id)) {
-      return;
-    }
-
-    const asset_data = this._getAssetData(id);
-
-    switch (asset_data.type) {
-      case AssetType.Image:
-        this._context.phaserContext!.load.image(
-          asset_data.key,
-          asset_data.path,
-        );
-        break;
-
-      case AssetType.Spritesheet:
-        this._context.phaserContext!.load.spritesheet(
-          asset_data.key,
-          asset_data.path,
-          asset_data.frameConfig,
-        );
-        break;
-
-      case AssetType.Audio:
-        this._context.phaserContext!.load.audio(
-          asset_data.key,
-          asset_data.path,
-        );
-        break;
-
-      case AssetType.Font:
-        this._context.phaserContext!.load.bitmapFont(
-          asset_data.key,
-          asset_data.path,
-        );
-        // Todo: web fonts
-        break;
-
-      default:
-        throw new Error(
-          `Unknown asset type: ${(asset_data as AssetData).type}`,
-        );
-    }
-
-    this._loaded_assets.add(id);
+  private _loadAssetAsync(id: AssetId): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.isAssetLoaded(id)) {
+        resolve();
+        return;
+      }
+  
+      const asset_data = this._getAssetData(id);
+      const loader = this._context.phaserContext!.load;
+  
+      const onFileComplete = (fileKey: string) => {
+        if (fileKey === asset_data.key) {
+          loader.off(Phaser.Loader.Events.FILE_COMPLETE, onFileComplete);
+          this._loaded_assets.add(id);
+          resolve();
+        }
+      };
+  
+      const onFileError = (fileKey: string) => {
+        if (fileKey === asset_data.key) {
+          loader.off(Phaser.Loader.Events.FILE_LOAD_ERROR, onFileError);
+          reject(new Error(`Failed to load asset with key ${asset_data.key}`));
+        }
+      };
+  
+      loader.once(Phaser.Loader.Events.FILE_COMPLETE, onFileComplete);
+      loader.once(Phaser.Loader.Events.FILE_LOAD_ERROR, onFileError);
+  
+      switch (asset_data.type) {
+        case AssetType.Image:
+          loader.image(asset_data.key, asset_data.path);
+          break;
+        case AssetType.Spritesheet:
+          loader.spritesheet(asset_data.key, asset_data.path, asset_data.frameConfig);
+          break;
+        case AssetType.Audio:
+          loader.audio(asset_data.key, asset_data.path);
+          break;
+        case AssetType.Font:
+          loader.bitmapFont(asset_data.key, asset_data.path);
+          break;
+        default:
+          reject(new Error(`Unknown asset type: ${(asset_data as AssetData).type}`));
+          return;
+      }
+  
+      loader.start();
+    });
   }
+  
 
   public registerAsset(asset: AssetData): AssetId {
     if (this._key_to_id.has(asset.key)) {
@@ -149,7 +153,7 @@ export default class AssetStore {
         );
 
     asset_ids_to_load.forEach((id) => {
-      this._loadAsset(id);
+      this._loadAssetAsync(id);
     });
   }
 
@@ -159,10 +163,6 @@ export default class AssetStore {
 
   public useAsset(id: AssetId): void {
     this._asset_usage_count.set(id, (this._asset_usage_count.get(id) || 0) + 1);
-    console.log(
-      `Components using asset ${id}:`,
-      this._asset_usage_count.get(id),
-    );
   }
 
   public releaseAsset(id: AssetId): void {
@@ -174,19 +174,15 @@ export default class AssetStore {
     if (count <= 1) {
       this.unloadAsset(id);
       this._asset_usage_count.delete(id);
-      console.log(`All components released asset ${id}:`);
     } else {
       this._asset_usage_count.set(id, count - 1);
-      console.log(
-        `Releasing asset from component. Components using asset ${id}:`,
-        this._asset_usage_count.get(id),
-      );
     }
   }
 
-  public getAsset(id: AssetId): AssetKey {
+  public getAsset(id: AssetId): AssetKey | null {
     if (!this.isAssetLoaded(id)) {
-      this._loadAsset(id);
+      this._loadAssetAsync(id);
+      return null;
     }
 
     return this._getAssetData(id).key;

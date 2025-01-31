@@ -14,6 +14,7 @@ import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
 import Vector2D from './math/Vector2D';
 import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
 import CompSprite from './engine/core_components/CompSprite';
+import { DrawSprite } from './draw/DrawSprite';
 
 class AssetScene extends Scene {
   onRegister(): void {
@@ -30,6 +31,7 @@ class AssetScene extends Scene {
       { key: 'Asset_C', path: 'a path', type: AssetType.Audio },
       { key: 'Asset_D', path: 'a path', type: AssetType.Font },
       { key: 'Asset_E', path: 'a path', type: AssetType.Image },
+      { key: 'samurai', path: 'assets/IDLE.png', type: AssetType.Image },
     ]);
 
     asset_store.registerAsset({
@@ -107,6 +109,9 @@ class MyScene extends Scene {
     this.ecs.addDraw();
     this.ecs.getDrawSystem()!.addSubSystem(new DrawHexGrid());
     this.ecs.getDrawSystem()!.addSubSystem(new DrawHex());
+
+    this.ecs.getDrawSystem()!.addSubSystem(new DrawSprite());
+
   }
 
   onStart(): void {
@@ -143,6 +148,19 @@ class MyScene extends Scene {
       new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
       new CompMouseSensitive(1, false),
     );
+
+    // Draw sprite example
+    const test_sprite = this.ecs.newEntity();
+    this.ecs.addComponents(
+      test_sprite,
+      new CompTransform(new Vector2D(100, 100), 0, new Vector2D(1.0, 1.0)),
+      new CompDrawable(1),
+      new CompSprite(this.context.assetStore!, 'samurai'),
+    );
+
+    
+
+
   }
 
   onExit(): void {
