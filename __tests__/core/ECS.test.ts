@@ -25,7 +25,9 @@ describe('ECS', () => {
   beforeEach(() => {
     const entity_store = new EntityStore();
     const component_store = new ComponentStore();
-    const asset_store = new AssetStore(new Engine(800, 600));
+    const engine = new Engine(800, 600);
+    const context = engine.getContext();
+    const asset_store = new AssetStore(context);
     ecs = new Ecs(entity_store, component_store, asset_store);
 
     ecs.registerComponent(CompParent);

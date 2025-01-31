@@ -50,7 +50,7 @@ describe('Engine', () => {
   });
 
   test('should call update on the SceneManager with correct arguments', () => {
-    const mock_scene_manager = engine.getSceneManager();
+    const mock_scene_manager = engine.getContext().scene_manager!;
     const mock_update_active_scenes = jest.spyOn(
       mock_scene_manager,
       'updateActiveScenes',
@@ -62,12 +62,12 @@ describe('Engine', () => {
   });
 
   test('should return the SceneManager instance', () => {
-    const scene_manager = engine.getSceneManager();
+    const scene_manager = engine.getContext().scene_manager!;
     expect(scene_manager).toBeInstanceOf(SceneManager);
   });
 
   test('should integrate with SceneManager correctly', () => {
-    const mock_scene_manager = engine.getSceneManager();
+    const mock_scene_manager = engine.getContext().scene_manager!;
     const mock_register_scene = jest.spyOn(mock_scene_manager, 'registerScene');
     const mock_start_scene = jest.spyOn(mock_scene_manager, 'startScene');
 
