@@ -58,8 +58,7 @@ export default class Engine {
 
     this._asset_store = new AssetStore(this._context);
     this._context.asset_store = this._asset_store;
-    
-    
+
     this._width = width;
     this._height = height;
 
@@ -70,8 +69,6 @@ export default class Engine {
       scene: [this._phaser_scene],
       banner: false, // Clutters test outputs
     });
-
-    
   }
 
   ready(): Promise<void> {

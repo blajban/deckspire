@@ -1,4 +1,4 @@
-import Engine, { Context } from './Engine';
+import { Context } from './Engine';
 
 export type AssetId = number;
 export type AssetKey = string;
@@ -77,7 +77,10 @@ export default class AssetStore {
 
     switch (asset_data.type) {
       case AssetType.Image:
-        this._context.phaser_context!.load.image(asset_data.key, asset_data.path);
+        this._context.phaser_context!.load.image(
+          asset_data.key,
+          asset_data.path,
+        );
         break;
 
       case AssetType.Spritesheet:
@@ -89,17 +92,23 @@ export default class AssetStore {
         break;
 
       case AssetType.Audio:
-        this._context.phaser_context!.load.audio(asset_data.key, asset_data.path);
+        this._context.phaser_context!.load.audio(
+          asset_data.key,
+          asset_data.path,
+        );
         break;
 
       case AssetType.Font:
-        this._context.phaser_context!.load.bitmapFont(asset_data.key, asset_data.path);
+        this._context.phaser_context!.load.bitmapFont(
+          asset_data.key,
+          asset_data.path,
+        );
         // Todo: web fonts
         break;
 
       default:
         throw new Error(
-          `Unknown asset type: ${(asset_data as AssetData).type}`
+          `Unknown asset type: ${(asset_data as AssetData).type}`,
         );
     }
 
@@ -211,7 +220,7 @@ export default class AssetStore {
         break;
       default:
         throw new Error(
-          `Unknown asset type: ${(asset_data as AssetData).type}`
+          `Unknown asset type: ${(asset_data as AssetData).type}`,
         );
     }
 

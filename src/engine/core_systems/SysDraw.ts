@@ -1,4 +1,4 @@
-import { Context, PhaserContext } from '../core/Engine';
+import { Context } from '../core/Engine';
 import { Entity } from '../core/Entity';
 import Scene from '../core/Scene';
 import { SubSystem, SystemWithSubsystems } from '../core/System';

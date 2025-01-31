@@ -74,13 +74,16 @@ class AnotherScene extends Scene {
   onStart(): void {
     console.log('Starting AnotherScene!');
 
-    this.context.phaser_context!.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
-      if (event.code === 'ArrowDown') {
-        console.log('Arrow Up key was pressed!');
-        this.context.scene_manager!.resumeScene('MyScene');
-        this.context.scene_manager!.pauseScene('AnotherScene');
-      }
-    });
+    this.context.phaser_context!.input.keyboard!.on(
+      'keydown',
+      (event: KeyboardEvent) => {
+        if (event.code === 'ArrowDown') {
+          console.log('Arrow Up key was pressed!');
+          this.context.scene_manager!.resumeScene('MyScene');
+          this.context.scene_manager!.pauseScene('AnotherScene');
+        }
+      },
+    );
   }
 
   onExit(): void {
@@ -110,12 +113,15 @@ class MyScene extends Scene {
     console.log('Starting MyScene!');
 
     // Scene transition example (will get some errors due to using phaser input, this is just as an example)
-    this.context.phaser_context!.input.keyboard!.on('keydown', (event: KeyboardEvent) => {
-      if (event.code === 'ArrowUp') {
-        this.context.scene_manager!.pauseScene('MyScene');
-        this.context.scene_manager!.startScene('AnotherScene');
-      }
-    });
+    this.context.phaser_context!.input.keyboard!.on(
+      'keydown',
+      (event: KeyboardEvent) => {
+        if (event.code === 'ArrowUp') {
+          this.context.scene_manager!.pauseScene('MyScene');
+          this.context.scene_manager!.startScene('AnotherScene');
+        }
+      },
+    );
 
     const hex_grid = this.ecs.newEntity();
     this.ecs.addComponents(
@@ -150,13 +156,16 @@ class MyScene extends Scene {
   }
 }
 
-
 const game = new Engine(800, 600);
 
 game.ready().then(() => {
-  game.getContext().scene_manager!.registerScene('AssetScene', new AssetScene());
+  game
+    .getContext()
+    .scene_manager!.registerScene('AssetScene', new AssetScene());
   game.getContext().scene_manager!.registerScene('MyScene', new MyScene());
-  game.getContext().scene_manager!.registerScene('AnotherScene', new AnotherScene());
+  game
+    .getContext()
+    .scene_manager!.registerScene('AnotherScene', new AnotherScene());
 
   game.getContext().scene_manager!.startScene('MyScene');
 });

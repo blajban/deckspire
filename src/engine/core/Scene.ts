@@ -1,8 +1,7 @@
 import Ecs from './Ecs';
 import EntityStore from './EntityStore';
 import ComponentStore from './ComponentStore';
-import Engine, { Context } from './Engine';
-
+import { Context } from './Engine';
 
 export default abstract class Scene {
   private _ecs!: Ecs;

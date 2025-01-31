@@ -1,25 +1,17 @@
-import CompTransform from '../components/CompTransform';
-import Engine from '../engine/core/Engine';
-import { Entity } from '../engine/core/Entity';
-import Scene from '../engine/core/Scene';
-import CompDrawable from '../engine/core_components/CompDrawable';
-import CompSprite from '../engine/core_components/CompSprite';
-import { DrawSubSystem, GraphicsCacheObject } from '../engine/core_systems/SysDraw';
-
 /* export class DrawSprites extends DrawSubSystem {
   constructor() {
     super([[CompDrawable, CompSprite, CompTransform]]);
   } */
 
-  /**
-   * The cached Graphics object must be cleared before drawing to it again.
-   * @param scene
-   * @param engine
-   * @param cache
-   * @param time
-   * @param delta
-   * @param entity
-   */
+/**
+ * The cached Graphics object must be cleared before drawing to it again.
+ * @param scene
+ * @param engine
+ * @param cache
+ * @param time
+ * @param delta
+ * @param entity
+ */
 /*   update(
     scene: Scene,
     engine: Engine,
@@ -38,7 +30,6 @@ import { DrawSubSystem, GraphicsCacheObject } from '../engine/core_systems/SysDr
     //const gfx = cache.graphics_object;
     //gfx.clear();
     //gfx.setDepth(drawable.depth);
-
 
     drawSprite(gfx, sprite, transform);
 

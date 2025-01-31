@@ -1,16 +1,15 @@
-import AssetStore, { AssetData, AssetType } from '../../src/engine/core/AssetStore';
-import Engine, { Context } from '../../src/engine/core/Engine';
+import AssetStore, {
+  AssetData,
+  AssetType,
+} from '../../src/engine/core/AssetStore';
+import { Context } from '../../src/engine/core/Engine';
 
 // TEST asset counting (increasing, decreasing etc), unload only when no components is using
 
-
-
 describe('AssetStore', () => {
-  let engine: Engine;
   let asset_store: AssetStore;
-  let mock_context: Context
+  let mock_context: Context;
   beforeEach(() => {
-    
     mock_context = {
       phaser_context: {
         load: {
@@ -25,110 +24,109 @@ describe('AssetStore', () => {
         sound: {
           removeByKey: jest.fn(),
         },
-      },    
+      },
     } as unknown as Context;
 
     asset_store = new AssetStore(mock_context);
   });
 
-  const testImageAsset: AssetData = {
+  const test_image_asset: AssetData = {
     key: 'test-image',
     path: 'assets/image.png',
     type: AssetType.Image,
   };
 
-  const testSpritesheetAsset: AssetData = {
+  const test_spritesheet_asset: AssetData = {
     key: 'test-spritesheet',
     path: 'assets/spritesheet.png',
     type: AssetType.Spritesheet,
     frameConfig: { frameWidth: 32, frameHeight: 32 },
   };
 
-  const testAudioAsset: AssetData = {
+  const test_audio_asset: AssetData = {
     key: 'test-audio',
     path: 'assets/sound.mp3',
     type: AssetType.Audio,
   };
 
   test('should register an asset and return an AssetId', () => {
-    const assetId = asset_store.registerAsset(testImageAsset);
-    expect(assetId).toBeDefined();
-    expect(asset_store.getAssetId(testImageAsset.key)).toBe(assetId);
+    const asset_id = asset_store.registerAsset(test_image_asset);
+    expect(asset_id).toBeDefined();
+    expect(asset_store.getAssetId(test_image_asset.key)).toBe(asset_id);
   });
 
-
-
-   test('should throw an error if the same asset is registered twice', () => {
-    asset_store.registerAsset(testImageAsset);
-    expect(() => asset_store.registerAsset(testImageAsset)).toThrow(
-      `Asset ${testImageAsset.key} is already registered.`
+  test('should throw an error if the same asset is registered twice', () => {
+    asset_store.registerAsset(test_image_asset);
+    expect(() => asset_store.registerAsset(test_image_asset)).toThrow(
+      `Asset ${test_image_asset.key} is already registered.`,
     );
   });
 
-
   test('should retrieve an asset ID by key', () => {
-    const assetId = asset_store.registerAsset(testImageAsset);
-    expect(asset_store.getAssetId(testImageAsset.key)).toBe(assetId);
+    const asset_id = asset_store.registerAsset(test_image_asset);
+    expect(asset_store.getAssetId(test_image_asset.key)).toBe(asset_id);
   });
 
   test('should throw an error when retrieving an unregistered asset ID', () => {
     expect(() => asset_store.getAssetId('unknown-key')).toThrow(
-      "Asset with key 'unknown-key' is not registered."
+      `Asset with key 'unknown-key' is not registered.`,
     );
   });
 
   test('should preload assets by key', () => {
-    asset_store.registerAsset(testImageAsset);
-    asset_store.preloadAssets([testImageAsset.key]);
+    asset_store.registerAsset(test_image_asset);
+    asset_store.preloadAssets([test_image_asset.key]);
 
     expect(mock_context.phaser_context!.load.image).toHaveBeenCalledWith(
-      testImageAsset.key,
-      testImageAsset.path
+      test_image_asset.key,
+      test_image_asset.path,
     );
   });
 
   test('should load spritesheet with frameConfig', () => {
-    asset_store.registerAsset(testSpritesheetAsset);
-    asset_store.preloadAssets([testSpritesheetAsset.key]);
+    asset_store.registerAsset(test_spritesheet_asset);
+    asset_store.preloadAssets([test_spritesheet_asset.key]);
 
     expect(mock_context.phaser_context!.load.spritesheet).toHaveBeenCalledWith(
-      testSpritesheetAsset.key,
-      testSpritesheetAsset.path,
-      testSpritesheetAsset.frameConfig
+      test_spritesheet_asset.key,
+      test_spritesheet_asset.path,
+      test_spritesheet_asset.frameConfig,
     );
   });
 
   test('should track loaded assets', () => {
-    const assetId = asset_store.registerAsset(testAudioAsset);
-    asset_store.preloadAssets([testAudioAsset.key]);
+    const asset_id = asset_store.registerAsset(test_audio_asset);
+    asset_store.preloadAssets([test_audio_asset.key]);
 
-    expect(asset_store.isAssetLoaded(assetId)).toBe(true);
+    expect(asset_store.isAssetLoaded(asset_id)).toBe(true);
   });
 
   test('should throw an error when releasing an asset that was not used', () => {
-    const assetId = asset_store.registerAsset(testAudioAsset);
-    expect(() => asset_store.releaseAsset(assetId)).toThrow(
-      `Attempted to release non-existent asset ID ${assetId}`
+    const asset_id = asset_store.registerAsset(test_audio_asset);
+    expect(() => asset_store.releaseAsset(asset_id)).toThrow(
+      `Attempted to release non-existent asset ID ${asset_id}`,
     );
   });
 
   test('should unload an asset properly', () => {
-    const assetId = asset_store.registerAsset(testImageAsset);
-    asset_store.preloadAssets([testImageAsset.key]);
-    asset_store.unloadAsset(assetId);
+    const asset_id = asset_store.registerAsset(test_image_asset);
+    asset_store.preloadAssets([test_image_asset.key]);
+    asset_store.unloadAsset(asset_id);
 
-    expect(mock_context.phaser_context!.textures.remove).toHaveBeenCalledWith(testImageAsset.key);
-    expect(asset_store.isAssetLoaded(assetId)).toBe(false);
+    expect(mock_context.phaser_context!.textures.remove).toHaveBeenCalledWith(
+      test_image_asset.key,
+    );
+    expect(asset_store.isAssetLoaded(asset_id)).toBe(false);
   });
 
   test('should not unload an asset that is not loaded', () => {
-    const assetId = asset_store.registerAsset(testImageAsset);
-    asset_store.unloadAsset(assetId);
-    expect(asset_store.isAssetLoaded(assetId)).toBe(false);
+    const asset_id = asset_store.registerAsset(test_image_asset);
+    asset_store.unloadAsset(asset_id);
+    expect(asset_store.isAssetLoaded(asset_id)).toBe(false);
   });
 
   test('should register multiple assets at once', () => {
-    const assets = [testImageAsset, testSpritesheetAsset, testAudioAsset];
+    const assets = [test_image_asset, test_spritesheet_asset, test_audio_asset];
     asset_store.registerAssets(assets);
 
     assets.forEach((asset) => {
@@ -137,25 +135,25 @@ describe('AssetStore', () => {
   });
 
   test('should throw an error if registering duplicate assets in batch', () => {
-    asset_store.registerAsset(testImageAsset);
-    expect(() => asset_store.registerAssets([testImageAsset])).toThrow(
-      `Asset ${testImageAsset.key} is already registered.`
+    asset_store.registerAsset(test_image_asset);
+    expect(() => asset_store.registerAssets([test_image_asset])).toThrow(
+      `Asset ${test_image_asset.key} is already registered.`,
     );
   });
 
   test('should throw an error when getting asset with an invalid ID', () => {
     expect(() => asset_store.getAsset(999)).toThrow(
-      `Asset with id 999 must be registered first.`
+      'Asset with id 999 must be registered first.',
     );
   });
 
   test('should throw an error when releasing an asset that was not used', () => {
-    const assetId = asset_store.registerAsset(testAudioAsset);
-    expect(() => asset_store.releaseAsset(assetId)).toThrow();
+    const asset_id = asset_store.registerAsset(test_audio_asset);
+    expect(() => asset_store.releaseAsset(asset_id)).toThrow();
   });
 
   test('should not allow duplicate asset registrations', () => {
-    asset_store.registerAsset(testImageAsset);
-    expect(() => asset_store.registerAsset(testImageAsset)).toThrow();
+    asset_store.registerAsset(test_image_asset);
+    expect(() => asset_store.registerAsset(test_image_asset)).toThrow();
   });
 });

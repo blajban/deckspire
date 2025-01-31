@@ -1,7 +1,7 @@
 import CompHex from '../components/CompHex';
 import CompHexGrid from '../components/CompHexGrid';
 import CompTransform from '../components/CompTransform';
-import { Context, PhaserContext } from '../engine/core/Engine';
+import { Context } from '../engine/core/Engine';
 import { Entity } from '../engine/core/Entity';
 import Scene from '../engine/core/Scene';
 import CompChild from '../engine/core_components/CompChild';
