@@ -13,7 +13,7 @@ export default abstract class Scene {
     this._ecs = new Ecs(
       new EntityStore(),
       new ComponentStore(),
-      context.asset_store!,
+      context.assetStore!,
     );
   }
 

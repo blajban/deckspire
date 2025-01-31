@@ -20,7 +20,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
    * then calls the sub systems handling that entity and any entity that is
    * mouse sensitive even if not on top.
    * @param {Scene} scene
-   * @param {PhaserContext} context
+   * @param {Context} context
    * @param {number} time
    * @param {number} delta
    * @returns
@@ -31,7 +31,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
     time: number,
     delta: number,
   ): void {
-    this._mouse_event.updateMouseStatus(context.phaser_context!, time);
+    this._mouse_event.updateMouseStatus(context.phaserContext!, time);
     // No action if the mouse state was unchanged.
     if (!this._mouse_event.is_unhandled) {
       return;
@@ -52,7 +52,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
         if (
           sub_system.isEntityPointedAt(
             scene,
-            context.phaser_context!,
+            context.phaserContext!,
             this._mouse_event,
             time,
             delta,
@@ -93,7 +93,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
             ) {
               sub_system.onMouseEvent(
                 scene,
-                context.phaser_context!,
+                context.phaserContext!,
                 this._mouse_event,
                 time,
                 delta,

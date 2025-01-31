@@ -47,7 +47,7 @@ export class DrawHexGrid extends DrawSubSystem {
     const fill_style = scene.ecs.getComponent(entity, CompFillStyle);
 
     if (!cache.graphics_object) {
-      cache.graphics_object = context.phaser_context!.add.graphics();
+      cache.graphics_object = context.phaserContext!.add.graphics();
     }
     const gfx = cache.graphics_object;
     gfx.clear();
@@ -87,7 +87,7 @@ export class DrawHex extends DrawSubSystem {
     }
 
     if (!cache.graphics_object) {
-      cache.graphics_object = context.phaser_context!.add.graphics();
+      cache.graphics_object = context.phaserContext!.add.graphics();
     }
     const gfx = cache.graphics_object;
     gfx.clear();

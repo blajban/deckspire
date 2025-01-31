@@ -3,9 +3,9 @@ import SceneManager from './SceneManager';
 import AssetStore from './AssetStore';
 
 export interface Context {
-  phaser_context?: PhaserContext;
-  asset_store?: AssetStore;
-  scene_manager?: SceneManager;
+  phaserContext?: PhaserContext;
+  assetStore?: AssetStore;
+  sceneManager?: SceneManager;
 }
 
 export class PhaserContext extends Phaser.Scene {
@@ -50,14 +50,14 @@ export default class Engine {
     );
 
     this._context = {
-      phaser_context: this._phaser_scene,
+      phaserContext: this._phaser_scene,
     };
 
     this._scene_manager = new SceneManager(this._context);
-    this._context.scene_manager = this._scene_manager;
+    this._context.sceneManager = this._scene_manager;
 
     this._asset_store = new AssetStore(this._context);
-    this._context.asset_store = this._asset_store;
+    this._context.assetStore = this._asset_store;
 
     this._width = width;
     this._height = height;
@@ -78,18 +78,6 @@ export default class Engine {
   getContext(): Context {
     return this._context;
   }
-
-  /* getAssetStore(): AssetStore {
-    return this._asset_store;
-  }
-
-  getSceneManager(): SceneManager {
-    return this._scene_manager;
-  }
-
-  getPhaserContext(): PhaserContext {
-    return this._phaser_scene;
-  } */
 
   update(time: number, delta: number): void {
     this._scene_manager.updateActiveScenes(time, delta);

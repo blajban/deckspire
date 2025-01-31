@@ -38,7 +38,7 @@ describe('SceneManager', () => {
 
   beforeEach(() => {
     engine = new Engine(800, 600);
-    scene_manager = engine.getContext().scene_manager!;
+    scene_manager = engine.getContext().sceneManager!;
     mock_scene1 = new MockScene();
     mock_scene2 = new MockScene();
   });

@@ -77,14 +77,14 @@ export default class AssetStore {
 
     switch (asset_data.type) {
       case AssetType.Image:
-        this._context.phaser_context!.load.image(
+        this._context.phaserContext!.load.image(
           asset_data.key,
           asset_data.path,
         );
         break;
 
       case AssetType.Spritesheet:
-        this._context.phaser_context!.load.spritesheet(
+        this._context.phaserContext!.load.spritesheet(
           asset_data.key,
           asset_data.path,
           asset_data.frameConfig,
@@ -92,14 +92,14 @@ export default class AssetStore {
         break;
 
       case AssetType.Audio:
-        this._context.phaser_context!.load.audio(
+        this._context.phaserContext!.load.audio(
           asset_data.key,
           asset_data.path,
         );
         break;
 
       case AssetType.Font:
-        this._context.phaser_context!.load.bitmapFont(
+        this._context.phaserContext!.load.bitmapFont(
           asset_data.key,
           asset_data.path,
         );
@@ -195,7 +195,7 @@ export default class AssetStore {
   public getAssetId(key: AssetKey): AssetId {
     const asset_id = this._key_to_id.get(key);
     if (asset_id === undefined) {
-      throw new Error(`Asset with key '${key}' is not registered.`);
+      throw new Error(`Asset with key ${key} is not registered.`);
     }
     return asset_id;
   }
@@ -210,10 +210,10 @@ export default class AssetStore {
     switch (asset_data.type) {
       case AssetType.Image:
       case AssetType.Spritesheet:
-        this._context.phaser_context!.textures.remove(asset_data.key);
+        this._context.phaserContext!.textures.remove(asset_data.key);
         break;
       case AssetType.Audio:
-        this._context.phaser_context!.sound.removeByKey(asset_data.key);
+        this._context.phaserContext!.sound.removeByKey(asset_data.key);
         break;
       case AssetType.Font:
         // Font unloading not supported by Phaser

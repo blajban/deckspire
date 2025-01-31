@@ -11,7 +11,7 @@ describe('AssetStore', () => {
   let mock_context: Context;
   beforeEach(() => {
     mock_context = {
-      phaser_context: {
+      phaserContext: {
         load: {
           image: jest.fn(),
           spritesheet: jest.fn(),
@@ -69,7 +69,7 @@ describe('AssetStore', () => {
 
   test('should throw an error when retrieving an unregistered asset ID', () => {
     expect(() => asset_store.getAssetId('unknown-key')).toThrow(
-      `Asset with key 'unknown-key' is not registered.`,
+      'Asset with key unknown-key is not registered.',
     );
   });
 
@@ -77,7 +77,7 @@ describe('AssetStore', () => {
     asset_store.registerAsset(test_image_asset);
     asset_store.preloadAssets([test_image_asset.key]);
 
-    expect(mock_context.phaser_context!.load.image).toHaveBeenCalledWith(
+    expect(mock_context.phaserContext!.load.image).toHaveBeenCalledWith(
       test_image_asset.key,
       test_image_asset.path,
     );
@@ -87,7 +87,7 @@ describe('AssetStore', () => {
     asset_store.registerAsset(test_spritesheet_asset);
     asset_store.preloadAssets([test_spritesheet_asset.key]);
 
-    expect(mock_context.phaser_context!.load.spritesheet).toHaveBeenCalledWith(
+    expect(mock_context.phaserContext!.load.spritesheet).toHaveBeenCalledWith(
       test_spritesheet_asset.key,
       test_spritesheet_asset.path,
       test_spritesheet_asset.frameConfig,
@@ -113,7 +113,7 @@ describe('AssetStore', () => {
     asset_store.preloadAssets([test_image_asset.key]);
     asset_store.unloadAsset(asset_id);
 
-    expect(mock_context.phaser_context!.textures.remove).toHaveBeenCalledWith(
+    expect(mock_context.phaserContext!.textures.remove).toHaveBeenCalledWith(
       test_image_asset.key,
     );
     expect(asset_store.isAssetLoaded(asset_id)).toBe(false);
