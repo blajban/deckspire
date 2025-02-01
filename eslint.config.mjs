@@ -122,13 +122,7 @@ export default [
           leadingUnderscore: 'forbid',
         },
         {
-          selector: [
-            'variable',
-            'classProperty',
-            'accessor',
-            'parameter',
-            'parameterProperty',
-          ],
+          selector: ['variable'],
           modifiers: ['readonly'],
           format: ['UPPER_CASE'],
           leadingUnderscore: 'forbid',
