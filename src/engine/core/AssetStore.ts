@@ -75,34 +75,38 @@ export default class AssetStore {
         resolve();
         return;
       }
-  
+
       const asset_data = this._getAssetData(id);
       const loader = this._context.phaserContext!.load;
-  
-      const onFileComplete = (fileKey: string) => {
-        if (fileKey === asset_data.key) {
-          loader.off(Phaser.Loader.Events.FILE_COMPLETE, onFileComplete);
+
+      const on_file_complete = (file_key: string): void => {
+        if (file_key === asset_data.key) {
+          loader.off(Phaser.Loader.Events.FILE_COMPLETE, on_file_complete);
           this._loaded_assets.add(id);
           resolve();
         }
       };
-  
-      const onFileError = (fileKey: string) => {
-        if (fileKey === asset_data.key) {
-          loader.off(Phaser.Loader.Events.FILE_LOAD_ERROR, onFileError);
+
+      const on_file_error = (file_key: string): void => {
+        if (file_key === asset_data.key) {
+          loader.off(Phaser.Loader.Events.FILE_LOAD_ERROR, on_file_error);
           reject(new Error(`Failed to load asset with key ${asset_data.key}`));
         }
       };
-  
-      loader.once(Phaser.Loader.Events.FILE_COMPLETE, onFileComplete);
-      loader.once(Phaser.Loader.Events.FILE_LOAD_ERROR, onFileError);
-  
+
+      loader.once(Phaser.Loader.Events.FILE_COMPLETE, on_file_complete);
+      loader.once(Phaser.Loader.Events.FILE_LOAD_ERROR, on_file_error);
+
       switch (asset_data.type) {
         case AssetType.Image:
           loader.image(asset_data.key, asset_data.path);
           break;
         case AssetType.Spritesheet:
-          loader.spritesheet(asset_data.key, asset_data.path, asset_data.frameConfig);
+          loader.spritesheet(
+            asset_data.key,
+            asset_data.path,
+            asset_data.frameConfig,
+          );
           break;
         case AssetType.Audio:
           loader.audio(asset_data.key, asset_data.path);
@@ -111,14 +115,15 @@ export default class AssetStore {
           loader.bitmapFont(asset_data.key, asset_data.path);
           break;
         default:
-          reject(new Error(`Unknown asset type: ${(asset_data as AssetData).type}`));
+          reject(
+            new Error(`Unknown asset type: ${(asset_data as AssetData).type}`),
+          );
           return;
       }
-  
+
       loader.start();
     });
   }
-  
 
   public registerAsset(asset: AssetData): AssetId {
     if (this._key_to_id.has(asset.key)) {

@@ -3,7 +3,6 @@ import { Context } from '../engine/core/Engine';
 import { Entity } from '../engine/core/Entity';
 import Scene from '../engine/core/Scene';
 import CompDrawable from '../engine/core_components/CompDrawable';
-import CompSprite from '../engine/core_components/CompSprite';
 import CompSpritesheet from '../engine/core_components/CompSpritesheet';
 import { DrawCacheObject, DrawSubSystem } from '../engine/core_systems/SysDraw';
 
@@ -12,7 +11,7 @@ export class DrawSpritesheet extends DrawSubSystem {
     super([[CompDrawable, CompSpritesheet, CompTransform]]);
   }
 
-   update(
+  update(
     scene: Scene,
     context: Context,
     cache: DrawCacheObject,
@@ -24,7 +23,7 @@ export class DrawSpritesheet extends DrawSubSystem {
     const spritesheet = scene.ecs.getComponent(entity, CompSpritesheet);
     const transform = scene.ecs.getComponent(entity, CompTransform)!;
 
-    const image_asset = context.assetStore!.getAsset(spritesheet?.asset_id!);
+    const image_asset = context.assetStore!.getAsset(spritesheet!.asset_id!);
 
     if (!image_asset) {
       return;
@@ -32,15 +31,15 @@ export class DrawSpritesheet extends DrawSubSystem {
 
     if (!cache.draw_object) {
       cache.draw_object = context.phaserContext!.add.sprite(
-        transform.position.x, 
-        transform.position.y, 
+        transform.position.x,
+        transform.position.y,
         image_asset,
         spritesheet?.current_frame,
       );
     }
 
     const phaser_sprite = cache.get<Phaser.GameObjects.Sprite>()!;
-    
+
     phaser_sprite.setFrame(spritesheet?.current_frame!);
     phaser_sprite.setDepth(drawable.depth);
     phaser_sprite.setPosition(transform.position.x, transform.position.y);

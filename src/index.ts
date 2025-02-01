@@ -34,7 +34,12 @@ class AssetScene extends Scene {
       { key: 'Asset_D', path: 'a path', type: AssetType.Font },
       { key: 'Asset_E', path: 'a path', type: AssetType.Image },
       { key: 'samurai', path: 'assets/IDLE.png', type: AssetType.Image },
-      { key: 'samurai_two', path: 'assets/RUN.png', type: AssetType.Spritesheet, frameConfig: { frameWidth: 96, frameHeight: 96 } },
+      {
+        key: 'samurai_two',
+        path: 'assets/RUN.png',
+        type: AssetType.Spritesheet,
+        frameConfig: { frameWidth: 96, frameHeight: 96 },
+      },
     ]);
 
     asset_store.registerAsset({
@@ -115,7 +120,6 @@ class MyScene extends Scene {
 
     this.ecs.getDrawSystem()!.addSubSystem(new DrawSprite());
     this.ecs.getDrawSystem()!.addSubSystem(new DrawSpritesheet());
-
   }
 
   onStart(): void {
@@ -162,7 +166,6 @@ class MyScene extends Scene {
       new CompSprite(this.context.assetStore!, 'samurai'),
     );
 
-
     const test_spritesheet = this.ecs.newEntity();
     this.ecs.addComponents(
       test_spritesheet,
@@ -170,10 +173,6 @@ class MyScene extends Scene {
       new CompDrawable(1),
       new CompSpritesheet(this.context.assetStore!, 'samurai_two', 8),
     );
-
-    
-
-
   }
 
   onExit(): void {

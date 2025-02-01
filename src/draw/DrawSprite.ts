@@ -11,7 +11,7 @@ export class DrawSprite extends DrawSubSystem {
     super([[CompDrawable, CompSprite, CompTransform]]);
   }
 
-   update(
+  update(
     scene: Scene,
     context: Context,
     cache: DrawCacheObject,
@@ -26,19 +26,19 @@ export class DrawSprite extends DrawSubSystem {
     const image_asset = context.assetStore!.getAsset(sprite?.asset_id!);
 
     if (!image_asset) {
-      return
+      return;
     }
 
     if (!cache.draw_object) {
       cache.draw_object = context.phaserContext!.add.sprite(
-        transform.position.x, 
-        transform.position.y, 
+        transform.position.x,
+        transform.position.y,
         image_asset,
       );
     }
 
     const phaser_sprite = cache.get<Phaser.GameObjects.Sprite>()!;
-    
+
     phaser_sprite.setDepth(drawable.depth);
     phaser_sprite.setPosition(transform.position.x, transform.position.y);
     phaser_sprite.setRotation(transform.rotation);

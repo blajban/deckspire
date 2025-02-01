@@ -77,7 +77,6 @@ export class DrawCacheObject {
   }
 }
 
-
 export class DrawCache {
   private _component_caches = new Map<CompDrawable, DrawCacheObject>();
 
