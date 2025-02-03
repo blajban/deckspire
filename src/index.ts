@@ -23,16 +23,6 @@ class AssetScene extends Scene {
     const asset_store = this.context.assetStore!;
 
     asset_store.registerAssets([
-      { key: 'Asset_A', path: 'a path', type: AssetType.Image },
-      {
-        key: 'Asset_B',
-        path: 'a path',
-        type: AssetType.Spritesheet,
-        frameConfig: { frameWidth: 32, frameHeight: 32 },
-      },
-      { key: 'Asset_C', path: 'a path', type: AssetType.Audio },
-      { key: 'Asset_D', path: 'a path', type: AssetType.Font },
-      { key: 'Asset_E', path: 'a path', type: AssetType.Image },
       { key: 'samurai', path: 'assets/IDLE.png', type: AssetType.Image },
       {
         key: 'samurai_two',
@@ -40,15 +30,8 @@ class AssetScene extends Scene {
         type: AssetType.Spritesheet,
         frameConfig: { frameWidth: 96, frameHeight: 96 },
       },
+      { key: 'samurai_three', path: 'assets/HURT.png', type: AssetType.Spritesheet, frameConfig: { frameWidth: 96, frameHeight: 96 } },
     ]);
-
-    asset_store.registerAsset({
-      key: 'Asset F',
-      path: 'a path',
-      type: AssetType.Image,
-    });
-
-    asset_store.preloadAssets();
   }
 
   onStart(): void {}
@@ -60,47 +43,52 @@ class AssetScene extends Scene {
 
 class AnotherScene extends Scene {
   onRegister(): void {
-    const asset_store = this.context.assetStore!;
+    this.ecs.registerComponent(CompTransform);
 
-    const entity1 = this.ecs.newEntity();
-    const entity2 = this.ecs.newEntity();
-    const entity3 = this.ecs.newEntity();
-    const entity4 = this.ecs.newEntity();
-    const entity5 = this.ecs.newEntity();
-    const entity6 = this.ecs.newEntity();
+    this.ecs.addDraw();
+    this.ecs.getDrawSystem()!.addSubSystem(new DrawSprite());
+    this.ecs.getDrawSystem()!.addSubSystem(new DrawSpritesheet());
+  }
 
-    this.ecs.addComponent(entity1, new CompSprite(asset_store, 'Asset_B'));
-    this.ecs.addComponent(entity2, new CompSprite(asset_store, 'Asset_B'));
-    this.ecs.addComponent(entity3, new CompSprite(asset_store, 'Asset_B'));
-    this.ecs.addComponent(entity4, new CompSprite(asset_store, 'Asset_B'));
-
-    this.ecs.addComponent(entity5, new CompSprite(asset_store, 'Asset_A'));
-    this.ecs.addComponent(entity6, new CompSprite(asset_store, 'Asset_C'));
-
-    this.ecs.removeEntity(entity1);
-    this.ecs.removeEntity(entity5);
+  async onPreload(): Promise<void> {
+    console.log('PRELOADING!!');
+    await this.context.assetStore!.preloadAssets([
+      'samurai_three'
+    ]);
   }
 
   onStart(): void {
-    console.log('Starting AnotherScene!');
+    this.onPreload().then(() => {
+      console.log('Starting AnotherScene!');
+      const test_spritesheet = this.ecs.newEntity();
+      this.ecs.addComponents(
+        test_spritesheet,
+        new CompTransform(new Vector2D(100, 500), 0, new Vector2D(1.0, 1.0)),
+        new CompDrawable(1),
+        new CompSpritesheet(this.context.assetStore!, 'samurai_three', 1),
+      );
 
-    this.context.phaserContext!.input.keyboard!.on(
-      'keydown',
-      (event: KeyboardEvent) => {
-        if (event.code === 'ArrowDown') {
-          console.log('Arrow Up key was pressed!');
-          this.context.sceneManager!.resumeScene('MyScene');
-          this.context.sceneManager!.pauseScene('AnotherScene');
-        }
-      },
-    );
+      this.context.phaserContext!.input.keyboard!.on(
+        'keydown',
+        (event: KeyboardEvent) => {
+          if (event.code === 'ArrowDown') {
+            console.log('Arrow Up key was pressed!');
+            this.context.sceneManager!.resumeScene('MyScene');
+            this.context.sceneManager!.pauseScene('AnotherScene');
+          }
+        },
+      );
+    }) 
+    
   }
 
   onExit(): void {
     console.log('Exiting AnotherScene!');
   }
 
-  onUpdate(_time: number, _delta: number): void {}
+  onUpdate(time: number, delta: number): void {
+    this.ecs.getDrawSystem()?.update(this, this.context, time, delta);
+  }
 }
 
 class MyScene extends Scene {
@@ -120,6 +108,16 @@ class MyScene extends Scene {
 
     this.ecs.getDrawSystem()!.addSubSystem(new DrawSprite());
     this.ecs.getDrawSystem()!.addSubSystem(new DrawSpritesheet());
+
+   
+  }
+
+  async onPreload(): Promise<void> {
+    console.log('PRELOADING!!');
+    await this.context.assetStore!.preloadAssets([
+      'samurai',
+      'samurai_two'
+    ]);
   }
 
   onStart(): void {
@@ -169,7 +167,7 @@ class MyScene extends Scene {
     const test_spritesheet = this.ecs.newEntity();
     this.ecs.addComponents(
       test_spritesheet,
-      new CompTransform(new Vector2D(100, 200), 0, new Vector2D(1.0, 1.0)),
+      new CompTransform(new Vector2D(100, 300), 0, new Vector2D(1.0, 1.0)),
       new CompDrawable(1),
       new CompSpritesheet(this.context.assetStore!, 'samurai_two', 8),
     );
@@ -188,12 +186,15 @@ class MyScene extends Scene {
 
 const game = new Engine(800, 600);
 
-game.ready().then(() => {
+game.ready().then(async () => {
   game.getContext().sceneManager!.registerScene('AssetScene', new AssetScene());
   game.getContext().sceneManager!.registerScene('MyScene', new MyScene());
   game
     .getContext()
     .sceneManager!.registerScene('AnotherScene', new AnotherScene());
 
+  console.log('Before preloading!!');
+  await game.getContext().sceneManager!.preloadScene('MyScene');
+  console.log('After preloading!!');
   game.getContext().sceneManager!.startScene('MyScene');
 });

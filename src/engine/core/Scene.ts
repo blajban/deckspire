@@ -22,6 +22,7 @@ export default abstract class Scene {
   }
 
   onRegister(): void {}
+  async onPreload(): Promise<void> {}
   onStart(): void {}
   abstract onUpdate(time: number, delta: number): void;
   onExit(): void {}

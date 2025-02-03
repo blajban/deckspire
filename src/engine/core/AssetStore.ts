@@ -52,6 +52,7 @@ export default class AssetStore {
   private _asset_usage_count: Map<AssetId, number> = new Map();
   private _context: Context;
   private _current_id: AssetId = 0;
+  private _loading_promises: Map<AssetId, Promise<void>> = new Map();
 
   constructor(context: Context) {
     this._context = context;
@@ -69,44 +70,49 @@ export default class AssetStore {
     return asset_data;
   }
 
-  private _loadAssetAsync(id: AssetId): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (this.isAssetLoaded(id)) {
+  private async _loadAssetAsync(id: AssetId): Promise<void> {
+    if (this.isAssetLoaded(id)) {
+      return Promise.resolve();
+    }
+  
+    if (this._loading_promises.has(id)) {
+      console.log('Still loading...');
+      return this._loading_promises.get(id)!;
+    }
+  
+    const asset_data = this._getAssetData(id);
+    const loader = this._context.phaserContext!.load;
+  
+    console.log(`Starting loader for asset: ${asset_data.key}`);
+  
+    const promise = new Promise<void>((resolve, reject) => {
+      const onComplete = () => {
+        console.log(`All assets finished loading!`);
+        loader.off(Phaser.Loader.Events.COMPLETE, onComplete);
+        loader.off(Phaser.Loader.Events.FILE_LOAD_ERROR, onFileError);
+        this._loaded_assets.add(id);
+        this._loading_promises.delete(id);
         resolve();
-        return;
-      }
-
-      const asset_data = this._getAssetData(id);
-      const loader = this._context.phaserContext!.load;
-
-      const on_file_complete = (file_key: string): void => {
-        if (file_key === asset_data.key) {
-          loader.off(Phaser.Loader.Events.FILE_COMPLETE, on_file_complete);
-          this._loaded_assets.add(id);
-          resolve();
-        }
       };
-
-      const on_file_error = (file_key: string): void => {
-        if (file_key === asset_data.key) {
-          loader.off(Phaser.Loader.Events.FILE_LOAD_ERROR, on_file_error);
+  
+      const onFileError = (fileKey: string) => {
+        if (fileKey === asset_data.key) {
+          console.error(`Error loading asset: ${fileKey}`);
+          loader.off(Phaser.Loader.Events.FILE_LOAD_ERROR, onFileError);
+          this._loading_promises.delete(id);
           reject(new Error(`Failed to load asset with key ${asset_data.key}`));
         }
       };
-
-      loader.once(Phaser.Loader.Events.FILE_COMPLETE, on_file_complete);
-      loader.once(Phaser.Loader.Events.FILE_LOAD_ERROR, on_file_error);
-
+  
+      loader.once(Phaser.Loader.Events.COMPLETE, onComplete);
+      loader.once(Phaser.Loader.Events.FILE_LOAD_ERROR, onFileError);
+  
       switch (asset_data.type) {
         case AssetType.Image:
           loader.image(asset_data.key, asset_data.path);
           break;
         case AssetType.Spritesheet:
-          loader.spritesheet(
-            asset_data.key,
-            asset_data.path,
-            asset_data.frameConfig,
-          );
+          loader.spritesheet(asset_data.key, asset_data.path, asset_data.frameConfig);
           break;
         case AssetType.Audio:
           loader.audio(asset_data.key, asset_data.path);
@@ -115,15 +121,20 @@ export default class AssetStore {
           loader.bitmapFont(asset_data.key, asset_data.path);
           break;
         default:
-          reject(
-            new Error(`Unknown asset type: ${(asset_data as AssetData).type}`),
-          );
+          reject(new Error(`Unknown asset type: ${(asset_data as AssetData).type}`));
           return;
       }
-
-      loader.start();
+  
+      if (!loader.isLoading()) {
+        loader.start();
+      }
     });
+  
+    this._loading_promises.set(id, promise);
+    return promise;
   }
+  
+  
 
   public registerAsset(asset: AssetData): AssetId {
     if (this._key_to_id.has(asset.key)) {
@@ -149,19 +160,24 @@ export default class AssetStore {
     });
   }
 
-  public preloadAssets(keys?: AssetKey[]): void {
+  public async preloadAssets(keys?: AssetKey[]): Promise<void> {
+    console.log('Preloading assets in AssetStore...');
+    
     const asset_ids_to_load = keys
-      ? keys
-          .map((key) => this.getAssetId(key))
-          .filter((id) => !this.isAssetLoaded(id))
-      : Array.from(this._key_to_id.values()).filter(
-          (id) => !this.isAssetLoaded(id),
-        );
-
-    asset_ids_to_load.forEach((id) => {
-      this._loadAssetAsync(id);
-    });
+      ? keys.map((key) => this.getAssetId(key)).filter((id) => !this.isAssetLoaded(id))
+      : Array.from(this._key_to_id.values()).filter((id) => !this.isAssetLoaded(id));
+  
+    console.log('Assets to load:', asset_ids_to_load);
+  
+    await Promise.all(asset_ids_to_load.map(async (id) => {
+      console.log(`Loading asset ID: ${id}`);
+      await this._loadAssetAsync(id);
+      console.log(`Asset ID ${id} finished loading!`);
+    }));
+  
+    console.log('All assets loaded!');
   }
+  
 
   public isAssetLoaded(id: AssetId): boolean {
     return this._loaded_assets.has(id);
@@ -187,7 +203,6 @@ export default class AssetStore {
 
   public getAsset(id: AssetId): AssetKey | null {
     if (!this.isAssetLoaded(id)) {
-      this._loadAssetAsync(id);
       return null;
     }
 

@@ -25,15 +25,11 @@ export class DrawSpritesheet extends DrawSubSystem {
 
     const image_asset = context.assetStore!.getAsset(spritesheet!.asset_id!);
 
-    if (!image_asset) {
-      return;
-    }
-
     if (!cache.draw_object) {
       cache.draw_object = context.phaserContext!.add.sprite(
         transform.position.x,
         transform.position.y,
-        image_asset,
+        image_asset!,
         spritesheet?.current_frame,
       );
     }

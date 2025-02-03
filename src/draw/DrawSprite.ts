@@ -25,15 +25,11 @@ export class DrawSprite extends DrawSubSystem {
 
     const image_asset = context.assetStore!.getAsset(sprite?.asset_id!);
 
-    if (!image_asset) {
-      return;
-    }
-
     if (!cache.draw_object) {
       cache.draw_object = context.phaserContext!.add.sprite(
         transform.position.x,
         transform.position.y,
-        image_asset,
+        image_asset!,
       );
     }
 

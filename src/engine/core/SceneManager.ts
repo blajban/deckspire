@@ -18,6 +18,21 @@ export default class SceneManager {
     }
   }
 
+  async preloadScene(key: string): Promise<void> {
+    const scene = this._registered_scenes.get(key);
+    if (!scene) {
+      throw new Error(`Cannot load scene ${key}, it is not registered.`)
+    }
+
+    if (this._active_scenes.has(key)) {
+      throw new Error(`Scene ${key} is already active.`);
+    }
+
+    console.log(`Preloading assets for scene ${key}...`);
+    await scene.onPreload();
+    console.log(`Finished preloading assets for scene ${key}.`);
+  }
+
   startScene(key: string): void {
     const scene = this._registered_scenes.get(key);
     if (!scene) {
