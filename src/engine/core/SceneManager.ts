@@ -1,79 +1,50 @@
-import { PhaserContext } from './Engine';
+import { CompDestroyWithScene } from '../core_components/CompDestroy';
+import { Context } from './Engine';
 import Scene from './Scene';
 
 export default class SceneManager {
   private _registered_scenes: Map<string, Scene> = new Map();
-  private _active_scenes: Map<string, Scene> = new Map();
+  private _built_scenes: Map<string, Scene> = new Map();
 
-  constructor(private _context: PhaserContext) {}
+  constructor() {}
 
   registerScene(key: string, scene: Scene): void {
     if (!this._registered_scenes.has(key)) {
-      scene.initialize(this._context);
-      scene.onRegister();
       this._registered_scenes.set(key, scene);
+    } else {
+      throw new Error(`Key: ${key} is already in use by another scene.`);
     }
   }
 
-  startScene(key: string): void {
+  buildScene(context: Context, key: string): void {
     const scene = this._registered_scenes.get(key);
     if (!scene) {
-      throw new Error(`Cannot start scene ${key}, it is not registered.`);
+      throw new Error(`Cannot build scene ${key}, it is not registered.`);
     }
 
-    if (this._active_scenes.has(key)) {
-      throw new Error(`Scene ${key} is already active.`);
+    if (this._built_scenes.has(key)) {
+      throw new Error(`Scene ${key} has already been built.`);
     }
 
-    scene.onStart();
-    this._active_scenes.set(key, scene);
+    scene.buildScene(context);
+    this._built_scenes.set(key, scene);
   }
 
-  stopScene(key: string): void {
-    const scene = this._active_scenes.get(key);
+  destroyScene(context: Context, key: string): void {
+    const scene = this._built_scenes.get(key);
     if (!scene) {
-      throw new Error(`Scene ${key} is not active.`);
+      throw new Error(`Scene ${key} has not been built.`);
     }
 
-    scene.onExit();
-    const draw_system = scene.ecs.getDrawSystem();
-    if (draw_system) {
-      draw_system.cleanupAll();
-    }
-    this._active_scenes.delete(key);
-  }
+    scene.destroyScene(context);
 
-  pauseScene(key: string): void {
-    const scene = this._active_scenes.get(key);
-    if (!scene) {
-      throw new Error(`Scene ${key} is not active and cannot be paused.`);
-    }
-
-    scene.onPause();
-    const draw_system = scene.ecs.getDrawSystem();
-    if (draw_system) {
-      draw_system.cleanupAll();
-    }
-    this._active_scenes.delete(key);
-  }
-
-  resumeScene(key: string): void {
-    const scene = this._registered_scenes.get(key);
-    if (!scene) {
-      throw new Error(`Cannot resume scene ${key}, it is not registered.`);
-    }
-
-    if (this._active_scenes.has(key)) {
-      throw new Error(`Scene ${key} is already active.`);
-    }
-
-    scene.onResume();
-    this._active_scenes.set(key, scene);
-  }
-
-  updateActiveScenes(time: number, delta: number): void {
-    this._active_scenes.forEach((scene) => {
-      scene.onUpdate(time, delta);
-    });
+    context.ecs_manager
+      .getEntitiesAndComponents(CompDestroyWithScene)
+      .forEach((component, entity) => {
+        if (component.scene === scene) {
+          context.ecs_manager.removeEntity(entity);
+        }
+      });
+    this._built_scenes.delete(key);
   }
 }
