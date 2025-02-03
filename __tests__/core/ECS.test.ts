@@ -3,7 +3,7 @@ import CompParent from '../../src/engine/core_components/CompParent';
 import Component from '../../src/engine/core/Component';
 import ComponentStore from '../../src/engine/core/ComponentStore';
 import EntityStore from '../../src/engine/core/EntityStore';
-import Ecs from '../../src/engine/core/Ecs';
+import EcsManager from '../../src/engine/core/EcsManager';
 
 class MockComponent extends Component {
   constructor(public value: number) {
@@ -18,12 +18,12 @@ class AnotherMockComponent extends Component {
 }
 
 describe('ECS', () => {
-  let ecs: Ecs;
+  let ecs: EcsManager;
 
   beforeEach(() => {
     const entity_store = new EntityStore();
     const component_store = new ComponentStore();
-    ecs = new Ecs(entity_store, component_store);
+    ecs = new EcsManager(entity_store, component_store);
 
     ecs.registerComponent(CompParent);
     ecs.registerComponent(CompChild);
@@ -200,7 +200,7 @@ describe('ECS', () => {
     ecs.addComponent(entity1, new MockComponent(10));
     ecs.addComponent(entity2, new AnotherMockComponent(5));
 
-    const entities_with_position = ecs.getEntitiesWithComponent(MockComponent);
+    const entities_with_position = ecs.getEntitiesAndComponents(MockComponent);
     expect(entities_with_position).toContain(entity1);
     expect(entities_with_position).not.toContain(entity2);
   });

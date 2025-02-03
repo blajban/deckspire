@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
 import SceneManager from './SceneManager';
+import EcsManager from './EcsManager';
+import Scene from './Scene';
 
-export class PhaserContext extends Phaser.Scene {
+export class PhaserScene extends Phaser.Scene {
   private _ready_promise: Promise<void>;
   private _ready_resolver: (() => void) | null = null;
 
@@ -27,18 +29,27 @@ export class PhaserContext extends Phaser.Scene {
   }
 }
 
+export class Context {
+  public readonly phaser_scene: PhaserScene;
+  public readonly ecs_manager;
+  constructor(phaser_scene: PhaserScene, ecs_manager: EcsManager) {
+    this.phaser_scene = phaser_scene;
+    this.ecs_manager = ecs_manager;
+  }
+}
+
 export default class Engine {
   private _width: number;
   private _height: number;
-  private _phaser_scene: PhaserContext;
   private _phaser_game: Phaser.Game;
-  private _scene_manager: SceneManager;
+  private _phaser_scene = new PhaserScene((time, delta) =>
+    this._update(time, delta),
+  );
+  private _esc_manager = new EcsManager();
+  private _context = new Context(this._phaser_scene, this._esc_manager);
+  private _scene_manager = new SceneManager();
 
   constructor(width: number, height: number) {
-    this._phaser_scene = new PhaserContext((time, delta) =>
-      this.update(time, delta),
-    );
-    this._scene_manager = new SceneManager(this._phaser_scene);
     this._width = width;
     this._height = height;
 
@@ -46,20 +57,28 @@ export default class Engine {
       type: Phaser.AUTO,
       width: this._width,
       height: this._height,
-      scene: [this._phaser_scene],
+      scene: [this._context.phaser_scene],
       banner: false, // Clutters test outputs
     });
   }
 
   ready(): Promise<void> {
-    return this._phaser_scene.ready();
+    return this._context.phaser_scene.ready();
   }
 
-  getSceneManager(): SceneManager {
-    return this._scene_manager;
+  private _update(time: number, delta: number): void {
+    this._context.ecs_manager.update(this._context, time, delta);
   }
 
-  update(time: number, delta: number): void {
-    this._scene_manager.updateActiveScenes(time, delta);
+  public registerScene(key: string, scene: Scene): void {
+    this._scene_manager.registerScene(key, scene);
+  }
+
+  public buildScenes(scene_keys: string[]): void {
+    this.ready().then(() => {
+      scene_keys.forEach((key) => {
+        this._scene_manager.buildScene(this._context, key);
+      });
+    });
   }
 }

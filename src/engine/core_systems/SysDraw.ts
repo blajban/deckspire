@@ -1,4 +1,5 @@
-import { PhaserContext } from '../core/Engine';
+import { Archetype } from '../core/ComponentStore';
+import { Context, PhaserScene } from '../core/Engine';
 import { Entity } from '../core/Entity';
 import Scene from '../core/Scene';
 import { SubSystem, SystemWithSubsystems } from '../core/System';
@@ -10,7 +11,7 @@ import CompDrawable from '../core_components/CompDrawable';
 export abstract class DrawSubSystem extends SubSystem {
   public abstract update(
     scene: Scene,
-    engine_phaser_scene: PhaserContext,
+    engine_phaser_scene: PhaserScene,
     cache: GraphicsCacheObject,
     time: number,
     delta: number,
@@ -25,15 +26,10 @@ export default class SysDraw extends SystemWithSubsystems<DrawSubSystem> {
   private _graphics_cache = new GraphicsCache();
 
   constructor() {
-    super([[CompDrawable]]);
+    super([new Archetype(CompDrawable)]);
   }
 
-  public update(
-    scene: Scene,
-    context: PhaserContext,
-    time: number,
-    delta: number,
-  ): void {
+  public update(context: Context, time: number, delta: number): void {
     this.sub_systems.forEach((sub_system) => {
       sub_system.allMatchingEntities(scene).forEach((entity) => {
         const drawable = scene.ecs.getComponent(entity, CompDrawable)!;

@@ -73,8 +73,8 @@ describe('Engine', () => {
 
     const mock_scene = new (class extends Scene {
       onRegister(): void {}
-      onStart(): void {}
-      onExit(): void {}
+      buildScene(): void {}
+      destroyScene(): void {}
       onUpdate(): void {}
     })();
 

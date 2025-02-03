@@ -1,28 +1,15 @@
-import { setUnion } from '../util/setUtilityFunctions';
+import { ClassIdentifier } from '../util/ClassIdentifier';
 import { Archetype } from './ComponentStore';
-import { PhaserContext } from './Engine';
-import { Entity } from './Entity';
-import Scene from './Scene';
+import { Context } from './Engine';
+
+export type SystemClass<T extends System> = ClassIdentifier<T>;
 
 abstract class HasApplicableArchetypes {
-  constructor(public readonly ARCHETYPES: Archetype[]) {}
-
-  public allMatchingEntities(scene: Scene): Set<Entity> {
-    const entity_sets = new Array<Set<Entity>>();
-    this.ARCHETYPES.forEach((archetype) => {
-      entity_sets.push(scene.ecs.getEntitiesWithArchetype(...archetype));
-    });
-    return setUnion(...entity_sets);
-  }
+  constructor(public readonly archetypes: Archetype[]) {}
 }
 
 export default abstract class System extends HasApplicableArchetypes {
-  abstract update(
-    scene: Scene,
-    context: PhaserContext,
-    time: number,
-    delta: number,
-  ): void;
+  abstract update(context: Context, time: number, delta: number): void;
 }
 
 export abstract class SubSystem extends HasApplicableArchetypes {}

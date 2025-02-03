@@ -1,5 +1,6 @@
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-export type ComponentClass<T> = new (...args: any[]) => T;
+import { ClassIdentifier } from '../util/ClassIdentifier';
+
+export type ComponentClass<T extends Component> = ClassIdentifier<T>;
 
 export default abstract class Component {
   toJson(): Record<string, any> {

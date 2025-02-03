@@ -124,7 +124,7 @@ describe('ComponentStore', () => {
     store.addComponent(entity1, new MockComponent(10));
     store.addComponent(entity2, new MockComponent(30));
 
-    const entities = store.getEntitiesWithComponent(MockComponent);
+    const entities = store.getEntitiesAndComponents(MockComponent);
     expect(entities).toContain(entity1);
     expect(entities).toContain(entity2);
   });
@@ -196,7 +196,7 @@ describe('ComponentStore', () => {
       'Component type MockComponent must be registered first (get component)',
     );
 
-    expect(() => store.getEntitiesWithComponent(MockComponent)).toThrow(
+    expect(() => store.getEntitiesAndComponents(MockComponent)).toThrow(
       'Component type MockComponent must be registered first (get entities with component)',
     );
   });

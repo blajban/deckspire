@@ -1,4 +1,8 @@
 import CompChild from '../core_components/CompChild';
+import {
+  CompDestroyMe,
+  CompDestroyWithScene,
+} from '../core_components/CompDestroy';
 import CompDrawable from '../core_components/CompDrawable';
 import CompFillStyle from '../core_components/CompFillStyle';
 import CompLineStyle from '../core_components/CompLineStyle';
@@ -9,17 +13,19 @@ import SysDraw from '../core_systems/SysDraw';
 import SysMouse from '../core_systems/SysMouse';
 import Component, { ComponentClass } from './Component';
 import ComponentStore, { Archetype } from './ComponentStore';
+import { Context } from './Engine';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
+import SystemManager from './SystemManager';
 
-export default class Ecs {
+export default class EcsManager {
   private _system_draw: SysDraw | null = null;
   private _system_mouse: SysMouse | null = null;
+  private _entity_store = new EntityStore();
+  private _component_store = new ComponentStore();
+  private _system_manager = new SystemManager();
 
-  constructor(
-    private _entity_store: EntityStore,
-    private _component_store: ComponentStore,
-  ) {
+  constructor() {
     // Core components are always registered.
     this._registerCoreComponents();
   }
@@ -28,9 +34,7 @@ export default class Ecs {
    * Adds the core system for drawing entities to the ECS.
    */
   public addDraw(): void {
-    if (!this._system_draw) {
-      this._system_draw = new SysDraw();
-    }
+    this._system_manager.registerSystem(SysDraw);
   }
 
   /**
@@ -49,6 +53,8 @@ export default class Ecs {
    */
   private _registerCoreComponents(): void {
     this.registerComponent(CompChild);
+    this.registerComponent(CompDestroyMe);
+    this.registerComponent(CompDestroyWithScene);
     this.registerComponent(CompDrawable);
     this.registerComponent(CompFillStyle);
     this.registerComponent(CompLineStyle);
@@ -199,14 +205,14 @@ export default class Ecs {
     this._component_store.removeComponent(entity, component_class);
   }
 
-  getEntitiesWithComponent<T extends Component>(
+  getEntitiesAndComponents<T extends Component>(
     component_class: ComponentClass<T>,
-  ): Set<Entity> {
-    return this._component_store.getEntitiesWithComponent(component_class);
+  ): Map<Entity, T> {
+    return this._component_store.getEntitiesAndComponents(component_class);
   }
 
-  getEntitiesWithArchetype(...component_classes: Archetype): Set<Entity> {
-    return this._component_store.getEntitiesWithArchetype(...component_classes);
+  getEntitiesWithArchetype(archetype: Archetype): Set<Entity> {
+    return this._component_store.getEntitiesWithArchetype(archetype);
   }
 
   getComponentsForEntity(entity: Entity): Component[] {
@@ -280,6 +286,10 @@ export default class Ecs {
     }
 
     return false;
+  }
+
+  public update(context: Context, time: number, delta: number): void {
+    this._system_manager.update(context, time, delta);
   }
 
   serialize(): string {

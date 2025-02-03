@@ -1,5 +1,5 @@
 import Vector2D from '../../math/Vector2D';
-import { PhaserContext } from '../core/Engine';
+import { PhaserScene } from '../core/Engine';
 import { Entity } from '../core/Entity';
 import Scene from '../core/Scene';
 import { SubSystem, SystemWithSubsystems } from '../core/System';
@@ -20,14 +20,14 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
    * then calls the sub systems handling that entity and any entity that is
    * mouse sensitive even if not on top.
    * @param {Scene} scene
-   * @param {PhaserContext} context
+   * @param {PhaserScene} context
    * @param {number} time
    * @param {number} delta
    * @returns
    */
   public update(
     scene: Scene,
-    context: PhaserContext,
+    context: PhaserScene,
     time: number,
     delta: number,
   ): void {
@@ -112,7 +112,7 @@ export default class SysMouse extends SystemWithSubsystems<MouseSubSystem> {
 export abstract class MouseSubSystem extends SubSystem {
   public abstract isEntityPointedAt(
     scene: Scene,
-    context: PhaserContext,
+    context: PhaserScene,
     mouse_event: MouseEvent,
     time: number,
     delta: number,
@@ -121,7 +121,7 @@ export abstract class MouseSubSystem extends SubSystem {
 
   public abstract onMouseEvent(
     scene: Scene,
-    context: PhaserContext,
+    context: PhaserScene,
     mouse_event: MouseEvent,
     time: number,
     delta: number,
@@ -148,7 +148,7 @@ export class MouseEvent {
   private _mouse_buttons: number = 0;
 
   public updateMouseStatus(
-    engine: PhaserContext,
+    engine: PhaserScene,
     current_time: number,
   ): MouseEvent {
     const pointer = engine.input.activePointer;

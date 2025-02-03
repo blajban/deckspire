@@ -9,11 +9,11 @@ class MockScene extends Scene {
     this.events.push('onRegister');
   }
 
-  onStart(): void {
+  buildScene(): void {
     this.events.push('onStart');
   }
 
-  onExit(): void {
+  destroyScene(): void {
     this.events.push('onExit');
   }
 
@@ -53,42 +53,42 @@ describe('SceneManager', () => {
 
   test('should start a registered scene', () => {
     scene_manager.registerScene('Scene1', mock_scene1);
-    scene_manager.startScene('Scene1');
+    scene_manager.buildScene('Scene1');
     expect(mock_scene1.events).toContain('onStart');
   });
 
   test('should not start an unregistered scene', () => {
-    expect(() => scene_manager.startScene('UnknownScene')).toThrow(
+    expect(() => scene_manager.buildScene('UnknownScene')).toThrow(
       'Cannot start scene UnknownScene, it is not registered.',
     );
   });
 
   test('should not start an already active scene', () => {
     scene_manager.registerScene('Scene1', mock_scene1);
-    scene_manager.startScene('Scene1');
+    scene_manager.buildScene('Scene1');
 
-    expect(() => scene_manager.startScene('Scene1')).toThrow(
+    expect(() => scene_manager.buildScene('Scene1')).toThrow(
       'Scene Scene1 is already active.',
     );
   });
 
   test('should stop an active scene', () => {
     scene_manager.registerScene('Scene1', mock_scene1);
-    scene_manager.startScene('Scene1');
-    scene_manager.stopScene('Scene1');
+    scene_manager.buildScene('Scene1');
+    scene_manager.destroyScene('Scene1');
     expect(mock_scene1.events).toContain('onExit');
   });
 
   test('should not stop an inactive scene', () => {
     scene_manager.registerScene('Scene1', mock_scene1);
-    expect(() => scene_manager.stopScene('Scene1')).toThrowError(
+    expect(() => scene_manager.destroyScene('Scene1')).toThrowError(
       'Scene Scene1 is not active.',
     );
   });
 
   test('should pause an active scene', () => {
     scene_manager.registerScene('Scene1', mock_scene1);
-    scene_manager.startScene('Scene1');
+    scene_manager.buildScene('Scene1');
     scene_manager.pauseScene('Scene1');
     expect(mock_scene1.events).toContain('onPause');
   });
@@ -102,7 +102,7 @@ describe('SceneManager', () => {
 
   test('should resume a paused scene', () => {
     scene_manager.registerScene('Scene1', mock_scene1);
-    scene_manager.startScene('Scene1');
+    scene_manager.buildScene('Scene1');
     scene_manager.pauseScene('Scene1');
     scene_manager.resumeScene('Scene1');
     expect(mock_scene1.events).toContain('onResume');
@@ -110,7 +110,7 @@ describe('SceneManager', () => {
 
   test('should not resume an already active scene', () => {
     scene_manager.registerScene('Scene1', mock_scene1);
-    scene_manager.startScene('Scene1');
+    scene_manager.buildScene('Scene1');
     expect(() => scene_manager.resumeScene('Scene1')).toThrowError(
       'Scene Scene1 is already active.',
     );
@@ -125,8 +125,8 @@ describe('SceneManager', () => {
   test('should update active scenes', () => {
     scene_manager.registerScene('Scene1', mock_scene1);
     scene_manager.registerScene('Scene2', mock_scene2);
-    scene_manager.startScene('Scene1');
-    scene_manager.startScene('Scene2');
+    scene_manager.buildScene('Scene1');
+    scene_manager.buildScene('Scene2');
 
     scene_manager.updateActiveScenes(100, 16);
 

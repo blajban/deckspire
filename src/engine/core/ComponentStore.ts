@@ -3,7 +3,32 @@ import Component, { ComponentClass } from './Component';
 import ComponentMap from './ComponentMap';
 import { Entity } from './Entity';
 
-export type Archetype = ComponentClass<Component>[];
+export class Archetype implements Iterable<ComponentClass<Component>> {
+  private readonly _component_class_array: ComponentClass<Component>[];
+
+  constructor(...component_classes: ComponentClass<Component>[]) {
+    this._component_class_array = component_classes.sort((a, b) => {
+      if (a.name === b.name) {
+        return 0;
+      }
+      return a.name < b.name ? -1 : 1;
+    });
+  }
+
+  public get length(): number {
+    return this._component_class_array.length;
+  }
+
+  public map<T>(func: (value: ComponentClass<Component>) => T): T[] {
+    return this._component_class_array.map(func);
+  }
+
+  *[Symbol.iterator](): Iterator<ComponentClass<Component>> {
+    for (const component_class of this._component_class_array) {
+      yield component_class;
+    }
+  }
+}
 
 /**
  * The ComponentStore manages all components.
@@ -115,9 +140,9 @@ export default class ComponentStore {
    * @returns An array of entity IDs that have the specified component type.
    * @throws Will throw an error if the component type has not been registered.
    */
-  getEntitiesWithComponent<T extends Component>(
+  getEntitiesAndComponents<T extends Component>(
     component_class: ComponentClass<T>,
-  ): Set<Entity> {
+  ): Map<Entity, T> {
     const component_type = component_class.name;
     const component_map = this._component_maps.get(component_type);
     if (!component_map) {
@@ -125,22 +150,21 @@ export default class ComponentStore {
         `Component type ${component_type} must be registered first (get entities with component)`,
       );
     }
-
-    return component_map.getEntities();
+    return component_map.map as Map<Entity, T>;
   }
 
   /**
    * Retrieves all entities that have all the specified component types.
-   * @param component_classes - Component types to query.
+   * @param archetype - Component types to query.
    * @returns An array of entities that have all the specified component types.
    * @throws Will throw an error if any of the component types have not been registered.
    */
-  getEntitiesWithArchetype(...component_classes: Archetype): Set<Entity> {
-    if (component_classes.length === 0) {
+  getEntitiesWithArchetype(archetype: Archetype): Set<Entity> {
+    if (archetype.length === 0) {
       throw new Error('Archetype cannot be empty.');
     }
 
-    const component_types = component_classes.map((component_class) => {
+    const component_types = archetype.map((component_class) => {
       return component_class.name;
     });
 
@@ -151,7 +175,7 @@ export default class ComponentStore {
           `Component type ${type} must be registered first (get entities with archetype)`,
         );
       }
-      return new Set(component_map.getEntities());
+      return new Set(component_map.entities);
     });
 
     return setIntersection(...entity_sets);
