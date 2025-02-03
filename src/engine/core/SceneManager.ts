@@ -28,9 +28,7 @@ export default class SceneManager {
       throw new Error(`Scene ${key} is already active.`);
     }
 
-    console.log(`Preloading assets for scene ${key}...`);
     await scene.onPreload();
-    console.log(`Finished preloading assets for scene ${key}.`);
   }
 
   startScene(key: string): void {

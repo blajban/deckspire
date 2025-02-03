@@ -76,18 +76,14 @@ export default class AssetStore {
     }
   
     if (this._loading_promises.has(id)) {
-      console.log('Still loading...');
       return this._loading_promises.get(id)!;
     }
   
     const asset_data = this._getAssetData(id);
     const loader = this._context.phaserContext!.load;
   
-    console.log(`Starting loader for asset: ${asset_data.key}`);
-  
     const promise = new Promise<void>((resolve, reject) => {
       const onComplete = () => {
-        console.log(`All assets finished loading!`);
         loader.off(Phaser.Loader.Events.COMPLETE, onComplete);
         loader.off(Phaser.Loader.Events.FILE_LOAD_ERROR, onFileError);
         this._loaded_assets.add(id);
@@ -133,8 +129,6 @@ export default class AssetStore {
     this._loading_promises.set(id, promise);
     return promise;
   }
-  
-  
 
   public registerAsset(asset: AssetData): AssetId {
     if (this._key_to_id.has(asset.key)) {
@@ -161,21 +155,13 @@ export default class AssetStore {
   }
 
   public async preloadAssets(keys?: AssetKey[]): Promise<void> {
-    console.log('Preloading assets in AssetStore...');
-    
     const asset_ids_to_load = keys
       ? keys.map((key) => this.getAssetId(key)).filter((id) => !this.isAssetLoaded(id))
       : Array.from(this._key_to_id.values()).filter((id) => !this.isAssetLoaded(id));
   
-    console.log('Assets to load:', asset_ids_to_load);
-  
     await Promise.all(asset_ids_to_load.map(async (id) => {
-      console.log(`Loading asset ID: ${id}`);
       await this._loadAssetAsync(id);
-      console.log(`Asset ID ${id} finished loading!`);
     }));
-  
-    console.log('All assets loaded!');
   }
   
 
@@ -201,9 +187,10 @@ export default class AssetStore {
     }
   }
 
-  public getAsset(id: AssetId): AssetKey | null {
+  public getAsset(id: AssetId): AssetKey {
     if (!this.isAssetLoaded(id)) {
-      return null;
+      const key = this._getAssetData(id);
+      throw new Error(`Asset with key ${key} is not loaded.`);
     }
 
     return this._getAssetData(id).key;
