@@ -1,11 +1,14 @@
-import { PhaserContext } from './Engine';
+import { Context } from './Engine';
 import Scene from './Scene';
 
 export default class SceneManager {
   private _registered_scenes: Map<string, Scene> = new Map();
   private _active_scenes: Map<string, Scene> = new Map();
+  private _context: Context;
 
-  constructor(private _context: PhaserContext) {}
+  constructor(context: Context) {
+    this._context = context;
+  }
 
   registerScene(key: string, scene: Scene): void {
     if (!this._registered_scenes.has(key)) {
@@ -13,6 +16,19 @@ export default class SceneManager {
       scene.onRegister();
       this._registered_scenes.set(key, scene);
     }
+  }
+
+  async preloadScene(key: string): Promise<void> {
+    const scene = this._registered_scenes.get(key);
+    if (!scene) {
+      throw new Error(`Cannot load scene ${key}, it is not registered.`)
+    }
+
+    if (this._active_scenes.has(key)) {
+      throw new Error(`Scene ${key} is already active.`);
+    }
+
+    await scene.onPreload();
   }
 
   startScene(key: string): void {

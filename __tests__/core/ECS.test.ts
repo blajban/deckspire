@@ -4,6 +4,8 @@ import Component from '../../src/engine/core/Component';
 import ComponentStore from '../../src/engine/core/ComponentStore';
 import EntityStore from '../../src/engine/core/EntityStore';
 import Ecs from '../../src/engine/core/Ecs';
+import AssetStore from '../../src/engine/core/AssetStore';
+import Engine from '../../src/engine/core/Engine';
 
 class MockComponent extends Component {
   constructor(public value: number) {
@@ -23,7 +25,10 @@ describe('ECS', () => {
   beforeEach(() => {
     const entity_store = new EntityStore();
     const component_store = new ComponentStore();
-    ecs = new Ecs(entity_store, component_store);
+    const engine = new Engine(800, 600);
+    const context = engine.getContext();
+    const asset_store = new AssetStore(context);
+    ecs = new Ecs(entity_store, component_store, asset_store);
 
     ecs.registerComponent(CompParent);
     ecs.registerComponent(CompChild);

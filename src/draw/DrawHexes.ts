@@ -1,17 +1,14 @@
 import CompHex from '../components/CompHex';
 import CompHexGrid from '../components/CompHexGrid';
 import CompTransform from '../components/CompTransform';
-import { PhaserContext } from '../engine/core/Engine';
+import { Context } from '../engine/core/Engine';
 import { Entity } from '../engine/core/Entity';
 import Scene from '../engine/core/Scene';
 import CompChild from '../engine/core_components/CompChild';
 import CompDrawable from '../engine/core_components/CompDrawable';
 import CompFillStyle from '../engine/core_components/CompFillStyle';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
-import {
-  DrawSubSystem,
-  GraphicsCacheObject,
-} from '../engine/core_systems/SysDraw';
+import { DrawSubSystem, DrawCacheObject } from '../engine/core_systems/SysDraw';
 import HexGrid from '../math/hexgrid/HexGrid';
 import { HexCoordinates } from '../math/hexgrid/HexVectors';
 
@@ -34,8 +31,8 @@ export class DrawHexGrid extends DrawSubSystem {
    */
   update(
     scene: Scene,
-    context: PhaserContext,
-    cache: GraphicsCacheObject,
+    context: Context,
+    cache: DrawCacheObject,
     time: number,
     delta: number,
     entity: Entity,
@@ -46,15 +43,15 @@ export class DrawHexGrid extends DrawSubSystem {
     const line_style = scene.ecs.getComponent(entity, CompLineStyle);
     const fill_style = scene.ecs.getComponent(entity, CompFillStyle);
 
-    if (!cache.graphics_object) {
-      cache.graphics_object = context.add.graphics();
+    if (!cache.draw_object) {
+      cache.draw_object = context.phaserContext!.add.graphics();
     }
-    const gfx = cache.graphics_object;
-    gfx.clear();
-    gfx.setDepth(drawable.depth);
+    const draw_obj = cache.get<Phaser.GameObjects.Graphics>()!;
+    draw_obj.clear();
+    draw_obj.setDepth(drawable.depth);
 
     hex_grid.all_hexes.forEach((hex) => {
-      drawHex(gfx, hex, hex_grid, transform, line_style, fill_style);
+      drawHex(draw_obj, hex, hex_grid, transform, line_style, fill_style);
     });
   }
 }
@@ -69,8 +66,8 @@ export class DrawHex extends DrawSubSystem {
 
   update(
     scene: Scene,
-    context: PhaserContext,
-    cache: GraphicsCacheObject,
+    context: Context,
+    cache: DrawCacheObject,
     time: number,
     delta: number,
     entity: Entity,
@@ -86,10 +83,10 @@ export class DrawHex extends DrawSubSystem {
       throw new Error('Parent does not have a transform component');
     }
 
-    if (!cache.graphics_object) {
-      cache.graphics_object = context.add.graphics();
+    if (!cache.draw_object) {
+      cache.draw_object = context.phaserContext!.add.graphics();
     }
-    const gfx = cache.graphics_object;
+    const gfx = cache.get<Phaser.GameObjects.Graphics>()!;
     gfx.clear();
     gfx.setDepth(drawable.depth);
 

@@ -5,8 +5,12 @@ import CompLineStyle from '../core_components/CompLineStyle';
 import CompMouseSensitive from '../core_components/CompMouseSensitive';
 import CompNamed from '../core_components/CompNamed';
 import CompParent from '../core_components/CompParent';
+import CompSprite from '../core_components/CompSprite';
+import CompSpritesheet from '../core_components/CompSpritesheet';
 import SysDraw from '../core_systems/SysDraw';
 import SysMouse from '../core_systems/SysMouse';
+import AssetComponent from './AssetComponent';
+import AssetStore from './AssetStore';
 import Component, { ComponentClass } from './Component';
 import ComponentStore, { Archetype } from './ComponentStore';
 import { Entity } from './Entity';
@@ -19,6 +23,7 @@ export default class Ecs {
   constructor(
     private _entity_store: EntityStore,
     private _component_store: ComponentStore,
+    private _asset_store: AssetStore,
   ) {
     // Core components are always registered.
     this._registerCoreComponents();
@@ -55,6 +60,8 @@ export default class Ecs {
     this.registerComponent(CompMouseSensitive);
     this.registerComponent(CompNamed);
     this.registerComponent(CompParent);
+    this.registerComponent(CompSprite);
+    this.registerComponent(CompSpritesheet);
   }
 
   // Temporary until we have a system handler.
@@ -117,6 +124,10 @@ export default class Ecs {
     const components = this._component_store.getComponentsForEntity(entity);
 
     for (const component of components) {
+      if (component instanceof AssetComponent) {
+        this._asset_store.releaseAsset(component.asset_id);
+      }
+
       const component_class =
         component.constructor as ComponentClass<Component>;
       this._component_store.removeComponent(entity, component_class);
@@ -167,6 +178,15 @@ export default class Ecs {
     entity: Entity,
     component_class: ComponentClass<T>,
   ): void {
+    const component = this.getComponent(entity, component_class);
+    if (!component) {
+      return;
+    }
+
+    if (component instanceof AssetComponent) {
+      this._asset_store.releaseAsset(component.asset_id);
+    }
+
     const component_type = this._component_store.getRegisteredComponentClass(
       component_class.name,
     );

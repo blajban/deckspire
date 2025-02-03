@@ -1,15 +1,20 @@
 import Ecs from './Ecs';
 import EntityStore from './EntityStore';
 import ComponentStore from './ComponentStore';
-import { PhaserContext } from './Engine';
+import { Context } from './Engine';
 
 export default abstract class Scene {
-  private _ecs: Ecs = new Ecs(new EntityStore(), new ComponentStore());
+  private _ecs!: Ecs;
 
-  protected context!: PhaserContext;
+  protected context!: Context;
 
-  initialize(context: PhaserContext): void {
+  initialize(context: Context): void {
     this.context = context;
+    this._ecs = new Ecs(
+      new EntityStore(),
+      new ComponentStore(),
+      context.assetStore!,
+    );
   }
 
   get ecs(): Ecs {
@@ -17,6 +22,7 @@ export default abstract class Scene {
   }
 
   onRegister(): void {}
+  async onPreload(): Promise<void> {}
   onStart(): void {}
   abstract onUpdate(time: number, delta: number): void;
   onExit(): void {}

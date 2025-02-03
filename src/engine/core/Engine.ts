@@ -1,5 +1,12 @@
 import Phaser from 'phaser';
 import SceneManager from './SceneManager';
+import AssetStore from './AssetStore';
+
+export interface Context {
+  phaserContext?: PhaserContext;
+  assetStore?: AssetStore;
+  sceneManager?: SceneManager;
+}
 
 export class PhaserContext extends Phaser.Scene {
   private _ready_promise: Promise<void>;
@@ -33,12 +40,25 @@ export default class Engine {
   private _phaser_scene: PhaserContext;
   private _phaser_game: Phaser.Game;
   private _scene_manager: SceneManager;
+  private _asset_store: AssetStore;
+
+  private _context: Context;
 
   constructor(width: number, height: number) {
     this._phaser_scene = new PhaserContext((time, delta) =>
       this.update(time, delta),
     );
-    this._scene_manager = new SceneManager(this._phaser_scene);
+
+    this._context = {
+      phaserContext: this._phaser_scene,
+    };
+
+    this._scene_manager = new SceneManager(this._context);
+    this._context.sceneManager = this._scene_manager;
+
+    this._asset_store = new AssetStore(this._context);
+    this._context.assetStore = this._asset_store;
+
     this._width = width;
     this._height = height;
 
@@ -55,8 +75,8 @@ export default class Engine {
     return this._phaser_scene.ready();
   }
 
-  getSceneManager(): SceneManager {
-    return this._scene_manager;
+  getContext(): Context {
+    return this._context;
   }
 
   update(time: number, delta: number): void {
