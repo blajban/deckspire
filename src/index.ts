@@ -201,6 +201,12 @@ class MyScene extends Scene {
         'idle'
       )
     );
+
+    const anim_entities = this.ecs.getEntitiesWithArchetype(CompTransform, CompDrawable, CompSpritesheet);
+    for (const entity of anim_entities) {
+      const spritesheet = this.ecs.getComponent(entity, CompSpritesheet);
+      spritesheet?.animate?.switchState('run');
+    }
   }
 
   onExit(): void {
