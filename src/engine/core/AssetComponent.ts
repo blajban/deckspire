@@ -13,4 +13,8 @@ export default abstract class AssetComponent extends Component {
   get asset_id(): AssetId {
     return this._asset_id;
   }
+
+  onDestroy(asset_store: AssetStore): void {
+    asset_store.releaseAsset(this._asset_id);
+  }
 }

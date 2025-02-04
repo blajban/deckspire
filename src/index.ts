@@ -18,12 +18,19 @@ import { DrawSprite } from './draw/DrawSprite';
 import CompSpritesheet from './engine/core_components/CompSpritesheet';
 import { DrawSpritesheet } from './draw/DrawSpritesheet';
 
+
 class AssetScene extends Scene {
   onRegister(): void {
     const asset_store = this.context.assetStore!;
 
     asset_store.registerAssets([
       { key: 'samurai', path: 'assets/IDLE.png', type: AssetType.Image },
+      {
+        key: 'samurai_idle',
+        path: 'assets/IDLE.png',
+        type: AssetType.Spritesheet,
+        frameConfig: { frameWidth: 96, frameHeight: 96 },
+      },
       {
         key: 'samurai_two',
         path: 'assets/RUN.png',
@@ -108,7 +115,6 @@ class MyScene extends Scene {
 
     this.ecs.getDrawSystem()!.addSubSystem(new DrawSprite());
     this.ecs.getDrawSystem()!.addSubSystem(new DrawSpritesheet());
-
    
   }
 
@@ -116,7 +122,8 @@ class MyScene extends Scene {
     console.log('PRELOADING!!');
     await this.context.assetStore!.preloadAssets([
       'samurai',
-      'samurai_two'
+      'samurai_two',
+      'samurai_idle'
     ]);
   }
 
@@ -164,12 +171,35 @@ class MyScene extends Scene {
       new CompSprite(this.context.assetStore!, 'samurai'),
     );
 
-    const test_spritesheet = this.ecs.newEntity();
+    const test_anim = this.ecs.newEntity();
     this.ecs.addComponents(
-      test_spritesheet,
+      test_anim,
       new CompTransform(new Vector2D(100, 300), 0, new Vector2D(1.0, 1.0)),
       new CompDrawable(1),
-      new CompSpritesheet(this.context.assetStore!, 'samurai_two', 8),
+      new CompSpritesheet(
+        this.context.assetStore!,
+        'samurai_idle',
+        0,
+         [
+          { 
+            anim_key: 'idle', 
+            frame_rate: 10, 
+            loop: true, 
+            asset_key: 'samurai_idle', 
+            start_frame: 1, 
+            num_frames: 10,
+          },
+          { 
+            anim_key: 'run', 
+            frame_rate: 16, 
+            loop: true, 
+            asset_key: 'samurai_two', 
+            start_frame: 1, 
+            num_frames: 16, 
+          }
+        ], 
+        'idle'
+      )
     );
   }
 
@@ -186,15 +216,20 @@ class MyScene extends Scene {
 
 const game = new Engine(800, 600);
 
-game.ready().then(async () => {
-  game.getContext().sceneManager!.registerScene('AssetScene', new AssetScene());
-  game.getContext().sceneManager!.registerScene('MyScene', new MyScene());
-  game
-    .getContext()
-    .sceneManager!.registerScene('AnotherScene', new AnotherScene());
+async function startGame() {
+  await game.ready();
+
+  const scene_manager = game.getContext().sceneManager!;
+
+  scene_manager.registerScene('AssetScene', new AssetScene());
+  scene_manager.registerScene('MyScene', new MyScene());
+  scene_manager.registerScene('AnotherScene', new AnotherScene());
 
   console.log('Before preloading!!');
-  await game.getContext().sceneManager!.preloadScene('MyScene');
+  await scene_manager.preloadScene('MyScene');
   console.log('After preloading!!');
-  game.getContext().sceneManager!.startScene('MyScene');
-});
+
+  scene_manager.startScene('MyScene');
+}
+
+startGame();

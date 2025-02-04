@@ -184,7 +184,7 @@ export default class Ecs {
     }
 
     if (component instanceof AssetComponent) {
-      this._asset_store.releaseAsset(component.asset_id);
+      component.onDestroy(this._asset_store);
     }
 
     const component_type = this._component_store.getRegisteredComponentClass(
