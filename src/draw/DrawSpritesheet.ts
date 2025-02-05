@@ -44,6 +44,8 @@ export class DrawSpritesheet extends DrawSubSystem {
     if (spritesheet?.animate !== null) {
       const current_state = spritesheet!.animate.current_state;
 
+      if (!current_state.playing) return;
+
       if (!context.phaserContext!.anims.exists(current_state!.anim_key)) {
         context.phaserContext!.anims.create({
           key: current_state?.anim_key,
@@ -56,14 +58,13 @@ export class DrawSpritesheet extends DrawSubSystem {
         });
       }
   
-      if (!current_state.playing || !phaser_sprite.anims.isPlaying || phaser_sprite.anims.currentAnim?.key !== current_state?.anim_key) {
+      if (!phaser_sprite.anims.isPlaying || phaser_sprite.anims.currentAnim?.key !== current_state?.anim_key) {
         phaser_sprite.play(current_state!.anim_key);
       }
 
       if (!current_state.loop) {
         phaser_sprite.once('animationcomplete', (anim: Phaser.Animations.Animation) => {
           if (anim.key === current_state.anim_key) {
-            console.log(`Animation ${anim.key} completed`);
             current_state.playing = false;
           }
         });
