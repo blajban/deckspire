@@ -174,7 +174,7 @@ class MyScene extends Scene {
     const test_anim = this.ecs.newEntity();
     this.ecs.addComponents(
       test_anim,
-      new CompTransform(new Vector2D(100, 300), 0, new Vector2D(1.0, 1.0)),
+      new CompTransform(new Vector2D(100, 300), 0, new Vector2D(2.0, 2.0)),
       new CompDrawable(1),
       new CompSpritesheet(
         this.context.assetStore!,
@@ -184,9 +184,9 @@ class MyScene extends Scene {
           { 
             anim_key: 'idle', 
             frame_rate: 10, 
-            loop: true, 
+            loop: false, 
             asset_key: 'samurai_idle', 
-            start_frame: 1, 
+            start_frame: 0, 
             num_frames: 10,
           },
           { 
@@ -194,19 +194,40 @@ class MyScene extends Scene {
             frame_rate: 16, 
             loop: true, 
             asset_key: 'samurai_two', 
-            start_frame: 1, 
-            num_frames: 16, 
+            start_frame: 0, 
+            num_frames: 15, 
           }
         ], 
         'idle'
       )
     );
 
-    const anim_entities = this.ecs.getEntitiesWithArchetype(CompTransform, CompDrawable, CompSpritesheet);
-    for (const entity of anim_entities) {
-      const spritesheet = this.ecs.getComponent(entity, CompSpritesheet);
-      spritesheet?.animate?.switchState('run');
-    }
+    this.context.phaserContext!.input.keyboard!.on(
+      'keydown',
+      (event: KeyboardEvent) => {
+        if (event.code === 'ArrowRight') {
+          const anim_entities = this.ecs.getEntitiesWithArchetype(CompTransform, CompDrawable, CompSpritesheet);
+          for (const entity of anim_entities) {
+            const spritesheet = this.ecs.getComponent(entity, CompSpritesheet);
+            spritesheet?.animate?.switchState('run');
+          }
+        }
+      },
+    );
+
+    this.context.phaserContext!.input.keyboard!.on(
+      'keydown',
+      (event: KeyboardEvent) => {
+        if (event.code === 'ArrowLeft') {
+          const anim_entities = this.ecs.getEntitiesWithArchetype(CompTransform, CompDrawable, CompSpritesheet);
+          for (const entity of anim_entities) {
+            const spritesheet = this.ecs.getComponent(entity, CompSpritesheet);
+            spritesheet?.animate?.switchState('idle');
+            spritesheet!.animate!.current_state.playing = true;
+          }
+        }
+      },
+    );
   }
 
   onExit(): void {

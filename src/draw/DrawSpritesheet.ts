@@ -56,13 +56,22 @@ export class DrawSpritesheet extends DrawSubSystem {
         });
       }
   
-      if (!phaser_sprite.anims.isPlaying || phaser_sprite.anims.currentAnim?.key !== current_state?.anim_key) {
+      if (!current_state.playing || !phaser_sprite.anims.isPlaying || phaser_sprite.anims.currentAnim?.key !== current_state?.anim_key) {
         phaser_sprite.play(current_state!.anim_key);
       }
+
+      if (!current_state.loop) {
+        phaser_sprite.once('animationcomplete', (anim: Phaser.Animations.Animation) => {
+          if (anim.key === current_state.anim_key) {
+            console.log(`Animation ${anim.key} completed`);
+            current_state.playing = false;
+          }
+        });
+      }
+  
     } else {
       phaser_sprite.setFrame(spritesheet!.current_frame);
     }
-    
     
     phaser_sprite.setDepth(drawable.depth);
     phaser_sprite.setPosition(transform.position.x, transform.position.y);

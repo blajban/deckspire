@@ -18,6 +18,7 @@ export class AnimState {
   public anim_key: AnimKey;
   public frame_rate: number;
   public loop: boolean;
+  public playing: boolean = true;
   public start_frame: number;
   public num_frames: number;
 
@@ -65,7 +66,6 @@ export class AnimStates {
 
 
 export class Animate {
-  public playing: boolean = true;
   public current_state: AnimState;
   private _animation_states: AnimStates;
   
