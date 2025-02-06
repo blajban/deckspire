@@ -17,6 +17,7 @@ import CompSprite from './engine/core_components/CompSprite';
 import { DrawSprite } from './draw/DrawSprite';
 import CompSpritesheet from './engine/core_components/CompSpritesheet';
 import { DrawSpritesheet } from './draw/DrawSpritesheet';
+import { AnimState, AnimType } from './engine/core/Animations';
 
 
 class AssetScene extends Scene {
@@ -180,22 +181,34 @@ class MyScene extends Scene {
         this.context.assetStore!,
         'samurai_idle',
         0,
-         [
-          { 
-            anim_key: 'idle', 
-            frame_rate: 10, 
-            loop: false, 
-            asset_key: 'samurai_idle', 
-            start_frame: 0, 
-            num_frames: 10,
+        [
+          {
+            base: { 
+              key: 'idle',
+              loop: false,
+              playing: true,
+            },
+            type_config: {
+              type: AnimType.Spritesheet,
+              asset_key: 'samurai_idle',
+              start_frame: 0,
+              num_frames: 10,
+              frame_rate: 10,
+            },
           },
-          { 
-            anim_key: 'run', 
-            frame_rate: 16, 
-            loop: true, 
-            asset_key: 'samurai_two', 
-            start_frame: 0, 
-            num_frames: 15, 
+          {
+            base: { 
+              key: 'run',
+              loop: true,
+              playing: true,
+            },
+            type_config: {
+              type: AnimType.Spritesheet,
+              asset_key: 'samurai_two',
+              start_frame: 0,
+              num_frames: 15,
+              frame_rate: 15,
+            },
           }
         ], 
         'idle'

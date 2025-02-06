@@ -1,4 +1,5 @@
 import CompTransform from '../components/CompTransform';
+import { AnimConfigSpritesheet } from '../engine/core/Animations';
 import { Context } from '../engine/core/Engine';
 import { Entity } from '../engine/core/Entity';
 import Scene from '../engine/core/Scene';
@@ -43,17 +44,18 @@ export class DrawSpritesheet extends DrawSubSystem {
 
     if (spritesheet?.animate !== null) {
       const current_state = spritesheet!.animate.current_state;
+      const type_config = current_state.type_config as AnimConfigSpritesheet;
 
       if (!current_state.playing) return;
 
       if (!context.phaserContext!.anims.exists(current_state!.anim_key)) {
         context.phaserContext!.anims.create({
           key: current_state?.anim_key,
-          frames: phaser_sprite.anims.generateFrameNumbers(context.assetStore!.getAsset(current_state!.asset_id), {
-            start: current_state?.start_frame,
-            end: current_state!.start_frame + current_state!.num_frames - 1,
+          frames: phaser_sprite.anims.generateFrameNumbers(context.assetStore!.getAsset(current_state!.asset_id!), {
+            start: type_config.start_frame,
+            end: type_config.start_frame + type_config.num_frames - 1,
           }),
-          frameRate: current_state!.frame_rate,
+          frameRate: type_config.frame_rate,
           repeat: current_state!.loop ? -1 : 0,
         });
       }
