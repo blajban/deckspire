@@ -1,3 +1,4 @@
+import { setDifferenceInPlace } from '../util/setUtilityFunctions';
 import { Context } from './Engine';
 import System, { SystemClass } from './System';
 
@@ -60,12 +61,28 @@ export default class SystemManager {
       .map((system_class) => this._system_instances.get(system_class)!);
   }
 
-  // TODO: Actual sorting!
   private _sortSystems(): void {
     this._system_order.length = 0;
-    this._active_systems.forEach((system_class) => {
-      this._system_order.push(system_class);
-    });
+    const priorities = new Map(this._system_priorities);
+    while (priorities.size > 0) {
+      const to_add = new Set<SystemClass<System>>();
+      priorities.forEach((afters, system_class) => {
+        if (afters.size === 0) {
+          to_add.add(system_class);
+        }
+      });
+      if (to_add.size === 0) {
+        throw new Error('Cannot fulfill impossible system order contraints.');
+      }
+      priorities.forEach((afters) => {
+        setDifferenceInPlace(afters, to_add);
+      });
+      to_add.forEach((system_class) => {
+        this._ordered_systems.push(this._system_instances.get(system_class)!);
+        priorities.delete(system_class);
+      });
+    }
+    this._is_sorting_needed = false;
   }
 
   public deactivateSystem<T extends System>(
