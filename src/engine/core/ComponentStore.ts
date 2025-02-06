@@ -1,12 +1,13 @@
+import { ClassType } from '../util/ClassType';
 import { setIntersection } from '../util/setUtilityFunctions';
 import Component, { ComponentClass } from './Component';
 import ComponentMap from './ComponentMap';
 import { Entity } from './Entity';
 
-export class Archetype implements Iterable<ComponentClass<Component>> {
-  private readonly _component_class_array: ComponentClass<Component>[];
+export class Archetype implements Iterable<ComponentClass> {
+  private readonly _component_class_array: ComponentClass[];
 
-  constructor(...component_classes: ComponentClass<Component>[]) {
+  constructor(...component_classes: ComponentClass[]) {
     this._component_class_array = component_classes.sort((a, b) => {
       if (a.name === b.name) {
         return 0;
@@ -19,11 +20,11 @@ export class Archetype implements Iterable<ComponentClass<Component>> {
     return this._component_class_array.length;
   }
 
-  public map<T>(func: (value: ComponentClass<Component>) => T): T[] {
+  public map<T>(func: (value: ComponentClass) => T): T[] {
     return this._component_class_array.map(func);
   }
 
-  *[Symbol.iterator](): Iterator<ComponentClass<Component>> {
+  *[Symbol.iterator](): Iterator<ComponentClass> {
     for (const component_class of this._component_class_array) {
       yield component_class;
     }
@@ -36,17 +37,14 @@ export class Archetype implements Iterable<ComponentClass<Component>> {
  */
 export default class ComponentStore {
   private _component_maps: Map<string, ComponentMap<Component>> = new Map();
-  private _component_registry: Map<string, ComponentClass<Component>> =
-    new Map();
+  private _component_registry: Map<string, ComponentClass> = new Map();
 
   /**
    * Registers a new component type.
    * This must be called before adding components of this type.
    * @param component_class - The component class to be registered.
    */
-  registerComponent<T extends Component>(
-    component_class: ComponentClass<T>,
-  ): void {
+  registerComponent<T extends Component>(component_class: ClassType<T>): void {
     const name = component_class.name;
 
     if (
@@ -64,7 +62,7 @@ export default class ComponentStore {
    * @returns The constructor of the registered component class.
    * @throws Will throw an error if the specified component type is not registered.
    */
-  getRegisteredComponentClass(type: string): ComponentClass<Component> {
+  getRegisteredComponentClass(type: string): ComponentClass {
     const component_class = this._component_registry.get(type);
     if (!component_class) {
       throw new Error(`Component type ${type} is not registered.`);
@@ -101,7 +99,7 @@ export default class ComponentStore {
    */
   getComponent<T extends Component>(
     entity: Entity,
-    component_class: ComponentClass<T>,
+    component_class: ClassType<T>,
   ): T | undefined {
     const component_type = component_class.name;
     const component_map = this._component_maps.get(component_type);
@@ -121,7 +119,7 @@ export default class ComponentStore {
    */
   removeComponent<T extends Component>(
     entity: Entity,
-    component_class: ComponentClass<T>,
+    component_class: ClassType<T>,
   ): void {
     const component_type = component_class.name;
     const component_map = this._component_maps.get(component_type);
@@ -141,7 +139,7 @@ export default class ComponentStore {
    * @throws Will throw an error if the component type has not been registered.
    */
   getEntitiesAndComponents<T extends Component>(
-    component_class: ComponentClass<T>,
+    component_class: ClassType<T>,
   ): Map<Entity, T> {
     const component_type = component_class.name;
     const component_map = this._component_maps.get(component_type);

@@ -1,6 +1,6 @@
-import { Context } from './Engine';
+import { GameContext } from './GameContext';
 
 export default abstract class Scene {
-  buildScene(_context: Context): void {}
-  destroyScene(_context: Context): void {}
+  buildScene(_context: GameContext): void {}
+  destroyScene(_context: GameContext): void {}
 }

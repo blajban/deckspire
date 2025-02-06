@@ -1,23 +1,20 @@
 import { setDifferenceInPlace } from '../util/setUtilityFunctions';
-import { Context } from './Engine';
+import { GameContext } from './GameContext';
 import System, { SystemClass } from './System';
 
 export default class SystemManager {
-  private _system_priorities = new Map<
-    SystemClass<System>,
-    Set<SystemClass<System>>
-  >();
-  private _registered_systems = new Set<SystemClass<System>>();
-  private _active_systems = new Set<SystemClass<System>>();
-  private _system_order = new Array<SystemClass<System>>();
-  private _system_instances = new Map<SystemClass<System>, System>();
+  private _system_priorities = new Map<SystemClass, Set<SystemClass>>();
+  private _registered_systems = new Set<SystemClass>();
+  private _active_systems = new Set<SystemClass>();
+  private _system_order = new Array<SystemClass>();
+  private _system_instances = new Map<SystemClass, System>();
   private _ordered_systems = new Array<System>();
   private _is_sorting_needed = false;
 
-  public registerSystem<T extends System>(
-    system_class: SystemClass<T>,
-    after: SystemClass<System>[] = [],
-    before: SystemClass<System>[] = [],
+  public registerSystem(
+    system_class: SystemClass,
+    execute_after: SystemClass[],
+    execute_before: SystemClass[],
   ): void {
     if (this._registered_systems.has(system_class)) {
       throw new Error(`Trying to re-register ${system_class.name}.`);
@@ -27,10 +24,10 @@ export default class SystemManager {
       stored_after = new Set();
       this._system_priorities.set(system_class, stored_after);
     }
-    after.forEach((other_system_class) => {
+    execute_after.forEach((other_system_class) => {
       stored_after.add(other_system_class);
     });
-    before.forEach((other_system_class) => {
+    execute_before.forEach((other_system_class) => {
       let other_after = this._system_priorities.get(other_system_class);
       if (other_after === undefined) {
         other_after = new Set();
@@ -41,7 +38,7 @@ export default class SystemManager {
     this._is_sorting_needed = true;
   }
 
-  public activateSystem<T extends System>(system_class: SystemClass<T>): void {
+  public activateSystem(system_class: SystemClass): void {
     if (this._registered_systems.has(system_class)) {
       throw new Error(
         `System ${system_class.name} cannot be activated as it is not registered.`,
@@ -65,7 +62,7 @@ export default class SystemManager {
     this._system_order.length = 0;
     const priorities = new Map(this._system_priorities);
     while (priorities.size > 0) {
-      const to_add = new Set<SystemClass<System>>();
+      const to_add = new Set<SystemClass>();
       priorities.forEach((afters, system_class) => {
         if (afters.size === 0) {
           to_add.add(system_class);
@@ -85,9 +82,7 @@ export default class SystemManager {
     this._is_sorting_needed = false;
   }
 
-  public deactivateSystem<T extends System>(
-    system_class: SystemClass<T>,
-  ): void {
+  public deactivateSystem(system_class: SystemClass): void {
     if (!this._registered_systems.has(system_class)) {
       throw new Error(
         `System ${system_class.name} cannot be deactivated as it is not registered.`,
@@ -97,7 +92,7 @@ export default class SystemManager {
     this._system_instances.delete(system_class);
   }
 
-  public update(context: Context, time: number, delta: number): void {
+  public update(context: GameContext, time: number, delta: number): void {
     this._ordered_systems.forEach((system) => {
       system.update(context, time, delta);
     });

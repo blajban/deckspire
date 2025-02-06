@@ -1,5 +1,5 @@
 import { CompDestroyWithScene } from '../core_components/CompDestroy';
-import { Context } from './Engine';
+import { GameContext } from './GameContext';
 import Scene from './Scene';
 
 export default class SceneManager {
@@ -16,7 +16,7 @@ export default class SceneManager {
     }
   }
 
-  buildScene(context: Context, key: string): void {
+  buildScene(context: GameContext, key: string): void {
     const scene = this._registered_scenes.get(key);
     if (!scene) {
       throw new Error(`Cannot build scene ${key}, it is not registered.`);
@@ -30,7 +30,7 @@ export default class SceneManager {
     this._built_scenes.set(key, scene);
   }
 
-  destroyScene(context: Context, key: string): void {
+  destroyScene(context: GameContext, key: string): void {
     const scene = this._built_scenes.get(key);
     if (!scene) {
       throw new Error(`Scene ${key} has not been built.`);

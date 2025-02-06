@@ -1,6 +1,6 @@
-import { ClassIdentifier } from '../util/ClassIdentifier';
+import { ClassType } from '../util/ClassType';
 
-export type ComponentClass<T extends Component> = ClassIdentifier<T>;
+export type ComponentClass = ClassType<Component>;
 
 export default abstract class Component {
   toJson(): Record<string, any> {

@@ -1,23 +1,13 @@
-import { ClassIdentifier } from '../util/ClassIdentifier';
+import { ClassType } from '../util/ClassType';
 import { Archetype } from './ComponentStore';
-import { Context } from './Engine';
+import { GameContext } from './GameContext';
 
-export type SystemClass<T extends System> = ClassIdentifier<T>;
+export type SystemClass = ClassType<System>;
 
-abstract class HasApplicableArchetypes {
-  constructor(public readonly archetypes: Archetype[]) {}
-}
-
-export default abstract class System extends HasApplicableArchetypes {
-  abstract update(context: Context, time: number, delta: number): void;
-}
-
-export abstract class SubSystem extends HasApplicableArchetypes {}
-
-export abstract class SystemWithSubsystems<T extends SubSystem> extends System {
-  protected sub_systems: T[] = [];
-
-  public addSubSystem(sub_system: T): void {
-    this.sub_systems.push(sub_system);
+export default abstract class System {
+  public readonly archetypes: Archetype[];
+  constructor(...archetypes: Archetype[]) {
+    this.archetypes = archetypes;
   }
+  abstract update(context: GameContext, time: number, delta: number): void;
 }
