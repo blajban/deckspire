@@ -12,7 +12,6 @@ export enum AnimType {
 }
 
 export interface AnimConfigSpritesheet {
-  type: AnimType;
   asset_key: AssetKey;
   start_frame: number;
   num_frames: number;
@@ -20,7 +19,7 @@ export interface AnimConfigSpritesheet {
 }
 
 export interface AnimConfigTransform {
-  type: AnimType;
+
 }
 
 export type AnimConfig =
@@ -34,6 +33,7 @@ export interface AnimBaseData {
 }
 
 export interface Anim {
+  type: AnimType,
   base: AnimBaseData,
   type_config: AnimConfig,
 }
@@ -48,7 +48,7 @@ export class AnimState {
   ) {
     this._anim = anim;
 
-    if (this._anim.type_config.type === AnimType.Spritesheet) {
+    if (this._anim.type === AnimType.Spritesheet) {
       this._asset_id = asset_store.getAssetId((this._anim.type_config as AnimConfigSpritesheet).asset_key);
       asset_store.useAsset(this._asset_id);
     }

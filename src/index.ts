@@ -183,13 +183,13 @@ class MyScene extends Scene {
         0,
         [
           {
+            type: AnimType.Spritesheet,
             base: { 
               key: 'idle',
               loop: false,
               playing: true,
             },
             type_config: {
-              type: AnimType.Spritesheet,
               asset_key: 'samurai_idle',
               start_frame: 0,
               num_frames: 10,
@@ -197,13 +197,13 @@ class MyScene extends Scene {
             },
           },
           {
+            type: AnimType.Spritesheet,
             base: { 
               key: 'run',
               loop: true,
               playing: true,
             },
             type_config: {
-              type: AnimType.Spritesheet,
               asset_key: 'samurai_two',
               start_frame: 0,
               num_frames: 15,
