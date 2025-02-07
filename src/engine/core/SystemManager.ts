@@ -25,6 +25,9 @@ export default class SystemManager {
       this._system_priorities.set(system_class, stored_after);
     }
     execute_after.forEach((other_system_class) => {
+      if (!this._system_priorities.has(other_system_class)) {
+        this._system_priorities.set(other_system_class, new Set());
+      }
       stored_after.add(other_system_class);
     });
     execute_before.forEach((other_system_class) => {
@@ -51,6 +54,10 @@ export default class SystemManager {
     if (this._is_sorting_needed) {
       this._sortSystems();
     }
+    this._updateActiveSystemOrder();
+  }
+
+  private _updateActiveSystemOrder(): void {
     this._ordered_systems = this._system_order
       .filter((system_class) => {
         return this._active_systems.has(system_class);
@@ -75,7 +82,7 @@ export default class SystemManager {
         setDifferenceInPlace(afters, to_add);
       });
       to_add.forEach((system_class) => {
-        this._ordered_systems.push(this._system_instances.get(system_class)!);
+        this._system_order.push(system_class);
         priorities.delete(system_class);
       });
     }
