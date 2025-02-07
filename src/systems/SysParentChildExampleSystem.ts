@@ -3,7 +3,7 @@ import System from '../engine/core/System';
 import { Archetype } from '../engine/core/ComponentStore';
 import { GameContext } from '../engine/core/GameContext';
 
-export default class ParentChildExampleSystem extends System {
+export default class SysParentChildExampleSystem extends System {
   constructor() {
     super(new Archetype(CompParent));
   }

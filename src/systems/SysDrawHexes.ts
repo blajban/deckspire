@@ -14,7 +14,7 @@ import { HexCoordinates } from '../math/hexgrid/HexVectors';
 /**
  * Draws a hex grid.
  */
-export class DrawHexGrid extends System {
+export class SysDrawHexGrid extends System {
   constructor() {
     super(new Archetype(CompDrawable, CompHexGrid, CompTransform));
   }
@@ -37,6 +37,9 @@ export class DrawHexGrid extends System {
           entity,
           CompDrawable,
         )!;
+        if (drawable.is_invisible) {
+          return;
+        }
         const hex_grid = context.ecs_manager.getComponent(
           entity,
           CompHexGrid,

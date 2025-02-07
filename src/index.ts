@@ -1,7 +1,7 @@
 import CompHex from './components/CompHex';
 import CompHexGrid from './components/CompHexGrid';
 import CompTransform from './components/CompTransform';
-import { DrawHex, DrawHexGrid } from './systems/DrawHexes';
+import { DrawHex, SysDrawHexGrid } from './systems/SysDrawHexes';
 import Engine from './engine/core/Engine';
 import { GameContext } from './engine/core/GameContext';
 import Scene from './engine/core/Scene';
@@ -14,6 +14,8 @@ import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
 import Vector2D from './math/Vector2D';
 import SysDraw from './engine/core_systems/SysDraw';
 import { CompMouseSensitive } from './engine/core_components/CompMouse';
+import { SysPointAtHexInHexgrid } from './systems/SysPointAtHexInHexgrid';
+import SysMouseEventGenerator from './engine/core_systems/SysMouse';
 
 main();
 
@@ -58,10 +60,15 @@ class MyScene extends Scene {
     context.ecs_manager.registerComponent(CompHexGrid);
     context.ecs_manager.registerComponent(CompTransform);
 
-    context.ecs_manager.registerSystem(DrawHexGrid, [SysDraw]);
-    context.ecs_manager.registerSystem(DrawHex, [SysDraw, DrawHexGrid]);
+    context.ecs_manager.registerSystem(
+      SysPointAtHexInHexgrid,
+      [SysMouseEventGenerator],
+      [SysDraw],
+    );
+    context.ecs_manager.registerSystem(SysDrawHexGrid, [SysDraw]);
+    context.ecs_manager.registerSystem(DrawHex, [SysDraw, SysDrawHexGrid]);
 
-    context.ecs_manager.activateSystem(DrawHexGrid);
+    context.ecs_manager.activateSystem(SysDrawHexGrid);
     context.ecs_manager.activateSystem(DrawHex);
 
     const hex_grid = context.ecs_manager.newEntity();
