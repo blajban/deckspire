@@ -24,6 +24,7 @@ import {
 } from '../core_components/CompMouse';
 
 export default class Engine {
+  private _ready_promise: Promise<void>;
   private _width: number;
   private _height: number;
   private _phaser_game: Phaser.Game;
@@ -36,6 +37,11 @@ export default class Engine {
     this._width = width;
     this._height = height;
 
+    let ready_resolver: () => void;
+    this._ready_promise = new Promise((resolve) => {
+      ready_resolver = resolve;
+    });
+
     this._phaser_game = new Phaser.Game({
       type: Phaser.AUTO,
       width: this._width,
@@ -44,16 +50,20 @@ export default class Engine {
       banner: false, // Clutters test outputs
     });
 
-    this._ready().then(() => {
+    console.log('before');
+
+    this._context.phaser_scene.ready().then(() => {
+      console.log('ready!');
       // Core components are always registered.
       this._registerCoreComponents();
       // Core systems are always registered.
       this._registerCoreSystems();
+      ready_resolver();
     });
   }
 
-  private _ready(): Promise<void> {
-    return this._context.phaser_scene.ready();
+  public ready(): Promise<void> {
+    return this._ready_promise;
   }
 
   /**

@@ -20,9 +20,11 @@ import SysMouseEventGenerator from './engine/core_systems/SysMouse';
 function main(): void {
   const game = new Engine(800, 600);
 
-  game.registerScene('MyScene', new MyScene());
-  game.registerScene('AnotherScene', new AnotherScene());
-  game.buildScenes(['MyScene', 'AnotherScene']);
+  game.ready().then(() => {
+    game.registerScene('MyScene', new MyScene());
+    game.registerScene('AnotherScene', new AnotherScene());
+    game.buildScenes(['MyScene', 'AnotherScene']);
+  });
 }
 
 class AnotherScene extends Scene {
