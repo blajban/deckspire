@@ -17,8 +17,6 @@ import { CompMouseSensitive } from './engine/core_components/CompMouse';
 import { SysPointAtHexInHexgrid } from './systems/SysPointAtHexInHexgrid';
 import SysMouseEventGenerator from './engine/core_systems/SysMouse';
 
-main();
-
 function main(): void {
   const game = new Engine(800, 600);
 
@@ -89,3 +87,5 @@ class MyScene extends Scene {
     console.log('Destroying MyScene!');
   }
 }
+
+main();
