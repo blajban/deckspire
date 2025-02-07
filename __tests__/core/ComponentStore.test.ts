@@ -1,5 +1,5 @@
 import Component from '../../src/engine/core/Component';
-import ComponentStore from '../../src/engine/core/ComponentStore';
+import ComponentStore, { Archetype } from '../../src/engine/core/ComponentStore';
 import { Entity } from '../../src/engine/core/Entity';
 
 class MockComponent extends Component {
@@ -141,8 +141,7 @@ describe('ComponentStore', () => {
     store.addComponent(entity2, new MockComponent(30));
 
     const archetype_entities = store.getEntitiesWithArchetype(
-      MockComponent,
-      AnotherMockComponent,
+      new Archetype(MockComponent, AnotherMockComponent),
     );
     expect(archetype_entities).toContain(entity1);
     expect(archetype_entities).not.toContain(entity2);
@@ -155,7 +154,9 @@ describe('ComponentStore', () => {
     store.addComponent(entity, new MockComponent(10));
 
     expect(() =>
-      store.getEntitiesWithArchetype(MockComponent, AnotherMockComponent),
+      store.getEntitiesWithArchetype(
+        new Archetype(MockComponent, AnotherMockComponent),
+      ),
     ).toThrow(
       'Component type AnotherMockComponent must be registered first (get entities with archetype)',
     );
@@ -179,7 +180,7 @@ describe('ComponentStore', () => {
   });
 
   test('getEntitiesWithArchetype should return an empty array for no component types', () => {
-    expect(() => store.getEntitiesWithArchetype()).toThrow(
+    expect(() => store.getEntitiesWithArchetype(new Archetype())).toThrow(
       'Archetype cannot be empty',
     );
   });

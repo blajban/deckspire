@@ -1,9 +1,8 @@
 import CompChild from '../../src/engine/core_components/CompChild';
 import CompParent from '../../src/engine/core_components/CompParent';
 import Component from '../../src/engine/core/Component';
-import ComponentStore from '../../src/engine/core/ComponentStore';
-import EntityStore from '../../src/engine/core/EntityStore';
 import EcsManager from '../../src/engine/core/EcsManager';
+import { Archetype } from '../../src/engine/core/ComponentStore';
 
 class MockComponent extends Component {
   constructor(public value: number) {
@@ -21,9 +20,7 @@ describe('ECS', () => {
   let ecs: EcsManager;
 
   beforeEach(() => {
-    const entity_store = new EntityStore();
-    const component_store = new ComponentStore();
-    ecs = new EcsManager(entity_store, component_store);
+    ecs = new EcsManager();
 
     ecs.registerComponent(CompParent);
     ecs.registerComponent(CompChild);
@@ -218,8 +215,7 @@ describe('ECS', () => {
     ecs.addComponent(entity3, new AnotherMockComponent(10));
 
     const entities_with_archetype = ecs.getEntitiesWithArchetype(
-      MockComponent,
-      AnotherMockComponent,
+      new Archetype(MockComponent, AnotherMockComponent),
     );
     expect(entities_with_archetype).toContain(entity1);
     expect(entities_with_archetype).not.toContain(entity2);
