@@ -9,7 +9,7 @@ export class CompIsMouse extends Component {
 }
 
 export class CompMouseState extends Component {
-  constructor(public mouse_state: MouseState) {
+  constructor(public mouse_state: MouseState = new MouseState()) {
     super();
   }
 }
@@ -32,6 +32,8 @@ export class CompMouseSensitive extends Component {
   /**
    * @param mouse_depth - Not the same as the drawing depth.
    */
+  public is_top_entity = false;
+
   constructor(
     public mouse_depth: number = 0,
     public is_pointed_at = false,
