@@ -19,17 +19,17 @@ export default class SystemManager {
     if (this._registered_systems.has(system_class)) {
       throw new Error(`Trying to re-register ${system_class.name}.`);
     }
-    let stored_after = this._system_priorities.get(system_class);
-    if (stored_after === undefined) {
-      stored_after = new Set();
-      this._system_priorities.set(system_class, stored_after);
+    if (!this._system_priorities.has(system_class)) {
+      this._system_priorities.set(system_class, new Set());
     }
+    const stored_after = this._system_priorities.get(system_class)!;
     execute_after.forEach((other_system_class) => {
       if (!this._system_priorities.has(other_system_class)) {
         this._system_priorities.set(other_system_class, new Set());
       }
       stored_after.add(other_system_class);
     });
+    console.log(this._system_priorities.get(system_class)?.size);
     execute_before.forEach((other_system_class) => {
       let other_after = this._system_priorities.get(other_system_class);
       if (other_after === undefined) {
@@ -41,14 +41,16 @@ export default class SystemManager {
     this._is_sorting_needed = true;
   }
 
-  public activateSystem(system_class: SystemClass): void {
+  public activateSystem(context: GameContext, system_class: SystemClass): void {
     if (this._registered_systems.has(system_class)) {
       throw new Error(
         `System ${system_class.name} cannot be activated as it is not registered.`,
       );
     }
     if (!this._system_instances.has(system_class)) {
-      this._system_instances.set(system_class, new system_class());
+      const system = new system_class();
+      system.init(context);
+      this._system_instances.set(system_class, system);
     }
     this._active_systems.add(system_class);
     if (this._is_sorting_needed) {
@@ -67,7 +69,12 @@ export default class SystemManager {
 
   private _sortSystems(): void {
     this._system_order.length = 0;
-    const priorities = new Map(this._system_priorities);
+    // Deep copy the priorities
+    const priorities = new Map();
+    this._system_priorities.forEach((afters, system_class) => {
+      priorities.set(system_class, new Set(afters));
+    });
+
     while (priorities.size > 0) {
       const to_add = new Set<SystemClass>();
       priorities.forEach((afters, system_class) => {
@@ -89,11 +96,18 @@ export default class SystemManager {
     this._is_sorting_needed = false;
   }
 
-  public deactivateSystem(system_class: SystemClass): void {
+  public deactivateSystem(
+    context: GameContext,
+    system_class: SystemClass,
+  ): void {
     if (!this._registered_systems.has(system_class)) {
       throw new Error(
         `System ${system_class.name} cannot be deactivated as it is not registered.`,
       );
+    }
+    const system = this._system_instances.get(system_class);
+    if (system !== undefined) {
+      system.terminate(context);
     }
     this._active_systems.delete(system_class);
     this._system_instances.delete(system_class);
