@@ -28,7 +28,7 @@ export class SysDrawHexGrid extends System {
    * @param delta
    * @param entity
    */
-  update(context: GameContext, _time: number, _delta: number): void {
+  override update(context: GameContext, _time: number, _delta: number): void {
     const hex_grid_archetype = this.archetypes[0];
     context.ecs_manager
       .getEntitiesWithArchetype(hex_grid_archetype)
@@ -71,6 +71,8 @@ export class SysDrawHexGrid extends System {
         });
       });
   }
+
+  override terminate(_context: GameContext): void {}
 }
 
 /**
@@ -81,7 +83,9 @@ export class DrawHex extends System {
     super(new Archetype(CompDrawable, CompHex, CompChild));
   }
 
-  update(context: GameContext, _time: number, _delta: number): void {
+  override init(_context: GameContext): void {}
+
+  override update(context: GameContext, _time: number, _delta: number): void {
     const hex_archetype = this.archetypes[0];
     context.ecs_manager
       .getEntitiesWithArchetype(hex_archetype)
@@ -126,6 +130,9 @@ export class DrawHex extends System {
         const gfx = cache.graphics_object;
         gfx.clear();
         gfx.setDepth(drawable.depth);
+        if (drawable.is_invisible) {
+          return;
+        }
 
         drawHex(gfx, hex, hex_grid, transform, line_style, fill_style);
       });

@@ -243,8 +243,15 @@ export default class EcsManager {
     );
   }
 
-  public activateSystem(system_class: SystemClass): void {
-    this._system_manager.activateSystem(system_class);
+  public activateSystem(context: GameContext, system_class: SystemClass): void {
+    this._system_manager.activateSystem(context, system_class);
+  }
+
+  public deactivateSystem(
+    context: GameContext,
+    system_class: SystemClass,
+  ): void {
+    this._system_manager.activateSystem(context, system_class);
   }
 
   public get graphics_cache(): GraphicsCache {

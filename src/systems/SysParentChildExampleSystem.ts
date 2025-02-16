@@ -4,12 +4,13 @@ import { Archetype } from '../engine/core/ComponentStore';
 import { GameContext } from '../engine/core/GameContext';
 
 export default class SysParentChildExampleSystem extends System {
+  private _last_update: number = 0;
+
   constructor() {
     super(new Archetype(CompParent));
   }
 
-  private _last_update: number = 0;
-  update(context: GameContext, time: number, _delta: number): void {
+  override update(context: GameContext, time: number, _delta: number): void {
     if (time - this._last_update > 10000) {
       this._last_update = time;
       const parents = context.ecs_manager.getEntitiesWithArchetype(

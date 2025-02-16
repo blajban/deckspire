@@ -9,5 +9,7 @@ export default abstract class System {
   constructor(...archetypes: Archetype[]) {
     this.archetypes = archetypes;
   }
+  init(_context: GameContext): void {}
   abstract update(context: GameContext, time: number, delta: number): void;
+  terminate(_context: GameContext): void {}
 }
