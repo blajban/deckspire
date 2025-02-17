@@ -56,6 +56,10 @@ export default class SystemManager {
       this._sortSystems();
     }
     this._updateActiveSystemOrder();
+
+    console.log(
+      `System ${system_class.name} activated.\nActive systems:\n${this._activeSystemsAsString()}`,
+    );
   }
 
   private _updateActiveSystemOrder(): void {
@@ -94,21 +98,25 @@ export default class SystemManager {
     }
     this._is_sorting_needed = false;
 
-    this.printSystemOrder();
+    console.log(`System order updated.\n${this._systemOrderAsString()}`);
   }
 
-  public printSystemOrder(): void {
-    console.log('System order:');
-    this._system_order.forEach((system_class) => {
-      console.log(system_class.name);
-    });
+  private _systemOrderAsString(): string {
+    let order = 0;
+    return this._system_order
+      .map((system_class) =>
+        (++order).toString().concat(' ', system_class.name),
+      )
+      .join('\n');
   }
 
-  public printActiveSystems(): void {
-    console.log('Active systems:');
-    this._ordered_systems.forEach((system_class) => {
-      console.log(system_class.constructor.name);
-    });
+  private _activeSystemsAsString(): string {
+    let order = 0;
+    return this._ordered_systems
+      .map((system_class) =>
+        (++order).toString().concat(' ', system_class.constructor.name),
+      )
+      .join('\n');
   }
 
   public deactivateSystem(
@@ -126,6 +134,10 @@ export default class SystemManager {
     }
     this._active_systems.delete(system_class);
     this._system_instances.delete(system_class);
+
+    console.log(
+      `System ${system_class.name} deactivated.\nActive systems:\n${this._activeSystemsAsString()}`,
+    );
   }
 
   public update(context: GameContext, time: number, delta: number): void {
