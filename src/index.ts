@@ -12,10 +12,17 @@ import CompLineStyle from './engine/core_components/CompLineStyle';
 import CompNamed from './engine/core_components/CompNamed';
 import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
 import Vector2D from './math/Vector2D';
-import SysDraw from './engine/core_systems/SysDraw';
 import { CompMouseSensitive } from './engine/core_components/CompMouse';
 import { SysPointAtHexInHexgrid } from './systems/SysPointAtHexInHexgrid';
-import SysMouseEventGenerator from './engine/core_systems/SysMouse';
+import SysMouse from './engine/core_systems/SysMouse';
+import {
+  SysDrawBegin,
+  SysDrawEnd,
+  SysInputEnd,
+} from './engine/core_systems/SysSentinels';
+import CompSelectorHex from './components/CompSelectorHex';
+import SysSelectHexInHexGrid from './systems/SysSelectHexInHexGrid';
+import SysMouseDepth from './engine/core_systems/SysMouseDepth';
 
 function main(): void {
   const game = new Engine(800, 600);
@@ -58,24 +65,41 @@ class MyScene extends Scene {
 
     context.ecs_manager.registerComponent(CompHex);
     context.ecs_manager.registerComponent(CompHexGrid);
+    context.ecs_manager.registerComponent(CompSelectorHex);
     context.ecs_manager.registerComponent(CompTransform);
 
     context.ecs_manager.registerSystem(
       SysPointAtHexInHexgrid,
-      [SysMouseEventGenerator],
-      [SysDraw],
+      [SysMouse],
+      [SysInputEnd],
     );
-    context.ecs_manager.registerSystem(SysDrawHexGrid, [SysDraw]);
-    context.ecs_manager.registerSystem(DrawHex, [SysDraw, SysDrawHexGrid]);
+    context.ecs_manager.registerSystem(
+      SysSelectHexInHexGrid,
+      [SysMouseDepth],
+      [SysDrawBegin],
+    );
+    context.ecs_manager.registerSystem(
+      SysDrawHexGrid,
+      [SysDrawBegin],
+      [SysDrawEnd],
+    );
+    context.ecs_manager.registerSystem(
+      DrawHex,
+      [SysDrawBegin, SysDrawHexGrid],
+      [SysDrawEnd],
+    );
 
-    context.ecs_manager.activateSystem(SysDrawHexGrid);
-    context.ecs_manager.activateSystem(DrawHex);
+    context.ecs_manager.activateSystem(context, SysPointAtHexInHexgrid);
+    context.ecs_manager.activateSystem(context, SysSelectHexInHexGrid);
+    context.ecs_manager.activateSystem(context, SysDrawHexGrid);
+    context.ecs_manager.activateSystem(context, DrawHex);
 
     const hex_grid = context.ecs_manager.newEntity();
     context.ecs_manager.addComponents(
       hex_grid,
       new CompNamed('The Hex Grid'),
       new CompHexGrid(new HexGrid(3, 50, HorizontalLayout)),
+      new CompSelectorHex(),
       new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
       new CompDrawable(0),
       new CompLineStyle(5, 0x000000, 1),

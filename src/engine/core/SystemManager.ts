@@ -29,7 +29,6 @@ export default class SystemManager {
       }
       stored_after.add(other_system_class);
     });
-    console.log(this._system_priorities.get(system_class)?.size);
     execute_before.forEach((other_system_class) => {
       let other_after = this._system_priorities.get(other_system_class);
       if (other_after === undefined) {
