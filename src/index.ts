@@ -34,27 +34,6 @@ function main(): void {
   });
 }
 
-class AnotherScene extends Scene {
-  buildScene(context: GameContext): void {
-    console.log('Building AnotherScene!');
-
-    // This grid blocks the mouse events from reaching the other hex grid due to being higher up
-    const partially_blocking_grid = context.ecs_manager.newEntity();
-    context.ecs_manager.addComponents(
-      partially_blocking_grid,
-      new CompNamed('The Blocking Grid'),
-      new CompHexGrid(new HexGrid(2, 50, HorizontalLayout)),
-      new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
-      new CompMouseSensitive(0),
-      new CompDestroyWithScene(this),
-    );
-  }
-
-  destroyScene(_context: GameContext): void {
-    console.log('Destroying AnotherScene!');
-  }
-}
-
 class MyScene extends Scene {
   onRegister(): void {
     console.log('Registering MyScene!');
@@ -111,6 +90,58 @@ class MyScene extends Scene {
 
   destroyScene(_context: GameContext): void {
     console.log('Destroying MyScene!');
+  }
+}
+
+class AnotherScene extends Scene {
+  buildScene(context: GameContext): void {
+    console.log('Building AnotherScene!');
+
+    context.ecs_manager.registerComponent(CompHex);
+    context.ecs_manager.registerComponent(CompHexGrid);
+    context.ecs_manager.registerComponent(CompSelectorHex);
+    context.ecs_manager.registerComponent(CompTransform);
+
+    context.ecs_manager.registerSystem(
+      SysPointAtHexInHexgrid,
+      [SysMouse],
+      [SysInputEnd],
+    );
+    context.ecs_manager.registerSystem(
+      SysSelectHexInHexGrid,
+      [SysMouseDepth],
+      [SysDrawBegin],
+    );
+    context.ecs_manager.registerSystem(
+      SysDrawHexGrid,
+      [SysDrawBegin],
+      [SysDrawEnd],
+    );
+    context.ecs_manager.registerSystem(
+      DrawHex,
+      [SysDrawBegin, SysDrawHexGrid],
+      [SysDrawEnd],
+    );
+
+    context.ecs_manager.activateSystem(context, SysPointAtHexInHexgrid);
+    context.ecs_manager.activateSystem(context, SysSelectHexInHexGrid);
+    context.ecs_manager.activateSystem(context, SysDrawHexGrid);
+    context.ecs_manager.activateSystem(context, DrawHex);
+
+    // This grid blocks the mouse events from reaching the other hex grid due to being higher up
+    const partially_blocking_grid = context.ecs_manager.newEntity();
+    context.ecs_manager.addComponents(
+      partially_blocking_grid,
+      new CompNamed('The Blocking Grid'),
+      new CompHexGrid(new HexGrid(2, 50, HorizontalLayout)),
+      new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
+      new CompMouseSensitive(0),
+      new CompDestroyWithScene(this),
+    );
+  }
+
+  destroyScene(_context: GameContext): void {
+    console.log('Destroying AnotherScene!');
   }
 }
 
