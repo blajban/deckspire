@@ -1,5 +1,4 @@
 import { Archetype } from '../core/ComponentStore';
-import { Entity } from '../core/Entity';
 import { GameContext } from '../core/GameContext';
 import System from '../core/System';
 import { CompDestroyMe } from '../core_components/CompDestroy';
@@ -13,7 +12,6 @@ import { MouseState } from '../input/MouseState';
 export default class SysMouse extends System {
   // This event object is updated each call to update, if needed.
   private _mouse_state = new MouseState();
-  private _mouse_entity: Entity | undefined;
 
   constructor() {
     super(new Archetype(CompIsMouse, CompMouseState));
