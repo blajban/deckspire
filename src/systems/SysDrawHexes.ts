@@ -37,9 +37,6 @@ export class SysDrawHexGrid extends System {
           entity,
           CompDrawable,
         )!;
-        if (drawable.is_invisible) {
-          return;
-        }
         const hex_grid = context.ecs_manager.getComponent(
           entity,
           CompHexGrid,
@@ -65,6 +62,10 @@ export class SysDrawHexGrid extends System {
         const gfx = cache.graphics_object;
         gfx.clear();
         gfx.setDepth(drawable.depth);
+
+        if (!drawable.is_visible) {
+          return;
+        }
 
         hex_grid.all_hexes.forEach((hex) => {
           drawHex(gfx, hex, hex_grid, transform, line_style, fill_style);
@@ -130,7 +131,7 @@ export class DrawHex extends System {
         const gfx = cache.graphics_object;
         gfx.clear();
         gfx.setDepth(drawable.depth);
-        if (drawable.is_invisible) {
+        if (!drawable.is_visible) {
           return;
         }
 
