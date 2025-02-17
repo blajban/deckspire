@@ -17,4 +17,12 @@ export default class CompTransform extends Component {
     this.rotation = rotation;
     this.scale = scale;
   }
+
+  public getLocalCoordinates(world_coordinates: Vector2D): Vector2D {
+    return world_coordinates
+      .clone()
+      .subtract(this.position)
+      .rotate(-this.rotation)
+      .divide(this.scale);
+  }
 }
