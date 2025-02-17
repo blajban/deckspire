@@ -42,15 +42,14 @@ export class MouseState {
       let state;
       if (is_pressed_old && !is_pressed_new) {
         state = MouseButtonStatus.Up;
-        has_changed = true;
       } else if (!is_pressed_old && is_pressed_new) {
         state = MouseButtonStatus.Down;
-        has_changed = true;
       } else if (is_pressed_old && is_pressed_new) {
         state = MouseButtonStatus.Held;
       } else {
         state = MouseButtonStatus.None;
       }
+      has_changed = has_changed || state !== old_state;
       this.mouse_buttons_states.set(n, state);
     }
     return has_changed;
