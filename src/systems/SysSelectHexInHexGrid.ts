@@ -71,7 +71,7 @@ export default class SysSelectHexInHexGrid extends System {
             updateSelectedHex(
               context,
               hexgrid_entity,
-              mouse_sensitive.is_pointed_at,
+              mouse_sensitive.is_pointed_at && mouse_sensitive.is_top_entity,
               hex_coordinates,
               color,
             );
@@ -83,7 +83,7 @@ export default class SysSelectHexInHexGrid extends System {
 function updateSelectedHex(
   context: GameContext,
   hexgrid_entity: Entity,
-  is_pointed_at: boolean,
+  is_visible: boolean,
   hex_coordinates: HexCoordinates,
   color: number,
 ): void {
@@ -118,7 +118,7 @@ function updateSelectedHex(
   context.ecs_manager.getComponent(selected_hex!, CompHex)!.coordinates =
     hex_coordinates;
   context.ecs_manager.getComponent(selected_hex, CompDrawable)!.is_visible =
-    is_pointed_at;
+    is_visible;
   const line_style = context.ecs_manager.getComponent(
     selected_hex!,
     CompLineStyle,

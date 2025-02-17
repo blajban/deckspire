@@ -13,6 +13,7 @@ export default class SysMouseDepth extends System {
     const mouse_sensitive_archetype = this.archetypes[0];
     let min_depth = Number.POSITIVE_INFINITY;
     let top_entity: Entity | undefined = undefined;
+    console.log('Updating mouse depth');
     context.ecs_manager
       .getEntitiesWithArchetype(mouse_sensitive_archetype)
       .forEach((entity) => {
@@ -25,6 +26,7 @@ export default class SysMouseDepth extends System {
           mouse_sensitive.is_pointed_at &&
           mouse_sensitive.mouse_depth < min_depth
         ) {
+          console.log(`Mouse depth: ${mouse_sensitive.mouse_depth}, pointed at: ${mouse_sensitive.is_pointed_at}`);
           min_depth = mouse_sensitive.mouse_depth;
           top_entity = entity;
         }

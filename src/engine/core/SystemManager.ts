@@ -93,6 +93,22 @@ export default class SystemManager {
       });
     }
     this._is_sorting_needed = false;
+
+    this.printSystemOrder();
+  }
+
+  public printSystemOrder(): void {
+    console.log('System order:');
+    this._system_order.forEach((system_class) => {
+      console.log(system_class.name);
+    });
+  }
+
+  public printActiveSystems(): void {
+    console.log('Active systems:');
+    this._ordered_systems.forEach((system_class) => {
+      console.log(system_class.constructor.name);
+    });
   }
 
   public deactivateSystem(

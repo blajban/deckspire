@@ -36,6 +36,7 @@ export default class CoreScene extends Scene {
     this._registerCoreSystems(context);
 
     context.ecs_manager.activateSystem(context, SysMouse);
+    context.ecs_manager.activateSystem(context, SysMouseDepth);
     context.ecs_manager.activateSystem(context, SysDestroyEntity);
 
     console.log('CoreScene built!');
