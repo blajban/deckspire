@@ -45,7 +45,7 @@ function main(): void {
 }
 
 class SamuraiScene extends Scene {
-  async preloadScene(ecs: EcsManager): Promise<void> {
+  async preload(ecs: EcsManager): Promise<void> {
     ecs.asset_store.registerAssets([
       { key: 'samurai', path: 'assets/IDLE.png', type: AssetType.Image },
       {
@@ -70,7 +70,7 @@ class SamuraiScene extends Scene {
     );
   }
 
-  async loadScene(ecs: EcsManager): Promise<void> {
+  async load(ecs: EcsManager): Promise<void> {
     await this.readyPreload();
 
     ecs.registerSystem(SysAnimateSpriteSheet, [SysUpdateBegin], [SysUpdateEnd]);
@@ -104,13 +104,13 @@ class SamuraiScene extends Scene {
     );
   }
 
-  public unloadScene(_ecs: EcsManager): void {}
+  public unload(_ecs: EcsManager): void {}
 }
 
 class HexScene extends Scene {
-  async preloadScene(): Promise<void> {}
+  async preload(): Promise<void> {}
 
-  loadScene(ecs: EcsManager): Promise<void> {
+  load(ecs: EcsManager): Promise<void> {
     ecs.registerComponent(CompHex);
     ecs.registerComponent(CompHexGrid);
     ecs.registerComponent(CompSelectorHex);
@@ -153,7 +153,7 @@ class HexScene extends Scene {
     return Promise.resolve();
   }
 
-  unloadScene(_ecs: EcsManager): void {}
+  unload(_ecs: EcsManager): void {}
 }
 
 main();

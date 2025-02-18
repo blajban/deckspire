@@ -6,17 +6,17 @@ import SceneManager from '../../src/engine/core/SceneManager';
 class MockScene extends Scene {
   public events: string[] = [];
 
-  preloadScene(): Promise<void> {
+  preload(): Promise<void> {
     this.events.push('preload');
     return Promise.resolve();
   }
 
-  loadScene(): Promise<void> {
+  load(): Promise<void> {
     this.events.push('load');
     return Promise.resolve();
   }
 
-  unloadScene(): void {
+  unload(): void {
     this.events.push('unload');
   }
 }

@@ -37,7 +37,7 @@ import CompSpritesheet from '../core_components/CompSpritesheet';
 import CompAnimation from '../core_components/CompAnimation';
 
 export default class CoreScene extends Scene {
-  loadScene(ecs: EcsManager): Promise<void> {
+  load(ecs: EcsManager): Promise<void> {
     this._registerCoreComponents(ecs);
     this._registerCoreSystems(ecs);
 
@@ -48,7 +48,7 @@ export default class CoreScene extends Scene {
     return Promise.resolve();
   }
 
-  unloadScene(ecs: EcsManager): void {
+  unload(ecs: EcsManager): void {
     ecs.deactivateSystem(SysMouse);
   }
 

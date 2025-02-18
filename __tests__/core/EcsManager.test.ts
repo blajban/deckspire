@@ -38,7 +38,7 @@ describe('ECS', () => {
     );
 
     const core_scene = new CoreScene();
-    core_scene.loadScene(ecs);
+    core_scene.load(ecs);
     ecs.registerComponent(MockComponent);
     ecs.registerComponent(AnotherMockComponent);
   });

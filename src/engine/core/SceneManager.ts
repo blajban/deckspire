@@ -27,7 +27,7 @@ export default class SceneManager {
       throw new Error(`Scene ${key} has already been preloaded.`);
     }
 
-    await scene.preloadScene(ecs);
+    await scene.preload(ecs);
   }
 
   loadScene(ecs: EcsManager, key: string): void {
@@ -40,7 +40,7 @@ export default class SceneManager {
       throw new Error(`Scene ${key} is already loaded.`);
     }
 
-    scene.loadScene(ecs);
+    scene.load(ecs);
     this._loaded_scenes.add(key);
   }
 
@@ -49,7 +49,7 @@ export default class SceneManager {
       throw new Error(`Scene ${key} is not loaded.`);
     }
     const scene = this._registered_scenes.get(key)!;
-    scene.unloadScene(ecs);
+    scene.unload(ecs);
 
     ecs
       .getEntitiesAndComponents(CompDestroyWithScene)

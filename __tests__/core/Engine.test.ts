@@ -53,10 +53,10 @@ describe('Engine', () => {
     const mock_register_scene = jest.spyOn(mock_scene_manager, 'registerScene');
 
     const mock_scene = new (class extends Scene {
-      loadScene(): Promise<void> {
+      load(): Promise<void> {
         return Promise.resolve();
       }
-      unloadScene(): void {}
+      unload(): void {}
     })();
 
     mock_scene_manager.registerScene('TestScene', mock_scene);
