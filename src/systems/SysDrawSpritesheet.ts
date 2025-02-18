@@ -13,24 +13,24 @@ export class SysDrawSpritesheet extends System {
   update(ecs: EcsManager, _time: number, _delta: number): void {
     ecs.getEntitiesWithArchetype(this.archetypes[0]).forEach((entity) => {
       const drawable = ecs.getComponent(entity, CompDrawable)!;
-      const spritesheet = ecs.getComponent(entity, CompSpritesheet);
+      const spritesheet = ecs.getComponent(entity, CompSpritesheet)!;
       const transform = ecs.getComponent(entity, CompTransform)!;
 
-      const image_asset = ecs.asset_store.getAsset(spritesheet!.asset_id!);
+      const image_asset = ecs.asset_store.getAsset(spritesheet.asset_id);
 
       const cache = ecs.graphics_cache.getComponentCache(drawable);
       if (!cache.graphics_object) {
         cache.graphics_object = ecs.phaser_scene.add.sprite(
           transform.position.x,
           transform.position.y,
-          image_asset!,
-          spritesheet?.current_frame,
+          image_asset,
+          spritesheet.current_frame,
         );
       }
 
       const phaser_sprite = cache.graphics_object as Phaser.GameObjects.Sprite;
 
-      phaser_sprite.setFrame(spritesheet?.current_frame!);
+      phaser_sprite.setFrame(spritesheet.current_frame);
       phaser_sprite.setDepth(drawable.depth);
       phaser_sprite.setPosition(transform.position.x, transform.position.y);
       phaser_sprite.setRotation(transform.rotation);
