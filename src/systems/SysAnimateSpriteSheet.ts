@@ -1,5 +1,6 @@
 import { Archetype } from '../engine/core/ComponentStore';
 import EcsManager from '../engine/core/EcsManager';
+import PhaserContext from '../engine/core/PhaserContext';
 import System from '../engine/core/System';
 import CompAnimation from '../engine/core_components/CompAnimation';
 import CompSpritesheet from '../engine/core_components/CompSpritesheet';
@@ -9,7 +10,12 @@ export default class SysAnimateSpriteSheet extends System {
     super(new Archetype(CompSpritesheet, CompAnimation));
   }
 
-  update(ecs: EcsManager, _time: number, delta: number): void {
+  update(
+    ecs: EcsManager,
+    _phaser_context: PhaserContext,
+    _time: number,
+    delta: number,
+  ): void {
     ecs.getEntitiesWithArchetype(this.archetypes[0]).forEach((entity) => {
       const spritesheet = ecs.getComponent(entity, CompSpritesheet)!;
       const animation = ecs.getComponent(entity, CompAnimation)!;

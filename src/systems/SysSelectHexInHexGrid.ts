@@ -17,6 +17,7 @@ import CompNamed from '../engine/core_components/CompNamed';
 import CompParent from '../engine/core_components/CompParent';
 import { MouseButtonStatus } from '../engine/input/MouseState';
 import { HexCoordinates } from '../math/hexgrid/HexVectors';
+import PhaserContext from '../engine/core/PhaserContext';
 
 export default class SysSelectHexInHexGrid extends System {
   private readonly _mouse_event_archetype: Archetype;
@@ -34,7 +35,12 @@ export default class SysSelectHexInHexGrid extends System {
     this._mouse_event_archetype = mouse_event_archetype;
   }
 
-  update(ecs: EcsManager, _time: number, _delta: number): void {
+  update(
+    ecs: EcsManager,
+    _phaser_context: PhaserContext,
+    _time: number,
+    _delta: number,
+  ): void {
     ecs
       .getEntitiesWithArchetype(this._mouse_event_archetype)
       .forEach((mouse_event) => {

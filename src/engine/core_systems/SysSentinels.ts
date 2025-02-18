@@ -1,9 +1,15 @@
 import EcsManager from '../core/EcsManager';
+import PhaserContext from '../core/PhaserContext';
 import System from '../core/System';
 
 class SysSentinel extends System {
   override init(_ecs: EcsManager): void {}
-  override update(_ecs: EcsManager, _time: number, _delta: number): void {}
+  override update(
+    _ecs: EcsManager,
+    _phaser_context: PhaserContext,
+    _time: number,
+    _delta: number,
+  ): void {}
   override terminate(_ecs: EcsManager): void {}
 }
 

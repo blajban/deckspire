@@ -4,6 +4,7 @@ import { Archetype } from '../core/ComponentStore';
 import EcsManager from '../core/EcsManager';
 import { Entity } from '../core/Entity';
 import GraphicsCache from '../core/GraphicsCache';
+import PhaserContext from '../core/PhaserContext';
 import System from '../core/System';
 import CompChild from '../core_components/CompChild';
 import {
@@ -19,9 +20,14 @@ export default class SysDestroyEntity extends System {
     super(new Archetype(CompDestroyMe));
   }
 
-  override update(ecs: EcsManager, _time: number, _delta: number): void {
+  override update(
+    ecs: EcsManager,
+    phaser_context: PhaserContext,
+    _time: number,
+    _delta: number,
+  ): void {
     ecs.getEntitiesWithArchetype(this.archetypes[0]).forEach((entity) => {
-      destroyEntity(ecs, entity);
+      destroyEntity(ecs, phaser_context, entity);
     });
   }
 }
@@ -42,7 +48,11 @@ function cleanupGraphicsCache(
   graphics_cache.deleteCache(drawable);
 }
 
-function cleanupAfterParent(ecs: EcsManager, entity: Entity): void {
+function cleanupAfterParent(
+  ecs: EcsManager,
+  phaser_context: PhaserContext,
+  entity: Entity,
+): void {
   const parent_comp = ecs.getComponent(entity, CompParent)!;
   for (const child of parent_comp.children) {
     const child_comp = ecs.getComponent(child, CompChild);
@@ -51,14 +61,18 @@ function cleanupAfterParent(ecs: EcsManager, entity: Entity): void {
       if (ecs.getComponent(child, CompDestroyWithParent) !== undefined) {
         // Only destroy if not already queued for destruction.
         if (ecs.getComponent(child, CompDestroyMe) === undefined) {
-          destroyEntity(ecs, child);
+          destroyEntity(ecs, phaser_context, child);
         }
       }
     }
   }
 }
 
-function cleanupAfterChild(ecs: EcsManager, entity: Entity): void {
+function cleanupAfterChild(
+  ecs: EcsManager,
+  phaser_context: PhaserContext,
+  entity: Entity,
+): void {
   const child_comp = ecs.getComponent(entity, CompChild)!;
   const parent = child_comp.parent;
   const parent_comp = ecs.getComponent(parent, CompParent);
@@ -68,31 +82,35 @@ function cleanupAfterChild(ecs: EcsManager, entity: Entity): void {
       if (ecs.getComponent(parent, CompDestroyWithLastChild) !== undefined) {
         // Only destroy if not already queued for destruction.
         if (ecs.getComponent(parent, CompDestroyMe) === undefined) {
-          destroyEntity(ecs, parent);
+          destroyEntity(ecs, phaser_context, parent);
         }
       }
     }
   }
 }
 
-function destroyEntity(ecs: EcsManager, entity: Entity): void {
+function destroyEntity(
+  ecs: EcsManager,
+  phaser_context: PhaserContext,
+  entity: Entity,
+): void {
   // Remove all components
   const components = ecs.getComponentsForEntity(entity);
   for (const component of components) {
     // Handle children if entity is a parent.
     if (component instanceof CompParent) {
-      cleanupAfterParent(ecs, entity);
+      cleanupAfterParent(ecs, phaser_context, entity);
     }
     // Handle parent if entity is a child.
     if (component instanceof CompChild) {
-      cleanupAfterChild(ecs, entity);
+      cleanupAfterChild(ecs, phaser_context, entity);
     }
     // Handle graphics cache if entity is a drawable.
     if (component instanceof CompDrawable) {
-      cleanupGraphicsCache(ecs.graphics_cache, component);
+      cleanupGraphicsCache(phaser_context.graphics_cache, component);
     }
     if (component instanceof AssetComponent) {
-      ecs.asset_store.releaseAsset(ecs.phaser_scene, component.asset_id);
+      ecs.asset_store.releaseAsset(phaser_context, component.asset_id);
     }
     ecs.removeComponent(entity, component.constructor as ComponentClass);
   }

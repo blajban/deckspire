@@ -1,5 +1,6 @@
 import { Archetype } from '../core/ComponentStore';
 import EcsManager from '../core/EcsManager';
+import PhaserContext from '../core/PhaserContext';
 import System from '../core/System';
 import { CompDestroyMe } from '../core_components/CompDestroy';
 import {
@@ -21,7 +22,12 @@ export default class SysMouse extends System {
     ecs.addComponents(ecs.newEntity(), new CompIsMouse(), new CompMouseState());
   }
 
-  override update(ecs: EcsManager, _time: number, _delta: number): void {
+  override update(
+    ecs: EcsManager,
+    _phaser_context: PhaserContext,
+    _time: number,
+    _delta: number,
+  ): void {
     // Update
     const [has_moved, has_clicked] = this._mouse_state.updateMouseStatus(ecs);
     // Find mouse entity

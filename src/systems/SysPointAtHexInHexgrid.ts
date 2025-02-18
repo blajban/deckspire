@@ -8,6 +8,7 @@ import {
   CompMouseSensitive,
   CompMouseState,
 } from '../engine/core_components/CompMouse';
+import PhaserContext from '../engine/core/PhaserContext';
 
 export class SysPointAtHexInHexgrid extends System {
   private _mouse_event_archetype;
@@ -22,7 +23,12 @@ export class SysPointAtHexInHexgrid extends System {
     this._hex_grid_archetype = this.archetypes[1];
   }
 
-  override update(ecs: EcsManager, _time: number, _delta: number): void {
+  override update(
+    ecs: EcsManager,
+    _phaser_context: PhaserContext,
+    _time: number,
+    _delta: number,
+  ): void {
     const mouse_event = ecs.getEntityWithArchetype(this._mouse_event_archetype);
     if (!mouse_event) {
       return;
