@@ -1,10 +1,11 @@
 import { CompDestroyWithScene } from '../core_components/CompDestroy';
-import { GameContext } from './GameContext';
+import EcsManager from './EcsManager';
 import Scene from './Scene';
 
 export default class SceneManager {
-  private _registered_scenes: Map<string, Scene> = new Map();
-  private _built_scenes: Map<string, Scene> = new Map();
+  private _registered_scenes = new Map<string, Scene>();
+  private _loaded_scenes = new Set<string>();
+  private _preloaded_scenes = new Set<string>();
 
   constructor() {}
 
@@ -16,35 +17,47 @@ export default class SceneManager {
     }
   }
 
-  buildScene(context: GameContext, key: string): void {
+  async preloadScene(ecs: EcsManager, key: string): Promise<void> {
     const scene = this._registered_scenes.get(key);
     if (!scene) {
-      throw new Error(`Cannot build scene ${key}, it is not registered.`);
+      throw new Error(`Cannot load scene ${key}, it is not registered.`);
     }
 
-    if (this._built_scenes.has(key)) {
-      throw new Error(`Scene ${key} has already been built.`);
+    if (this._preloaded_scenes.has(key)) {
+      throw new Error(`Scene ${key} has already been preloaded.`);
     }
 
-    scene.buildScene(context);
-    this._built_scenes.set(key, scene);
+    await scene.preloadScene(ecs);
   }
 
-  destroyScene(context: GameContext, key: string): void {
-    const scene = this._built_scenes.get(key);
+  loadScene(ecs: EcsManager, key: string): void {
+    const scene = this._registered_scenes.get(key);
     if (!scene) {
-      throw new Error(`Scene ${key} has not been built.`);
+      throw new Error(`Cannot load scene ${key}, it is not registered.`);
     }
 
-    scene.destroyScene(context);
+    if (this._loaded_scenes.has(key)) {
+      throw new Error(`Scene ${key} is already loaded.`);
+    }
 
-    context.ecs_manager
+    scene.loadScene(ecs);
+    this._loaded_scenes.add(key);
+  }
+
+  unloadScene(ecs: EcsManager, key: string): void {
+    if (!this._loaded_scenes.has(key)) {
+      throw new Error(`Scene ${key} is not loaded.`);
+    }
+    const scene = this._registered_scenes.get(key)!;
+    scene.unloadScene(ecs);
+
+    ecs
       .getEntitiesAndComponents(CompDestroyWithScene)
       .forEach((component, entity) => {
         if (component.scene === scene) {
-          context.ecs_manager.removeEntity(entity);
+          ecs.removeEntity(entity);
         }
       });
-    this._built_scenes.delete(key);
+    this._loaded_scenes.delete(key);
   }
 }

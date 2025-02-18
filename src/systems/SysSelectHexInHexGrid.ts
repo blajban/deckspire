@@ -1,10 +1,10 @@
 import CompHex from '../components/CompHex';
 import CompHexGrid from '../components/CompHexGrid';
 import CompSelectorHex from '../components/CompSelectorHex';
-import CompTransform from '../components/CompTransform';
+import CompTransform from '../engine/core_components/CompTransform';
 import { Archetype } from '../engine/core/ComponentStore';
+import EcsManager from '../engine/core/EcsManager';
 import { Entity } from '../engine/core/Entity';
-import { GameContext } from '../engine/core/GameContext';
 import System from '../engine/core/System';
 import CompDrawable from '../engine/core_components/CompDrawable';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
@@ -34,27 +34,24 @@ export default class SysSelectHexInHexGrid extends System {
     this._mouse_event_archetype = mouse_event_archetype;
   }
 
-  update(context: GameContext, _time: number, _delta: number): void {
-    context.ecs_manager
+  update(ecs: EcsManager, _time: number, _delta: number): void {
+    ecs
       .getEntitiesWithArchetype(this._mouse_event_archetype)
       .forEach((mouse_event) => {
-        const mouse_state = context.ecs_manager.getComponent(
+        const mouse_state = ecs.getComponent(
           mouse_event,
           CompMouseState,
         )!.mouse_state;
-        context.ecs_manager
+        ecs
           .getEntitiesWithArchetype(this._hex_grid_archetype)
           .forEach((hexgrid_entity) => {
-            const mouse_sensitive = context.ecs_manager.getComponent(
+            const mouse_sensitive = ecs.getComponent(
               hexgrid_entity,
               CompMouseSensitive,
             )!;
-            const transform = context.ecs_manager.getComponent(
-              hexgrid_entity,
-              CompTransform,
-            )!;
+            const transform = ecs.getComponent(hexgrid_entity, CompTransform)!;
 
-            const hexgrid = context.ecs_manager.getComponent(
+            const hexgrid = ecs.getComponent(
               hexgrid_entity,
               CompHexGrid,
             )!.hexgrid;
@@ -69,7 +66,7 @@ export default class SysSelectHexInHexGrid extends System {
               color = 0xff0000;
             }
             updateSelectedHex(
-              context,
+              ecs,
               hexgrid_entity,
               mouse_sensitive.is_pointed_at && mouse_sensitive.is_top_entity,
               hex_coordinates,
@@ -81,47 +78,33 @@ export default class SysSelectHexInHexGrid extends System {
 }
 
 function updateSelectedHex(
-  context: GameContext,
+  ecs: EcsManager,
   hexgrid_entity: Entity,
   is_visible: boolean,
   hex_coordinates: HexCoordinates,
   color: number,
 ): void {
   // Find the selected hex entity
-  const children = context.ecs_manager.getComponent(
-    hexgrid_entity,
-    CompParent,
-  )?.children;
+  const children = ecs.getComponent(hexgrid_entity, CompParent)?.children;
   let selected_hex: Entity | undefined = undefined;
   children?.forEach((child) => {
-    if (
-      context.ecs_manager.getComponent(child, CompNamed)?.name ===
-      'The Selected Hex'
-    ) {
+    if (ecs.getComponent(child, CompNamed)?.name === 'The Selected Hex') {
       selected_hex = child;
     }
   });
   if (!selected_hex) {
-    selected_hex = context.ecs_manager.newEntity();
-    context.ecs_manager.addComponents(
+    selected_hex = ecs.newEntity();
+    ecs.addComponents(
       selected_hex,
       new CompHex(hex_coordinates),
       new CompDrawable(1, true),
       new CompLineStyle(5, 0xff0000, 0.5),
       new CompNamed('The Selected Hex'),
     );
-    context.ecs_manager.addParentChildRelationship(
-      hexgrid_entity,
-      selected_hex,
-    );
+    ecs.addParentChildRelationship(hexgrid_entity, selected_hex);
   }
-  context.ecs_manager.getComponent(selected_hex!, CompHex)!.coordinates =
-    hex_coordinates;
-  context.ecs_manager.getComponent(selected_hex, CompDrawable)!.is_visible =
-    is_visible;
-  const line_style = context.ecs_manager.getComponent(
-    selected_hex!,
-    CompLineStyle,
-  )!;
+  ecs.getComponent(selected_hex!, CompHex)!.coordinates = hex_coordinates;
+  ecs.getComponent(selected_hex, CompDrawable)!.is_visible = is_visible;
+  const line_style = ecs.getComponent(selected_hex!, CompLineStyle)!;
   line_style.color = color;
 }

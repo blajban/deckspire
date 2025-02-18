@@ -1,6 +1,6 @@
 import { ClassType } from '../util/ClassType';
 import { Archetype } from './ComponentStore';
-import { GameContext } from './GameContext';
+import EcsManager from './EcsManager';
 
 export type SystemClass = ClassType<System>;
 
@@ -9,7 +9,7 @@ export default abstract class System {
   constructor(...archetypes: Archetype[]) {
     this.archetypes = archetypes;
   }
-  init(_context: GameContext): void {}
-  abstract update(context: GameContext, time: number, delta: number): void;
-  terminate(_context: GameContext): void {}
+  init(_ecs: EcsManager): void {}
+  abstract update(ecs: EcsManager, time: number, delta: number): void;
+  terminate(_ecs: EcsManager): void {}
 }

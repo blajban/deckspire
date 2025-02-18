@@ -1,5 +1,5 @@
-import Vector2D from '../math/Vector2D';
-import Component from '../engine/core/Component';
+import Vector2D from '../../math/Vector2D';
+import Component from '../core/Component';
 
 export default class CompTransform extends Component {
   /**

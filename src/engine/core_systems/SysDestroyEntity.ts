@@ -1,5 +1,5 @@
 import { Archetype } from '../core/ComponentStore';
-import { GameContext } from '../core/GameContext';
+import EcsManager from '../core/EcsManager';
 import System from '../core/System';
 import { CompDestroyMe } from '../core_components/CompDestroy';
 
@@ -8,11 +8,9 @@ export default class SysDestroyEntity extends System {
     super(new Archetype(CompDestroyMe));
   }
 
-  override update(context: GameContext, _time: number, _delta: number): void {
-    context.ecs_manager
-      .getEntitiesWithArchetype(this.archetypes[0])
-      .forEach((entity) => {
-        context.ecs_manager.removeEntity(entity);
-      });
+  override update(ecs: EcsManager, _time: number, _delta: number): void {
+    ecs.getEntitiesWithArchetype(this.archetypes[0]).forEach((entity) => {
+      ecs.removeEntity(entity);
+    });
   }
 }

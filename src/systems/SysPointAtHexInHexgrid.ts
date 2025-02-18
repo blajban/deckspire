@@ -1,7 +1,7 @@
 import CompHexGrid from '../components/CompHexGrid';
-import CompTransform from '../components/CompTransform';
+import CompTransform from '../engine/core_components/CompTransform';
 import { Archetype } from '../engine/core/ComponentStore';
-import { GameContext } from '../engine/core/GameContext';
+import EcsManager from '../engine/core/EcsManager';
 import System from '../engine/core/System';
 import {
   CompMouseEvent,
@@ -22,32 +22,24 @@ export class SysPointAtHexInHexgrid extends System {
     this._hex_grid_archetype = this.archetypes[1];
   }
 
-  override update(context: GameContext, _time: number, _delta: number): void {
-    const mouse_event = context.ecs_manager.getEntityWithArchetype(
-      this._mouse_event_archetype,
-    );
+  override update(ecs: EcsManager, _time: number, _delta: number): void {
+    const mouse_event = ecs.getEntityWithArchetype(this._mouse_event_archetype);
     if (!mouse_event) {
       return;
     }
-    const mouse_state = context.ecs_manager.getComponent(
+    const mouse_state = ecs.getComponent(
       mouse_event,
       CompMouseState,
     )!.mouse_state;
-    context.ecs_manager
+    ecs
       .getEntitiesWithArchetype(this._hex_grid_archetype)
       .forEach((hexgrid_entity) => {
-        const hex_grid = context.ecs_manager.getComponent(
-          hexgrid_entity,
-          CompHexGrid,
-        )!.hexgrid;
-        const mouse_sensitive = context.ecs_manager.getComponent(
+        const hex_grid = ecs.getComponent(hexgrid_entity, CompHexGrid)!.hexgrid;
+        const mouse_sensitive = ecs.getComponent(
           hexgrid_entity,
           CompMouseSensitive,
         )!;
-        const transform = context.ecs_manager.getComponent(
-          hexgrid_entity,
-          CompTransform,
-        )!;
+        const transform = ecs.getComponent(hexgrid_entity, CompTransform)!;
         const object_position = transform.getLocalCoordinates(
           mouse_state.position,
         );

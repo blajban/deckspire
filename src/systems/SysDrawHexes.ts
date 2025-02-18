@@ -1,8 +1,8 @@
 import CompHex from '../components/CompHex';
 import CompHexGrid from '../components/CompHexGrid';
-import CompTransform from '../components/CompTransform';
+import CompTransform from '../engine/core_components/CompTransform';
 import { Archetype } from '../engine/core/ComponentStore';
-import { GameContext } from '../engine/core/GameContext';
+import EcsManager from '../engine/core/EcsManager';
 import System from '../engine/core/System';
 import CompChild from '../engine/core_components/CompChild';
 import CompDrawable from '../engine/core_components/CompDrawable';
@@ -28,52 +28,34 @@ export class SysDrawHexGrid extends System {
    * @param delta
    * @param entity
    */
-  override update(context: GameContext, _time: number, _delta: number): void {
+  override update(ecs: EcsManager, _time: number, _delta: number): void {
     const hex_grid_archetype = this.archetypes[0];
-    context.ecs_manager
-      .getEntitiesWithArchetype(hex_grid_archetype)
-      .forEach((entity) => {
-        const drawable = context.ecs_manager.getComponent(
-          entity,
-          CompDrawable,
-        )!;
-        const hex_grid = context.ecs_manager.getComponent(
-          entity,
-          CompHexGrid,
-        )!.hexgrid;
-        const transform = context.ecs_manager.getComponent(
-          entity,
-          CompTransform,
-        )!;
-        const line_style = context.ecs_manager.getComponent(
-          entity,
-          CompLineStyle,
-        );
-        const fill_style = context.ecs_manager.getComponent(
-          entity,
-          CompFillStyle,
-        );
+    ecs.getEntitiesWithArchetype(hex_grid_archetype).forEach((entity) => {
+      const drawable = ecs.getComponent(entity, CompDrawable)!;
+      const hex_grid = ecs.getComponent(entity, CompHexGrid)!.hexgrid;
+      const transform = ecs.getComponent(entity, CompTransform)!;
+      const line_style = ecs.getComponent(entity, CompLineStyle);
+      const fill_style = ecs.getComponent(entity, CompFillStyle);
 
-        const cache =
-          context.ecs_manager.graphics_cache.getComponentCache(drawable);
-        if (!cache.graphics_object) {
-          cache.graphics_object = context.phaser_scene.add.graphics();
-        }
-        const gfx = cache.graphics_object;
-        gfx.clear();
-        gfx.setDepth(drawable.depth);
+      const cache = ecs.graphics_cache.getComponentCache(drawable);
+      if (!cache.graphics_object) {
+        cache.graphics_object = ecs.phaser_scene.add.graphics();
+      }
+      const gfx = cache.graphics_object as Phaser.GameObjects.Graphics;
+      gfx.clear();
+      gfx.setDepth(drawable.depth);
 
-        if (!drawable.is_visible) {
-          return;
-        }
+      if (!drawable.is_visible) {
+        return;
+      }
 
-        hex_grid.all_hexes.forEach((hex) => {
-          drawHex(gfx, hex, hex_grid, transform, line_style, fill_style);
-        });
+      hex_grid.all_hexes.forEach((hex) => {
+        drawHex(gfx, hex, hex_grid, transform, line_style, fill_style);
       });
+    });
   }
 
-  override terminate(_context: GameContext): void {}
+  override terminate(_ecs: EcsManager): void {}
 }
 
 /**
@@ -84,59 +66,35 @@ export class DrawHex extends System {
     super(new Archetype(CompDrawable, CompHex, CompChild));
   }
 
-  override init(_context: GameContext): void {}
+  override init(_ecs: EcsManager): void {}
 
-  override update(context: GameContext, _time: number, _delta: number): void {
+  override update(ecs: EcsManager, _time: number, _delta: number): void {
     const hex_archetype = this.archetypes[0];
-    context.ecs_manager
-      .getEntitiesWithArchetype(hex_archetype)
-      .forEach((entity) => {
-        const drawable = context.ecs_manager.getComponent(
-          entity,
-          CompDrawable,
-        )!;
-        const hex = context.ecs_manager.getComponent(
-          entity,
-          CompHex,
-        )!.coordinates;
-        const line_style = context.ecs_manager.getComponent(
-          entity,
-          CompLineStyle,
-        );
-        const fill_style = context.ecs_manager.getComponent(
-          entity,
-          CompFillStyle,
-        );
-        const parent = context.ecs_manager.getComponent(
-          entity,
-          CompChild,
-        )!.parent;
-        const hex_grid = context.ecs_manager.getComponent(
-          parent,
-          CompHexGrid,
-        )!.hexgrid;
-        const transform = context.ecs_manager.getComponent(
-          parent,
-          CompTransform,
-        );
-        if (!transform) {
-          throw new Error('Parent does not have a transform component');
-        }
+    ecs.getEntitiesWithArchetype(hex_archetype).forEach((entity) => {
+      const drawable = ecs.getComponent(entity, CompDrawable)!;
+      const hex = ecs.getComponent(entity, CompHex)!.coordinates;
+      const line_style = ecs.getComponent(entity, CompLineStyle);
+      const fill_style = ecs.getComponent(entity, CompFillStyle);
+      const parent = ecs.getComponent(entity, CompChild)!.parent;
+      const hex_grid = ecs.getComponent(parent, CompHexGrid)!.hexgrid;
+      const transform = ecs.getComponent(parent, CompTransform);
+      if (!transform) {
+        throw new Error('Parent does not have a transform component');
+      }
 
-        const cache =
-          context.ecs_manager.graphics_cache.getComponentCache(drawable);
-        if (!cache.graphics_object) {
-          cache.graphics_object = context.phaser_scene.add.graphics();
-        }
-        const gfx = cache.graphics_object;
-        gfx.clear();
-        gfx.setDepth(drawable.depth);
-        if (!drawable.is_visible) {
-          return;
-        }
+      const cache = ecs.graphics_cache.getComponentCache(drawable);
+      if (!cache.graphics_object) {
+        cache.graphics_object = ecs.phaser_scene.add.graphics();
+      }
+      const gfx = cache.graphics_object as Phaser.GameObjects.Graphics;
+      gfx.clear();
+      gfx.setDepth(drawable.depth);
+      if (!drawable.is_visible) {
+        return;
+      }
 
-        drawHex(gfx, hex, hex_grid, transform, line_style, fill_style);
-      });
+      drawHex(gfx, hex, hex_grid, transform, line_style, fill_style);
+    });
   }
 }
 

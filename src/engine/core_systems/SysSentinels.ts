@@ -1,10 +1,10 @@
-import { GameContext } from '../core/GameContext';
+import EcsManager from '../core/EcsManager';
 import System from '../core/System';
 
 class SysSentinel extends System {
-  override init(_context: GameContext): void {}
-  override update(_context: GameContext, _time: number, _delta: number): void {}
-  override terminate(_context: GameContext): void {}
+  override init(_ecs: EcsManager): void {}
+  override update(_ecs: EcsManager, _time: number, _delta: number): void {}
+  override terminate(_ecs: EcsManager): void {}
 }
 
 // Sentinel systems are systems that do nothing, but are used to ensure that other systems are run in a specific order.

@@ -1,5 +1,5 @@
 import { setDifferenceInPlace } from '../util/setUtilityFunctions';
-import { GameContext } from './GameContext';
+import EcsManager from './EcsManager';
 import System, { SystemClass } from './System';
 
 export default class SystemManager {
@@ -40,7 +40,7 @@ export default class SystemManager {
     this._is_sorting_needed = true;
   }
 
-  public activateSystem(context: GameContext, system_class: SystemClass): void {
+  public activateSystem(ecs: EcsManager, system_class: SystemClass): void {
     if (this._registered_systems.has(system_class)) {
       throw new Error(
         `System ${system_class.name} cannot be activated as it is not registered.`,
@@ -48,7 +48,7 @@ export default class SystemManager {
     }
     if (!this._system_instances.has(system_class)) {
       const system = new system_class();
-      system.init(context);
+      system.init(ecs);
       this._system_instances.set(system_class, system);
     }
     this._active_systems.add(system_class);
@@ -57,7 +57,7 @@ export default class SystemManager {
     }
     this._updateActiveSystemOrder();
 
-    console.log(
+    console.debug(
       `System ${system_class.name} activated.\nActive systems:\n${this._activeSystemsAsString()}`,
     );
   }
@@ -98,7 +98,7 @@ export default class SystemManager {
     }
     this._is_sorting_needed = false;
 
-    console.log(`System order updated.\n${this._systemOrderAsString()}`);
+    console.debug(`System order updated.\n${this._systemOrderAsString()}`);
   }
 
   private _systemOrderAsString(): string {
@@ -119,10 +119,7 @@ export default class SystemManager {
       .join('\n');
   }
 
-  public deactivateSystem(
-    context: GameContext,
-    system_class: SystemClass,
-  ): void {
+  public deactivateSystem(ecs: EcsManager, system_class: SystemClass): void {
     if (!this._registered_systems.has(system_class)) {
       throw new Error(
         `System ${system_class.name} cannot be deactivated as it is not registered.`,
@@ -130,7 +127,7 @@ export default class SystemManager {
     }
     const system = this._system_instances.get(system_class);
     if (system !== undefined) {
-      system.terminate(context);
+      system.terminate(ecs);
     }
     this._active_systems.delete(system_class);
     this._system_instances.delete(system_class);
@@ -140,9 +137,9 @@ export default class SystemManager {
     );
   }
 
-  public update(context: GameContext, time: number, delta: number): void {
+  public update(ecs: EcsManager, time: number, delta: number): void {
     this._ordered_systems.forEach((system) => {
-      system.update(context, time, delta);
+      system.update(ecs, time, delta);
     });
   }
 }

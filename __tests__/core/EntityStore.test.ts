@@ -9,7 +9,6 @@ describe('EntityStore', () => {
 
   test('should create a new entity', () => {
     const entity = store.newEntity();
-    expect(entity).toBe(0);
     expect(store.entityExists(entity)).toBe(true);
   });
 

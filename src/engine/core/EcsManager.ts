@@ -2,20 +2,29 @@ import CompChild from '../core_components/CompChild';
 import CompDrawable from '../core_components/CompDrawable';
 import CompParent from '../core_components/CompParent';
 import { ClassType } from '../util/ClassType';
+import AssetComponent from './AssetComponent';
+import AssetStore from './AssetStore';
 import Component, { ComponentClass } from './Component';
 import ComponentStore, { Archetype } from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
-import { GameContext } from './GameContext';
 import GraphicsCache from './GraphicsCache';
+import PhaserScene from './PhaserScene';
 import { SystemClass } from './System';
 import SystemManager from './SystemManager';
 
 export default class EcsManager {
-  private _entity_store = new EntityStore();
-  private _component_store = new ComponentStore();
-  private _system_manager = new SystemManager();
   private _graphics_cache = new GraphicsCache();
+  private _phaser_scene = new PhaserScene((time, delta) => {
+    this.update(time, delta);
+  });
+
+  constructor(
+    private _entity_store: EntityStore = new EntityStore(),
+    private _component_store: ComponentStore = new ComponentStore(),
+    private _system_manager: SystemManager = new SystemManager(),
+    private _asset_store: AssetStore = new AssetStore(),
+  ) {}
 
   newEntity(): Entity {
     return this._entity_store.newEntity();
@@ -62,6 +71,9 @@ export default class EcsManager {
     const components = this._component_store.getComponentsForEntity(entity);
 
     for (const component of components) {
+      if (component instanceof AssetComponent) {
+        this._asset_store.releaseAsset(this.phaser_scene, component.asset_id);
+      }
       const component_class = component.constructor as ComponentClass;
       this._component_store.removeComponent(entity, component_class);
     }
@@ -109,6 +121,15 @@ export default class EcsManager {
     entity: Entity,
     component_class: ClassType<T>,
   ): void {
+    const component = this.getComponent(entity, component_class);
+    if (!component) {
+      return;
+    }
+
+    if (component instanceof AssetComponent) {
+      this._asset_store.releaseAsset(this.phaser_scene, component.asset_id);
+    }
+
     const component_type = this._component_store.getRegisteredComponentClass(
       component_class.name,
     );
@@ -243,15 +264,12 @@ export default class EcsManager {
     );
   }
 
-  public activateSystem(context: GameContext, system_class: SystemClass): void {
-    this._system_manager.activateSystem(context, system_class);
+  public activateSystem(system_class: SystemClass): void {
+    this._system_manager.activateSystem(this, system_class);
   }
 
-  public deactivateSystem(
-    context: GameContext,
-    system_class: SystemClass,
-  ): void {
-    this._system_manager.activateSystem(context, system_class);
+  public deactivateSystem(system_class: SystemClass): void {
+    this._system_manager.activateSystem(this, system_class);
   }
 
   public get graphics_cache(): GraphicsCache {
@@ -271,8 +289,16 @@ export default class EcsManager {
     this._graphics_cache.deleteCache(drawable);
   }
 
-  public update(context: GameContext, time: number, delta: number): void {
-    this._system_manager.update(context, time, delta);
+  public update(time: number, delta: number): void {
+    this._system_manager.update(this, time, delta);
+  }
+
+  public get phaser_scene(): PhaserScene {
+    return this._phaser_scene;
+  }
+
+  public get asset_store(): AssetStore {
+    return this._asset_store;
   }
 
   serialize(): string {

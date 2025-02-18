@@ -2,7 +2,13 @@ import CompChild from '../../src/engine/core_components/CompChild';
 import CompParent from '../../src/engine/core_components/CompParent';
 import Component from '../../src/engine/core/Component';
 import EcsManager from '../../src/engine/core/EcsManager';
-import { Archetype } from '../../src/engine/core/ComponentStore';
+import EntityStore from '../../src/engine/core/EntityStore';
+import AssetStore from '../../src/engine/core/AssetStore';
+import SystemManager from '../../src/engine/core/SystemManager';
+import ComponentStore, {
+  Archetype,
+} from '../../src/engine/core/ComponentStore';
+import CoreScene from '../../src/engine/core/CoreScene';
 
 class MockComponent extends Component {
   constructor(public value: number) {
@@ -20,10 +26,19 @@ describe('ECS', () => {
   let ecs: EcsManager;
 
   beforeEach(() => {
-    ecs = new EcsManager();
+    const entity_store = new EntityStore();
+    const component_store = new ComponentStore();
+    const asset_store = new AssetStore();
+    const system_manager = new SystemManager();
+    ecs = new EcsManager(
+      entity_store,
+      component_store,
+      system_manager,
+      asset_store,
+    );
 
-    ecs.registerComponent(CompParent);
-    ecs.registerComponent(CompChild);
+    const core_scene = new CoreScene();
+    core_scene.loadScene(ecs);
     ecs.registerComponent(MockComponent);
     ecs.registerComponent(AnotherMockComponent);
   });
@@ -198,8 +213,8 @@ describe('ECS', () => {
     ecs.addComponent(entity2, new AnotherMockComponent(5));
 
     const entities_with_position = ecs.getEntitiesAndComponents(MockComponent);
-    expect(entities_with_position).toContain(entity1);
-    expect(entities_with_position).not.toContain(entity2);
+    expect(entities_with_position.keys()).toContain(entity1);
+    expect(entities_with_position.keys()).not.toContain(entity2);
   });
 
   test('should retrieve all entities matching an archetype', () => {
@@ -256,11 +271,12 @@ describe('ECS', () => {
   });
 
   test('should clear all entities and components', () => {
+    const old_length = ecs.getAllEntities().length;
     const entity = ecs.newEntity();
     ecs.addComponent(entity, new MockComponent(10));
     ecs.addComponent(entity, new AnotherMockComponent(5));
 
     ecs.removeEntity(entity);
-    expect(ecs.getAllEntities()).toHaveLength(0);
+    expect(ecs.getAllEntities()).toHaveLength(old_length);
   });
 });

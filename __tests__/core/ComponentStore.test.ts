@@ -1,5 +1,7 @@
 import Component from '../../src/engine/core/Component';
-import ComponentStore, { Archetype } from '../../src/engine/core/ComponentStore';
+import ComponentStore, {
+  Archetype,
+} from '../../src/engine/core/ComponentStore';
 import { Entity } from '../../src/engine/core/Entity';
 
 class MockComponent extends Component {
@@ -118,15 +120,19 @@ describe('ComponentStore', () => {
   test('getEntitiesWithComponent should return entities with a specific component type', () => {
     const entity1: Entity = 1;
     const entity2: Entity = 2;
+    const component1 = new MockComponent(10);
+    const component2 = new MockComponent(30);
 
     store.registerComponent(MockComponent);
 
-    store.addComponent(entity1, new MockComponent(10));
-    store.addComponent(entity2, new MockComponent(30));
+    store.addComponent(entity1, component1);
+    store.addComponent(entity2, component2);
 
     const entities = store.getEntitiesAndComponents(MockComponent);
-    expect(entities).toContain(entity1);
-    expect(entities).toContain(entity2);
+    expect(entities.keys()).toContain(entity1);
+    expect(entities.keys()).toContain(entity2);
+    expect(entities.values()).toContain(component1);
+    expect(entities.values()).toContain(component2);
   });
 
   test('getEntitiesWithArchetype should return entities with all specified component types', () => {

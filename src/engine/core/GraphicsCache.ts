@@ -3,7 +3,10 @@ import CompDrawable from '../core_components/CompDrawable';
 export class GraphicsCacheObject {
   /* This is a reference to the Phaser object that will be drawn by Phaser.
    * We might need to add options for other classes in the future. */
-  public graphics_object: Phaser.GameObjects.Graphics | null = null;
+  public graphics_object:
+    | Phaser.GameObjects.Graphics
+    | Phaser.GameObjects.Sprite
+    | null = null;
 }
 
 export default class GraphicsCache {

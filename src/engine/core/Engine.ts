@@ -1,18 +1,16 @@
 import Phaser from 'phaser';
 import SceneManager from './SceneManager';
 import Scene from './Scene';
-import { GameContext } from './GameContext';
 import CoreScene from './CoreScene';
+import EcsManager from './EcsManager';
 
 export default class Engine {
   private _ready_promise: Promise<void>;
   private _width: number;
   private _height: number;
   private _phaser_game: Phaser.Game;
-  private _context = new GameContext((time, delta) => {
-    this._update(time, delta);
-  });
   private _scene_manager = new SceneManager();
+  private _ecs_manager = new EcsManager();
 
   constructor(width: number, height: number) {
     this._width = width;
@@ -27,11 +25,11 @@ export default class Engine {
       type: Phaser.AUTO,
       width: this._width,
       height: this._height,
-      scene: [this._context.phaser_scene],
+      scene: [this._ecs_manager.phaser_scene],
       banner: false, // Clutters test outputs
     });
 
-    this._context.phaser_scene.ready().then(() => {
+    this._ecs_manager.phaser_scene.ready().then(() => {
       this.registerScene('core', new CoreScene());
       this.buildScenes(['core']);
       ready_resolver();
@@ -42,17 +40,19 @@ export default class Engine {
     return this._ready_promise;
   }
 
-  private _update(time: number, delta: number): void {
-    this._context.ecs_manager.update(this._context, time, delta);
-  }
-
   public registerScene(key: string, scene: Scene): void {
     this._scene_manager.registerScene(key, scene);
   }
 
+  public preloadScenes(scene_keys: string[]): void {
+    scene_keys.forEach((key) => {
+      this._scene_manager.preloadScene(this._ecs_manager, key);
+    });
+  }
+
   public buildScenes(scene_keys: string[]): void {
     scene_keys.forEach((key) => {
-      this._scene_manager.buildScene(this._context, key);
+      this._scene_manager.loadScene(this._ecs_manager, key);
     });
   }
 }

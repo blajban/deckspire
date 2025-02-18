@@ -22,102 +22,70 @@ import {
   SysInputEnd,
 } from '../core_systems/SysSentinels';
 import SysDestroyEntity from '../core_systems/SysDestroyEntity';
-import { GameContext } from './GameContext';
 import Scene from './Scene';
 import {
   CompDestroyMe,
   CompDestroyWithScene,
 } from '../core_components/CompDestroy';
 import SysMouseDepth from '../core_systems/SysMouseDepth';
+import EcsManager from './EcsManager';
+import CompTransform from '../core_components/CompTransform';
+import CompSprite from '../core_components/CompSprite';
+import CompSpritesheet from '../core_components/CompSpritesheet';
 
 export default class CoreScene extends Scene {
-  buildScene(context: GameContext): void {
-    this._registerCoreComponents(context);
-    this._registerCoreSystems(context);
+  loadScene(ecs: EcsManager): Promise<void> {
+    this._registerCoreComponents(ecs);
+    this._registerCoreSystems(ecs);
 
-    context.ecs_manager.activateSystem(context, SysMouse);
-    context.ecs_manager.activateSystem(context, SysMouseDepth);
-    context.ecs_manager.activateSystem(context, SysDestroyEntity);
+    ecs.activateSystem(SysMouse);
+    ecs.activateSystem(SysMouseDepth);
+    ecs.activateSystem(SysDestroyEntity);
 
-    console.log('CoreScene built!');
+    return Promise.resolve();
   }
 
-  destroyScene(context: GameContext): void {
-    context.ecs_manager.deactivateSystem(context, SysMouse);
-
-    console.log('CoreScene destroyed!');
+  unloadScene(ecs: EcsManager): void {
+    ecs.deactivateSystem(SysMouse);
   }
 
   /**
    * Adds the core system for drawing entities to the ECS.
    */
-  private _registerCoreSystems(context: GameContext): void {
+  private _registerCoreSystems(ecs: EcsManager): void {
     // Register sentinels first
-    context.ecs_manager.registerSystem(SysInitBegin, [], [SysInitEnd]);
-    context.ecs_manager.registerSystem(
-      SysInitEnd,
-      [SysInitBegin],
-      [SysInputBegin],
-    );
-    context.ecs_manager.registerSystem(
-      SysInputBegin,
-      [SysInitEnd],
-      [SysInputEnd],
-    );
-    context.ecs_manager.registerSystem(
-      SysInputEnd,
-      [SysInputBegin],
-      [SysDrawBegin],
-    );
-    context.ecs_manager.registerSystem(
-      SysDrawBegin,
-      [SysInputEnd],
-      [SysDrawEnd],
-    );
-    context.ecs_manager.registerSystem(
-      SysDrawEnd,
-      [SysDrawBegin],
-      [SysCleanupBegin],
-    );
-    context.ecs_manager.registerSystem(
-      SysCleanupBegin,
-      [SysDrawEnd],
-      [SysCleanupEnd],
-    );
-    context.ecs_manager.registerSystem(SysCleanupEnd, [SysCleanupBegin], []);
+    ecs.registerSystem(SysInitBegin, [], [SysInitEnd]);
+    ecs.registerSystem(SysInitEnd, [SysInitBegin], [SysInputBegin]);
+    ecs.registerSystem(SysInputBegin, [SysInitEnd], [SysInputEnd]);
+    ecs.registerSystem(SysInputEnd, [SysInputBegin], [SysDrawBegin]);
+    ecs.registerSystem(SysDrawBegin, [SysInputEnd], [SysDrawEnd]);
+    ecs.registerSystem(SysDrawEnd, [SysDrawBegin], [SysCleanupBegin]);
+    ecs.registerSystem(SysCleanupBegin, [SysDrawEnd], [SysCleanupEnd]);
+    ecs.registerSystem(SysCleanupEnd, [SysCleanupBegin], []);
     // Register actual systems
-    context.ecs_manager.registerSystem(
-      SysMouse,
-      [SysInputBegin],
-      [SysInputEnd],
-    );
-    context.ecs_manager.registerSystem(
-      SysMouseDepth,
-      [SysInputEnd],
-      [SysDrawBegin],
-    );
-    context.ecs_manager.registerSystem(
-      SysDestroyEntity,
-      [SysCleanupBegin],
-      [SysCleanupEnd],
-    );
+    ecs.registerSystem(SysMouse, [SysInputBegin], [SysInputEnd]);
+    ecs.registerSystem(SysMouseDepth, [SysInputEnd], [SysDrawBegin]);
+    ecs.registerSystem(SysDestroyEntity, [SysCleanupBegin], [SysCleanupEnd]);
   }
 
   /**
    * Registers all core components.
    */
-  private _registerCoreComponents(context: GameContext): void {
-    context.ecs_manager.registerComponent(CompChild);
-    context.ecs_manager.registerComponent(CompDestroyMe);
-    context.ecs_manager.registerComponent(CompDestroyWithScene);
-    context.ecs_manager.registerComponent(CompDrawable);
-    context.ecs_manager.registerComponent(CompFillStyle);
-    context.ecs_manager.registerComponent(CompLineStyle);
-    context.ecs_manager.registerComponent(CompIsMouse);
-    context.ecs_manager.registerComponent(CompMouseEvent);
-    context.ecs_manager.registerComponent(CompMouseSensitive);
-    context.ecs_manager.registerComponent(CompMouseState);
-    context.ecs_manager.registerComponent(CompNamed);
-    context.ecs_manager.registerComponent(CompParent);
+  private _registerCoreComponents(ecs: EcsManager): void {
+    ecs.registerComponent(CompChild);
+    ecs.registerComponent(CompDestroyMe);
+    ecs.registerComponent(CompDestroyWithScene);
+    ecs.registerComponent(CompDrawable);
+    ecs.registerComponent(CompFillStyle);
+    ecs.registerComponent(CompLineStyle);
+    ecs.registerComponent(CompIsMouse);
+    ecs.registerComponent(CompMouseEvent);
+    ecs.registerComponent(CompMouseSensitive);
+    ecs.registerComponent(CompMouseState);
+    ecs.registerComponent(CompNamed);
+    ecs.registerComponent(CompParent);
+    ecs.registerComponent(CompSprite);
+    ecs.registerComponent(CompSpritesheet);
+    ecs.registerComponent(CompTransform);
   }
 }

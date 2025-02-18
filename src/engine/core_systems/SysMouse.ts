@@ -1,5 +1,5 @@
 import { Archetype } from '../core/ComponentStore';
-import { GameContext } from '../core/GameContext';
+import EcsManager from '../core/EcsManager';
 import System from '../core/System';
 import { CompDestroyMe } from '../core_components/CompDestroy';
 import {
@@ -17,47 +17,35 @@ export default class SysMouse extends System {
     super(new Archetype(CompIsMouse, CompMouseState));
   }
 
-  override init(context: GameContext): void {
-    context.ecs_manager.addComponents(
-      context.ecs_manager.newEntity(),
-      new CompIsMouse(),
-      new CompMouseState(),
-    );
+  override init(ecs: EcsManager): void {
+    ecs.addComponents(ecs.newEntity(), new CompIsMouse(), new CompMouseState());
   }
 
-  override update(context: GameContext, _time: number, _delta: number): void {
+  override update(ecs: EcsManager, _time: number, _delta: number): void {
     // Update
-    const [has_moved, has_clicked] =
-      this._mouse_state.updateMouseStatus(context);
+    const [has_moved, has_clicked] = this._mouse_state.updateMouseStatus(ecs);
     // Find mouse entity
-    const entity = context.ecs_manager.getEntityWithArchetype(
-      this.archetypes[0],
-    )!;
+    const entity = ecs.getEntityWithArchetype(this.archetypes[0])!;
     // Find mouse state component
-    const comp_mouse_state = context.ecs_manager.getComponent(
-      entity,
-      CompMouseState,
-    )!;
+    const comp_mouse_state = ecs.getComponent(entity, CompMouseState)!;
     comp_mouse_state.mouse_state = this._mouse_state.clone();
     // No event if the mouse state was unchanged.
     if (!(has_moved || has_clicked)) {
       return;
     }
     // Send mouse event
-    context.ecs_manager.addComponents(
-      context.ecs_manager.newEntity(),
+    ecs.addComponents(
+      ecs.newEntity(),
       new CompMouseState(this._mouse_state.clone()),
       new CompMouseEvent(has_moved, has_clicked),
       new CompDestroyMe(),
     );
   }
 
-  public terminate(context: GameContext): void {
-    const entities = context.ecs_manager.getEntitiesWithArchetype(
-      this.archetypes[0],
-    );
+  public terminate(ecs: EcsManager): void {
+    const entities = ecs.getEntitiesWithArchetype(this.archetypes[0]);
     for (const entity of entities) {
-      context.ecs_manager.removeEntity(entity);
+      ecs.removeEntity(entity);
     }
   }
 }

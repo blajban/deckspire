@@ -22,13 +22,41 @@ describe('Engine', () => {
     expect((engine as any)._height).toBe(600);
   });
 
+  test('should return a promise that resolves after create() is called', async () => {
+    const ready_promise = engine.ready();
+
+    engine['_ecs_manager'].phaser_scene.create();
+
+    await expect(ready_promise).resolves.toBeUndefined();
+  });
+
+  test('should resolve the ready promise only once', async () => {
+    const ready_promise1 = engine.ready();
+    const ready_promise2 = engine.ready();
+
+    engine['_ecs_manager'].phaser_scene.create();
+
+    await expect(ready_promise1).resolves.toBeUndefined();
+    await expect(ready_promise2).resolves.toBeUndefined();
+  });
+
+  test('should call create method and resolve the ready promise', () => {
+    const ready_promise = engine.ready();
+
+    engine['_ecs_manager'].phaser_scene.create();
+
+    return expect(ready_promise).resolves.toBeUndefined();
+  });
+
   test('should integrate with SceneManager correctly', () => {
     const mock_scene_manager = engine['_scene_manager'];
     const mock_register_scene = jest.spyOn(mock_scene_manager, 'registerScene');
 
     const mock_scene = new (class extends Scene {
-      buildScene(): void {}
-      destroyScene(): void {}
+      loadScene(): Promise<void> {
+        return Promise.resolve();
+      }
+      unloadScene(): void {}
     })();
 
     mock_scene_manager.registerScene('TestScene', mock_scene);

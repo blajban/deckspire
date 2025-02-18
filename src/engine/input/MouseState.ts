@@ -1,5 +1,5 @@
 import Vector2D from '../../math/Vector2D';
-import { GameContext } from '../core/GameContext';
+import EcsManager from '../core/EcsManager';
 
 export class MouseState {
   constructor(
@@ -14,8 +14,8 @@ export class MouseState {
     );
   }
 
-  public updateMouseStatus(context: GameContext): [boolean, boolean] {
-    const pointer = context.phaser_scene.input.activePointer;
+  public updateMouseStatus(ecs: EcsManager): [boolean, boolean] {
+    const pointer = ecs.phaser_scene.input.activePointer;
     return [
       this._updatePosition(pointer.position),
       this._updateMouseButtonsState(pointer.buttons),
