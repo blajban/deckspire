@@ -32,6 +32,7 @@ import { SysDrawSprite } from './systems/SysDrawSprite';
 import { SysDrawSpritesheet } from './systems/SysDrawSpritesheet';
 import SysAnimateSpriteSheet from './systems/SysAnimateSpriteSheet';
 import CompAnimation from './engine/core_components/CompAnimation';
+import PhaserContext from './engine/core/PhaserContext';
 
 function main(): void {
   const theater = new Theater(800, 600);
@@ -45,7 +46,10 @@ function main(): void {
 }
 
 class SamuraiScene extends Scene {
-  async preload(ecs: EcsManager): Promise<void> {
+  override async preload(
+    ecs: EcsManager,
+    phaser_context: PhaserContext,
+  ): Promise<void> {
     ecs.asset_store.registerAssets([
       { key: 'samurai', path: 'assets/IDLE.png', type: AssetType.Image },
       {
@@ -62,7 +66,7 @@ class SamuraiScene extends Scene {
       },
     ]);
     this.makePreloadPromise(
-      ecs.asset_store.preloadAssets(ecs.phaser_scene, [
+      ecs.asset_store.preloadAssets(phaser_context, [
         'samurai',
         'samurai_two',
         'samurai_three',
@@ -70,7 +74,10 @@ class SamuraiScene extends Scene {
     );
   }
 
-  async load(ecs: EcsManager): Promise<void> {
+  override async load(
+    ecs: EcsManager,
+    _phaser_context: PhaserContext,
+  ): Promise<void> {
     await this.readyPreload();
 
     ecs.registerSystem(SysAnimateSpriteSheet, [SysUpdateBegin], [SysUpdateEnd]);
@@ -104,13 +111,19 @@ class SamuraiScene extends Scene {
     );
   }
 
-  public unload(_ecs: EcsManager): void {}
+  public unload(_ecs: EcsManager, _phaser_context: PhaserContext): void {}
 }
 
 class HexScene extends Scene {
-  async preload(): Promise<void> {}
+  override async preload(
+    _ecs: EcsManager,
+    _phaser_context: PhaserContext,
+  ): Promise<void> {}
 
-  load(ecs: EcsManager): Promise<void> {
+  override load(
+    ecs: EcsManager,
+    _phaser_context: PhaserContext,
+  ): Promise<void> {
     ecs.registerComponent(CompHex);
     ecs.registerComponent(CompHexGrid);
     ecs.registerComponent(CompSelectorHex);
@@ -153,7 +166,7 @@ class HexScene extends Scene {
     return Promise.resolve();
   }
 
-  unload(_ecs: EcsManager): void {}
+  override unload(_ecs: EcsManager, _phaser_context: PhaserContext): void {}
 }
 
 main();

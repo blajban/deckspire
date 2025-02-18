@@ -37,9 +37,13 @@ import CompTransform from '../core_components/CompTransform';
 import CompSprite from '../core_components/CompSprite';
 import CompSpritesheet from '../core_components/CompSpritesheet';
 import CompAnimation from '../core_components/CompAnimation';
+import PhaserContext from './PhaserContext';
 
 export default class CoreScene extends Scene {
-  load(ecs: EcsManager): Promise<void> {
+  override load(
+    ecs: EcsManager,
+    _phaser_context: PhaserContext,
+  ): Promise<void> {
     this._registerCoreComponents(ecs);
     this._registerCoreSystems(ecs);
 
@@ -50,7 +54,7 @@ export default class CoreScene extends Scene {
     return Promise.resolve();
   }
 
-  unload(ecs: EcsManager): void {
+  override unload(ecs: EcsManager, _phaser_context: PhaserContext): void {
     ecs.deactivateSystem(SysMouse);
   }
 

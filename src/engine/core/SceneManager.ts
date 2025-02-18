@@ -1,5 +1,6 @@
 import { CompDestroyWithScene } from '../core_components/CompDestroy';
 import EcsManager from './EcsManager';
+import PhaserContext from './PhaserContext';
 import Scene from './Scene';
 
 export default class SceneManager {
@@ -17,7 +18,11 @@ export default class SceneManager {
     }
   }
 
-  async preloadScene(ecs: EcsManager, key: string): Promise<void> {
+  async preloadScene(
+    ecs: EcsManager,
+    phaser_context: PhaserContext,
+    key: string,
+  ): Promise<void> {
     const scene = this._registered_scenes.get(key);
     if (!scene) {
       throw new Error(`Cannot load scene ${key}, it is not registered.`);
@@ -27,10 +32,10 @@ export default class SceneManager {
       throw new Error(`Scene ${key} has already been preloaded.`);
     }
 
-    await scene.preload(ecs);
+    await scene.preload(ecs, phaser_context);
   }
 
-  loadScene(ecs: EcsManager, key: string): void {
+  loadScene(ecs: EcsManager, phaser_context: PhaserContext, key: string): void {
     const scene = this._registered_scenes.get(key);
     if (!scene) {
       throw new Error(`Cannot load scene ${key}, it is not registered.`);
@@ -40,16 +45,20 @@ export default class SceneManager {
       throw new Error(`Scene ${key} is already loaded.`);
     }
 
-    scene.load(ecs);
+    scene.load(ecs, phaser_context);
     this._loaded_scenes.add(key);
   }
 
-  unloadScene(ecs: EcsManager, key: string): void {
+  unloadScene(
+    ecs: EcsManager,
+    phaser_context: PhaserContext,
+    key: string,
+  ): void {
     if (!this._loaded_scenes.has(key)) {
       throw new Error(`Scene ${key} is not loaded.`);
     }
     const scene = this._registered_scenes.get(key)!;
-    scene.unload(ecs);
+    scene.unload(ecs, phaser_context);
 
     ecs
       .getEntitiesAndComponents(CompDestroyWithScene)
