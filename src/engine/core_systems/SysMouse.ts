@@ -24,12 +24,13 @@ export default class SysMouse extends System {
 
   override update(
     ecs: EcsManager,
-    _phaser_context: PhaserContext,
+    phaser_context: PhaserContext,
     _time: number,
     _delta: number,
   ): void {
     // Update
-    const [has_moved, has_clicked] = this._mouse_state.updateMouseStatus(ecs);
+    const [has_moved, has_clicked] =
+      this._mouse_state.updateMouseStatus(phaser_context);
     // Find mouse entity
     const entity = ecs.getEntityWithArchetype(this.archetypes[0])!;
     // Find mouse state component

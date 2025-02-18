@@ -58,13 +58,21 @@ export default class Theater {
 
   public preloadScenes(scene_keys: string[]): void {
     scene_keys.forEach((key) => {
-      this._scene_manager.preloadScene(this._ecs_manager, key);
+      this._scene_manager.preloadScene(
+        this._ecs_manager,
+        this._phaser_context,
+        key,
+      );
     });
   }
 
   public buildScenes(scene_keys: string[]): void {
     scene_keys.forEach((key) => {
-      this._scene_manager.loadScene(this._ecs_manager, key);
+      this._scene_manager.loadScene(
+        this._ecs_manager,
+        this._phaser_context,
+        key,
+      );
     });
   }
 }
