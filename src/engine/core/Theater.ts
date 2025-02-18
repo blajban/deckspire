@@ -4,7 +4,7 @@ import Scene from './Scene';
 import CoreScene from './CoreScene';
 import EcsManager from './EcsManager';
 
-export default class Engine {
+export default class Theater {
   private _ready_promise: Promise<void>;
   private _width: number;
   private _height: number;

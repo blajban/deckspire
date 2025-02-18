@@ -3,7 +3,7 @@ import CompHexGrid from './components/CompHexGrid';
 import CompTransform from './engine/core_components/CompTransform';
 import { DrawHex, SysDrawHexGrid } from './systems/SysDrawHexes';
 import { AssetType } from './engine/core/AssetStore';
-import Engine from './engine/core/Engine';
+import Theater from './engine/core/Theater';
 import Scene from './engine/core/Scene';
 import { CompDestroyWithScene } from './engine/core_components/CompDestroy';
 import CompDrawable from './engine/core_components/CompDrawable';
@@ -30,7 +30,7 @@ import { SysDrawSprite } from './systems/SysDrawSprite';
 import { SysDrawSpritesheet } from './systems/SysDrawSpritesheet';
 
 function main(): void {
-  const theater = new Engine(800, 600);
+  const theater = new Theater(800, 600);
 
   theater.ready().then(() => {
     theater.registerScene('HexScene', new HexScene());

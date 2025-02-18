@@ -23,7 +23,7 @@ export class SysDrawSprite extends System {
         cache.graphics_object = ecs.phaser_scene.add.sprite(
           transform.position.x,
           transform.position.y,
-          image_asset!,
+          image_asset,
         );
       }
       const phaser_sprite = cache.graphics_object as Phaser.GameObjects.Sprite;

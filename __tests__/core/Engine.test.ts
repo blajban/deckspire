@@ -1,13 +1,13 @@
-import Engine from '../../src/engine/core/Engine';
+import Theater from '../../src/engine/core/Theater';
 import Scene from '../../src/engine/core/Scene';
 
 jest.mock('../../src/engine/core/SceneManager');
 
 describe('Engine', () => {
-  let engine: Engine;
+  let engine: Theater;
 
   beforeEach(() => {
-    engine = new Engine(800, 600);
+    engine = new Theater(800, 600);
   });
 
   afterEach(() => {

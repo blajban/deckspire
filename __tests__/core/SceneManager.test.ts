@@ -1,5 +1,5 @@
 import EcsManager from '../../src/engine/core/EcsManager';
-import Engine from '../../src/engine/core/Engine';
+import Theater from '../../src/engine/core/Theater';
 import Scene from '../../src/engine/core/Scene';
 import SceneManager from '../../src/engine/core/SceneManager';
 
@@ -22,13 +22,13 @@ class MockScene extends Scene {
 }
 
 describe('SceneManager', () => {
-  let engine: Engine;
+  let engine: Theater;
   let scene_manager: SceneManager;
   let ecs: EcsManager;
   let mock_scene: MockScene;
 
   beforeEach(() => {
-    engine = new Engine(800, 600);
+    engine = new Theater(800, 600);
     scene_manager = engine['_scene_manager'];
     ecs = engine['_ecs_manager'];
     mock_scene = new MockScene();
