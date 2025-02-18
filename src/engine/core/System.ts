@@ -1,36 +1,15 @@
-import { setUnion } from '../util/setUtilityFunctions';
+import { ClassType } from '../util/ClassType';
 import { Archetype } from './ComponentStore';
-import { Context } from './Engine';
-import { Entity } from './Entity';
-import Scene from './Scene';
+import EcsManager from './EcsManager';
 
-abstract class HasApplicableArchetypes {
-  constructor(public readonly ARCHETYPES: Archetype[]) {}
+export type SystemClass = ClassType<System>;
 
-  public allMatchingEntities(scene: Scene): Set<Entity> {
-    const entity_sets = new Array<Set<Entity>>();
-    this.ARCHETYPES.forEach((archetype) => {
-      entity_sets.push(scene.ecs.getEntitiesWithArchetype(...archetype));
-    });
-    return setUnion(...entity_sets);
+export default abstract class System {
+  public readonly archetypes: Archetype[];
+  constructor(...archetypes: Archetype[]) {
+    this.archetypes = archetypes;
   }
-}
-
-export default abstract class System extends HasApplicableArchetypes {
-  abstract update(
-    scene: Scene,
-    context: Context,
-    time: number,
-    delta: number,
-  ): void;
-}
-
-export abstract class SubSystem extends HasApplicableArchetypes {}
-
-export abstract class SystemWithSubsystems<T extends SubSystem> extends System {
-  protected sub_systems: T[] = [];
-
-  public addSubSystem(sub_system: T): void {
-    this.sub_systems.push(sub_system);
-  }
+  init(_ecs: EcsManager): void {}
+  abstract update(ecs: EcsManager, time: number, delta: number): void;
+  terminate(_ecs: EcsManager): void {}
 }

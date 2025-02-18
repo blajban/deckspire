@@ -30,17 +30,17 @@ export default [
       '@stylistic/arrow-parens': ['warn'],
       '@stylistic/arrow-spacing': ['warn'],
       '@stylistic/dot-location': ['warn', 'property'],
-      '@stylistic/max-len': [
+      /*'@stylistic/max-len': [
         'warn',
         {
-          code: 80,
+          code: 100,
           tabWidth: 2,
           ignoreComments: true,
           ignoreStrings: true,
           ignoreRegExpLiterals: true,
           ignoreTemplateLiterals: true,
         },
-      ],
+      ],*/
       eqeqeq: 'warn',
       curly: ['error', 'all'],
       'prefer-const': 'warn',
@@ -122,13 +122,7 @@ export default [
           leadingUnderscore: 'forbid',
         },
         {
-          selector: [
-            'variable',
-            'classProperty',
-            'accessor',
-            'parameter',
-            'parameterProperty',
-          ],
+          selector: ['variable'],
           modifiers: ['readonly'],
           format: ['UPPER_CASE'],
           leadingUnderscore: 'forbid',

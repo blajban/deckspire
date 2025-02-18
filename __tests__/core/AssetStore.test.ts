@@ -2,16 +2,17 @@ import AssetStore, {
   AssetData,
   AssetType,
 } from '../../src/engine/core/AssetStore';
-import { Context } from '../../src/engine/core/Engine';
+import EcsManager from '../../src/engine/core/EcsManager';
 
 // TEST asset counting (increasing, decreasing etc), unload only when no components is using
 
 describe('AssetStore', () => {
   let asset_store: AssetStore;
-  let mock_context: Context;
+  let mock_ecs: EcsManager;
   beforeEach(() => {
-    mock_context = {
-      phaserContext: {
+    mock_ecs = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      phaser_scene: {
         load: {
           image: jest.fn(),
           spritesheet: jest.fn(),
@@ -25,9 +26,9 @@ describe('AssetStore', () => {
           removeByKey: jest.fn(),
         },
       },
-    } as unknown as Context;
+    } as unknown as EcsManager;
 
-    asset_store = new AssetStore(mock_context);
+    asset_store = new AssetStore();
   });
 
   const test_image_asset: AssetData = {
@@ -75,14 +76,14 @@ describe('AssetStore', () => {
 
   test('should throw an error when releasing an asset that was not used', () => {
     const asset_id = asset_store.registerAsset(test_audio_asset);
-    expect(() => asset_store.releaseAsset(asset_id)).toThrow(
-      `Attempted to release non-existent asset ID ${asset_id}`,
-    );
+    expect(() =>
+      asset_store.releaseAsset(mock_ecs.phaser_scene, asset_id),
+    ).toThrow(`Attempted to release non-existent asset ID ${asset_id}`);
   });
 
   test('should not unload an asset that is not loaded', () => {
     const asset_id = asset_store.registerAsset(test_image_asset);
-    asset_store.unloadAsset(asset_id);
+    asset_store.unloadAsset(mock_ecs.phaser_scene, asset_id);
     expect(asset_store.isAssetLoaded(asset_id)).toBe(false);
   });
 
@@ -104,7 +105,9 @@ describe('AssetStore', () => {
 
   test('should throw an error when releasing an asset that was not used', () => {
     const asset_id = asset_store.registerAsset(test_audio_asset);
-    expect(() => asset_store.releaseAsset(asset_id)).toThrow();
+    expect(() =>
+      asset_store.releaseAsset(mock_ecs.phaser_scene, asset_id),
+    ).toThrow();
   });
 
   test('should not allow duplicate asset registrations', () => {

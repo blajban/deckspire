@@ -6,7 +6,7 @@ import { Entity } from './Entity';
 export default class EntityStore {
   private _entities: Set<Entity> = new Set();
   // Needs to be protected in case we go multithreaded in the future.
-  private static _current_id: Entity = 0;
+  private static _current_id: Entity = 1; // Start at one for the sake of boolean logic
 
   /**
    * Generates the next entity ID.

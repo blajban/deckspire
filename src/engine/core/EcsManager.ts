@@ -1,83 +1,30 @@
 import CompChild from '../core_components/CompChild';
 import CompDrawable from '../core_components/CompDrawable';
-import CompFillStyle from '../core_components/CompFillStyle';
-import CompLineStyle from '../core_components/CompLineStyle';
-import CompMouseSensitive from '../core_components/CompMouseSensitive';
-import CompNamed from '../core_components/CompNamed';
 import CompParent from '../core_components/CompParent';
-import CompSprite from '../core_components/CompSprite';
-import CompSpritesheet from '../core_components/CompSpritesheet';
-import SysDraw from '../core_systems/SysDraw';
-import SysMouse from '../core_systems/SysMouse';
+import { ClassType } from '../util/ClassType';
 import AssetComponent from './AssetComponent';
 import AssetStore from './AssetStore';
 import Component, { ComponentClass } from './Component';
 import ComponentStore, { Archetype } from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
+import GraphicsCache from './GraphicsCache';
+import PhaserScene from './PhaserScene';
+import { SystemClass } from './System';
+import SystemManager from './SystemManager';
 
-export default class Ecs {
-  private _system_draw: SysDraw | null = null;
-  private _system_mouse: SysMouse | null = null;
+export default class EcsManager {
+  private _graphics_cache = new GraphicsCache();
+  private _phaser_scene = new PhaserScene((time_in_ms, delta_in_ms) => {
+    this.update(0.001 * time_in_ms, 0.001 * delta_in_ms);
+  });
 
   constructor(
-    private _entity_store: EntityStore,
-    private _component_store: ComponentStore,
-    private _asset_store: AssetStore,
-  ) {
-    // Core components are always registered.
-    this._registerCoreComponents();
-  }
-
-  /**
-   * Adds the core system for drawing entities to the ECS.
-   */
-  public addDraw(): void {
-    if (!this._system_draw) {
-      this._system_draw = new SysDraw();
-    }
-  }
-
-  /**
-   * Adds the core system for handling mouse input to the ECS,
-   */
-  public addMouse(): void {
-    if (!this._system_mouse) {
-      /* Do not move this to the constructor! The Engine.Input object will not
-       * yet be instantiated and things will fail. */
-      this._system_mouse = new SysMouse();
-    }
-  }
-
-  /**
-   * Registers all core components.
-   */
-  private _registerCoreComponents(): void {
-    this.registerComponent(CompChild);
-    this.registerComponent(CompDrawable);
-    this.registerComponent(CompFillStyle);
-    this.registerComponent(CompLineStyle);
-    this.registerComponent(CompMouseSensitive);
-    this.registerComponent(CompNamed);
-    this.registerComponent(CompParent);
-    this.registerComponent(CompSprite);
-    this.registerComponent(CompSpritesheet);
-  }
-
-  // Temporary until we have a system handler.
-  /**
-   * @returns {SysDraw | null} the draw system if it exists.
-   */
-  public getDrawSystem(): SysDraw | null {
-    return this._system_draw;
-  }
-
-  /**
-   * @returns {SysMouse | null} the mouse handling system if it exists.
-   */
-  public getMouseSystem(): SysMouse | null {
-    return this._system_mouse;
-  }
+    private _entity_store: EntityStore = new EntityStore(),
+    private _component_store: ComponentStore = new ComponentStore(),
+    private _system_manager: SystemManager = new SystemManager(),
+    private _asset_store: AssetStore = new AssetStore(),
+  ) {}
 
   newEntity(): Entity {
     return this._entity_store.newEntity();
@@ -117,7 +64,7 @@ export default class Ecs {
     // Clean up Phaser objects if the Drawable has created any.
     const drawable = this.getComponent(entity, CompDrawable);
     if (drawable) {
-      this._system_draw?.cleanup(drawable);
+      this._cleanUpAfterPhaser(drawable);
     }
 
     // Remove all components
@@ -125,11 +72,9 @@ export default class Ecs {
 
     for (const component of components) {
       if (component instanceof AssetComponent) {
-        this._asset_store.releaseAsset(component.asset_id);
+        this._asset_store.releaseAsset(this.phaser_scene, component.asset_id);
       }
-
-      const component_class =
-        component.constructor as ComponentClass<Component>;
+      const component_class = component.constructor as ComponentClass;
       this._component_store.removeComponent(entity, component_class);
     }
 
@@ -140,9 +85,7 @@ export default class Ecs {
     return this._entity_store.getAllEntities();
   }
 
-  registerComponent<T extends Component>(
-    component_class: ComponentClass<T>,
-  ): void {
+  registerComponent<T extends Component>(component_class: ClassType<T>): void {
     this._component_store.registerComponent(component_class);
   }
 
@@ -169,14 +112,14 @@ export default class Ecs {
 
   getComponent<T extends Component>(
     entity: Entity,
-    component_class: ComponentClass<T>,
+    component_class: ClassType<T>,
   ): T | undefined {
     return this._component_store.getComponent(entity, component_class);
   }
 
   removeComponent<T extends Component>(
     entity: Entity,
-    component_class: ComponentClass<T>,
+    component_class: ClassType<T>,
   ): void {
     const component = this.getComponent(entity, component_class);
     if (!component) {
@@ -184,7 +127,7 @@ export default class Ecs {
     }
 
     if (component instanceof AssetComponent) {
-      this._asset_store.releaseAsset(component.asset_id);
+      this._asset_store.releaseAsset(this.phaser_scene, component.asset_id);
     }
 
     const component_type = this._component_store.getRegisteredComponentClass(
@@ -219,14 +162,21 @@ export default class Ecs {
     this._component_store.removeComponent(entity, component_class);
   }
 
-  getEntitiesWithComponent<T extends Component>(
-    component_class: ComponentClass<T>,
-  ): Set<Entity> {
-    return this._component_store.getEntitiesWithComponent(component_class);
+  getEntitiesAndComponents<T extends Component>(
+    component_class: ClassType<T>,
+  ): Map<Entity, T> {
+    return this._component_store.getEntitiesAndComponents(component_class);
   }
 
-  getEntitiesWithArchetype(...component_classes: Archetype): Set<Entity> {
-    return this._component_store.getEntitiesWithArchetype(...component_classes);
+  getEntitiesWithArchetype(archetype: Archetype): Set<Entity> {
+    return this._component_store.getEntitiesWithArchetype(archetype);
+  }
+
+  getEntityWithArchetype(archetype: Archetype): Entity | undefined {
+    return this._component_store
+      .getEntitiesWithArchetype(archetype)
+      .keys()
+      .next().value;
   }
 
   getComponentsForEntity(entity: Entity): Component[] {
@@ -300,6 +250,55 @@ export default class Ecs {
     }
 
     return false;
+  }
+
+  public registerSystem(
+    system_class: SystemClass,
+    execute_after: SystemClass[],
+    execute_before: SystemClass[] = [],
+  ): void {
+    this._system_manager.registerSystem(
+      system_class,
+      execute_after,
+      execute_before,
+    );
+  }
+
+  public activateSystem(system_class: SystemClass): void {
+    this._system_manager.activateSystem(this, system_class);
+  }
+
+  public deactivateSystem(system_class: SystemClass): void {
+    this._system_manager.activateSystem(this, system_class);
+  }
+
+  public get graphics_cache(): GraphicsCache {
+    return this._graphics_cache;
+  }
+
+  /**
+   * Since we are using Phaser the graphics objects need to be
+   *  de-registered from Phaser as the componenet is removed.
+   */
+  private _cleanUpAfterPhaser(drawable: CompDrawable): void {
+    const component_cache = this._graphics_cache.getComponentCache(drawable);
+    if (!component_cache) {
+      return;
+    }
+    component_cache.graphics_object?.destroy();
+    this._graphics_cache.deleteCache(drawable);
+  }
+
+  public update(time: number, delta: number): void {
+    this._system_manager.update(this, time, delta);
+  }
+
+  public get phaser_scene(): PhaserScene {
+    return this._phaser_scene;
+  }
+
+  public get asset_store(): AssetStore {
+    return this._asset_store;
   }
 
   serialize(): string {

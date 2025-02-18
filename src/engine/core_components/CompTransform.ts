@@ -1,5 +1,5 @@
-import Vector2D from '../math/Vector2D';
-import Component from '../engine/core/Component';
+import Vector2D from '../../math/Vector2D';
+import Component from '../core/Component';
 
 export default class CompTransform extends Component {
   /**
@@ -16,5 +16,13 @@ export default class CompTransform extends Component {
     this.position = position;
     this.rotation = rotation;
     this.scale = scale;
+  }
+
+  public getLocalCoordinates(world_coordinates: Vector2D): Vector2D {
+    return world_coordinates
+      .clone()
+      .subtract(this.position)
+      .rotate(-this.rotation)
+      .divide(this.scale);
   }
 }

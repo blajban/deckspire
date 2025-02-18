@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function loadJsonFile(file_path: string): Promise<any> {
   try {
     const response = await fetch(file_path);

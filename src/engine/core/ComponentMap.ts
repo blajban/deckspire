@@ -84,7 +84,7 @@ export default class ComponentMap<T extends Component> {
    * Get the number of components in the map.
    * @returns the size of the map.
    */
-  size(): number {
+  get size(): number {
     return this._components.size;
   }
 
@@ -92,7 +92,7 @@ export default class ComponentMap<T extends Component> {
    * Retrieves all entities with this component type.
    * @returns a cloned array of entities.
    */
-  getEntities(): Set<Entity> {
+  get entities(): Set<Entity> {
     if (!this._cached_entities) {
       this._cached_entities = new Set(this._components.keys());
     }
@@ -103,7 +103,11 @@ export default class ComponentMap<T extends Component> {
    * Retrieves all components in the map.
    * @returns An array of components.
    */
-  getComponents(): T[] {
+  get components(): T[] {
     return Array.from(this._components.values());
+  }
+
+  get map(): Map<Entity, T> {
+    return new Map<Entity, T>(this._components);
   }
 }

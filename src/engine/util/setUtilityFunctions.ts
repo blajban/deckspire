@@ -20,3 +20,22 @@ export function setUnion<T>(...sets: Set<T>[]): Set<T> {
   });
   return result;
 }
+
+export function setDifference<T>(a: Set<T>, b: Set<T>): Set<T> {
+  const result = new Set<T>();
+  a.forEach((val) => {
+    if (!b.has(val)) {
+      result.add(val);
+    }
+  });
+  return result;
+}
+
+export function setDifferenceInPlace<T>(a: Set<T>, b: Set<T>): Set<T> {
+  a.forEach((val) => {
+    if (b.has(val)) {
+      a.delete(val);
+    }
+  });
+  return a;
+}
