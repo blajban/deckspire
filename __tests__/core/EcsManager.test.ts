@@ -9,6 +9,7 @@ import ComponentStore, {
   Archetype,
 } from '../../src/engine/core/ComponentStore';
 import CoreScene from '../../src/engine/core/CoreScene';
+import PhaserContext from '../../src/engine/core/PhaserContext';
 
 class MockComponent extends Component {
   constructor(public value: number) {
@@ -38,7 +39,8 @@ describe('ECS', () => {
     );
 
     const core_scene = new CoreScene();
-    core_scene.load(ecs);
+    const mock_context = {} as unknown as PhaserContext;
+    core_scene.load(ecs, mock_context);
     ecs.registerComponent(MockComponent);
     ecs.registerComponent(AnotherMockComponent);
   });
