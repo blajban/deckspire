@@ -15,7 +15,11 @@ export default class Theater {
   private _ecs_manager = new EcsManager();
   private _phaser_context = new PhaserContext(
     new PhaserScene((time: number, delta: number) => {
-      this._ecs_manager.update(0.001 * time, 0.001 * delta);
+      this._ecs_manager.update(
+        this._phaser_context,
+        0.001 * time,
+        0.001 * delta,
+      );
     }),
     new GraphicsCache(),
   );

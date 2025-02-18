@@ -6,8 +6,7 @@ import Component, { ComponentClass } from './Component';
 import ComponentStore, { Archetype } from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
-import GraphicsCache from './GraphicsCache';
-import PhaserScene from './PhaserContext';
+import PhaserContext from './PhaserContext';
 import { SystemClass } from './System';
 import SystemManager from './SystemManager';
 
@@ -209,8 +208,12 @@ export default class EcsManager {
     this._system_manager.activateSystem(this, system_class);
   }
 
-  public update(time: number, delta: number): void {
-    this._system_manager.update(this, time, delta);
+  public update(
+    phaser_context: PhaserContext,
+    time: number,
+    delta: number,
+  ): void {
+    this._system_manager.update(this, phaser_context, time, delta);
   }
 
   public get asset_store(): AssetStore {
