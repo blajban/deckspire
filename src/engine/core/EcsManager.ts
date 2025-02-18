@@ -7,16 +7,11 @@ import ComponentStore, { Archetype } from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
 import GraphicsCache from './GraphicsCache';
-import PhaserScene from './PhaserScene';
+import PhaserScene from './PhaserContext';
 import { SystemClass } from './System';
 import SystemManager from './SystemManager';
 
 export default class EcsManager {
-  private _graphics_cache = new GraphicsCache();
-  private _phaser_scene = new PhaserScene((time_in_ms, delta_in_ms) => {
-    this.update(0.001 * time_in_ms, 0.001 * delta_in_ms);
-  });
-
   constructor(
     private _entity_store: EntityStore = new EntityStore(),
     private _component_store: ComponentStore = new ComponentStore(),
@@ -214,16 +209,8 @@ export default class EcsManager {
     this._system_manager.activateSystem(this, system_class);
   }
 
-  public get graphics_cache(): GraphicsCache {
-    return this._graphics_cache;
-  }
-
   public update(time: number, delta: number): void {
     this._system_manager.update(this, time, delta);
-  }
-
-  public get phaser_scene(): PhaserScene {
-    return this._phaser_scene;
   }
 
   public get asset_store(): AssetStore {

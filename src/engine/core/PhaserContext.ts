@@ -1,6 +1,14 @@
 import Phaser from 'phaser';
+import GraphicsCache from './GraphicsCache';
 
-export default class PhaserScene extends Phaser.Scene {
+export default class PhaserContext {
+  constructor(
+    public phaser_scene: PhaserScene,
+    public graphics_cache: GraphicsCache,
+  ) {}
+}
+
+export class PhaserScene extends Phaser.Scene {
   private _ready_promise: Promise<void>;
   private _ready_resolver!: () => void;
 
