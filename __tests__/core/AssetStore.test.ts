@@ -11,6 +11,7 @@ describe('AssetStore', () => {
   let mock_ecs: EcsManager;
   beforeEach(() => {
     mock_ecs = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       phaser_scene: {
         load: {
           image: jest.fn(),

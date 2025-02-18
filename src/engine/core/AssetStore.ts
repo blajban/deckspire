@@ -164,11 +164,11 @@ export default class AssetStore {
   ): Promise<void[]> {
     const asset_ids_to_load = keys
       ? keys
-        .map((key) => this.getAssetId(key))
-        .filter((id) => !this.isAssetLoaded(id))
+          .map((key) => this.getAssetId(key))
+          .filter((id) => !this.isAssetLoaded(id))
       : Array.from(this._key_to_id.values()).filter(
-        (id) => !this.isAssetLoaded(id),
-      );
+          (id) => !this.isAssetLoaded(id),
+        );
 
     return Promise.all(
       asset_ids_to_load.map(async (id) => {
