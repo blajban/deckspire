@@ -27,6 +27,8 @@ import SysDestroyEntity from '../core_systems/SysDestroyEntity';
 import Scene from './Scene';
 import {
   CompDestroyMe,
+  CompDestroyWithLastChild,
+  CompDestroyWithParent,
   CompDestroyWithScene,
 } from '../core_components/CompDestroy';
 import SysMouseDepth from '../core_systems/SysMouseDepth';
@@ -80,6 +82,8 @@ export default class CoreScene extends Scene {
     ecs.registerComponent(CompAnimation);
     ecs.registerComponent(CompChild);
     ecs.registerComponent(CompDestroyMe);
+    ecs.registerComponent(CompDestroyWithLastChild);
+    ecs.registerComponent(CompDestroyWithParent);
     ecs.registerComponent(CompDestroyWithScene);
     ecs.registerComponent(CompDrawable);
     ecs.registerComponent(CompFillStyle);
