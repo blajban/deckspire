@@ -15,8 +15,8 @@ import SystemManager from './SystemManager';
 
 export default class EcsManager {
   private _graphics_cache = new GraphicsCache();
-  private _phaser_scene = new PhaserScene((time, delta) => {
-    this.update(time, delta);
+  private _phaser_scene = new PhaserScene((time_in_ms, delta_in_ms) => {
+    this.update(0.001 * time_in_ms, 0.001 * delta_in_ms);
   });
 
   constructor(
