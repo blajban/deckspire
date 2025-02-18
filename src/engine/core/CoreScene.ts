@@ -20,6 +20,8 @@ import {
   SysInitEnd,
   SysInputBegin,
   SysInputEnd,
+  SysUpdateBegin,
+  SysUpdateEnd,
 } from '../core_systems/SysSentinels';
 import SysDestroyEntity from '../core_systems/SysDestroyEntity';
 import Scene from './Scene';
@@ -32,6 +34,7 @@ import EcsManager from './EcsManager';
 import CompTransform from '../core_components/CompTransform';
 import CompSprite from '../core_components/CompSprite';
 import CompSpritesheet from '../core_components/CompSpritesheet';
+import CompAnimation from '../core_components/CompAnimation';
 
 export default class CoreScene extends Scene {
   loadScene(ecs: EcsManager): Promise<void> {
@@ -58,6 +61,8 @@ export default class CoreScene extends Scene {
     ecs.registerSystem(SysInitEnd, [SysInitBegin], [SysInputBegin]);
     ecs.registerSystem(SysInputBegin, [SysInitEnd], [SysInputEnd]);
     ecs.registerSystem(SysInputEnd, [SysInputBegin], [SysDrawBegin]);
+    ecs.registerSystem(SysUpdateBegin, [SysInputEnd], [SysUpdateEnd]);
+    ecs.registerSystem(SysUpdateEnd, [SysUpdateBegin], [SysDrawBegin]);
     ecs.registerSystem(SysDrawBegin, [SysInputEnd], [SysDrawEnd]);
     ecs.registerSystem(SysDrawEnd, [SysDrawBegin], [SysCleanupBegin]);
     ecs.registerSystem(SysCleanupBegin, [SysDrawEnd], [SysCleanupEnd]);
@@ -72,6 +77,7 @@ export default class CoreScene extends Scene {
    * Registers all core components.
    */
   private _registerCoreComponents(ecs: EcsManager): void {
+    ecs.registerComponent(CompAnimation);
     ecs.registerComponent(CompChild);
     ecs.registerComponent(CompDestroyMe);
     ecs.registerComponent(CompDestroyWithScene);

@@ -6,6 +6,7 @@ export default class CompSpritesheet extends AssetComponent {
     asset_store: AssetStore,
     asset_key: AssetKey,
     public current_frame: number,
+    public number_of_frames: number,
   ) {
     super(asset_store, asset_key);
   }

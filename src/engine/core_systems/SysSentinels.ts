@@ -12,6 +12,8 @@ export class SysInitBegin extends SysSentinel {}
 export class SysInitEnd extends SysSentinel {}
 export class SysInputBegin extends SysSentinel {}
 export class SysInputEnd extends SysSentinel {}
+export class SysUpdateBegin extends SysSentinel {}
+export class SysUpdateEnd extends SysSentinel {}
 export class SysDrawBegin extends SysSentinel {}
 export class SysDrawEnd extends SysSentinel {}
 export class SysCleanupBegin extends SysSentinel {}

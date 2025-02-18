@@ -19,6 +19,8 @@ import {
   SysDrawBegin,
   SysDrawEnd,
   SysInputEnd,
+  SysUpdateBegin,
+  SysUpdateEnd,
 } from './engine/core_systems/SysSentinels';
 import CompSelectorHex from './components/CompSelectorHex';
 import SysSelectHexInHexGrid from './systems/SysSelectHexInHexGrid';
@@ -28,6 +30,8 @@ import CompSpritesheet from './engine/core_components/CompSpritesheet';
 import CompSprite from './engine/core_components/CompSprite';
 import { SysDrawSprite } from './systems/SysDrawSprite';
 import { SysDrawSpritesheet } from './systems/SysDrawSpritesheet';
+import SysAnimateSpriteSheet from './systems/SysAnimateSpriteSheet';
+import CompAnimation from './engine/core_components/CompAnimation';
 
 function main(): void {
   const theater = new Theater(800, 600);
@@ -69,9 +73,11 @@ class SamuraiScene extends Scene {
   async loadScene(ecs: EcsManager): Promise<void> {
     await this.readyPreload();
 
+    ecs.registerSystem(SysAnimateSpriteSheet, [SysUpdateBegin], [SysUpdateEnd]);
     ecs.registerSystem(SysDrawSprite, [SysDrawBegin], [SysDrawEnd]);
     ecs.registerSystem(SysDrawSpritesheet, [SysDrawBegin], [SysDrawEnd]);
 
+    ecs.activateSystem(SysAnimateSpriteSheet);
     ecs.activateSystem(SysDrawSprite);
     ecs.activateSystem(SysDrawSpritesheet);
 
@@ -86,13 +92,15 @@ class SamuraiScene extends Scene {
       ecs.newEntity(),
       new CompTransform(new Vector2D(100, 300), 0, new Vector2D(1.0, 1.0)),
       new CompDrawable(1),
-      new CompSpritesheet(ecs.asset_store, 'samurai_two', 8),
+      new CompSpritesheet(ecs.asset_store, 'samurai_two', 8, 16),
+      new CompAnimation(20),
     );
     ecs.addComponents(
       ecs.newEntity(),
       new CompTransform(new Vector2D(100, 500), 0, new Vector2D(1.0, 1.0)),
       new CompDrawable(1),
-      new CompSpritesheet(ecs.asset_store, 'samurai_three', 1),
+      new CompSpritesheet(ecs.asset_store, 'samurai_three', 1, 4),
+      new CompAnimation(3),
     );
   }
 
