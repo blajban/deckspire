@@ -18,6 +18,7 @@ import { DrawSprite } from './draw/DrawSprite';
 import CompSpritesheet from './engine/core_components/CompSpritesheet';
 import { DrawSpritesheet } from './draw/DrawSpritesheet';
 import { AnimState, AnimType } from './engine/core/Animations';
+import TransformAnimationSystem from './systems/TransformAnimationSystem';
 
 
 class AssetScene extends Scene {
@@ -116,6 +117,10 @@ class MyScene extends Scene {
 
     this.ecs.getDrawSystem()!.addSubSystem(new DrawSprite());
     this.ecs.getDrawSystem()!.addSubSystem(new DrawSpritesheet());
+
+    
+
+    
    
   }
 
@@ -175,7 +180,64 @@ class MyScene extends Scene {
     const test_anim = this.ecs.newEntity();
     this.ecs.addComponents(
       test_anim,
-      new CompTransform(new Vector2D(100, 300), 0, new Vector2D(2.0, 2.0)),
+      new CompTransform(
+        new Vector2D(100, 300),
+        0,
+        new Vector2D(1.0, 1.0),
+        [
+          {
+            type: AnimType.Transform,
+            base: {
+              key: 'bigger',
+              loop: false,
+              playing: true,
+            },
+            config: {
+              scale_x: {
+                duration: 3000.0,
+                start_value: 0.0,
+                end_value: 1.0,
+              },
+              scale_y: {
+                duration: 3000.0,
+                start_value: 0.0,
+                end_value: 1.0,
+              },
+              rotation: {
+                duration: 3000.0,
+                start_value: 0,
+                end_value: 3.14,
+              }
+            }
+          },
+          {
+            type: AnimType.Transform,
+            base: {
+              key: 'smaller',
+              loop: false,
+              playing: true,
+            },
+            config: {
+              scale_x: {
+                duration: 5.0,
+                start_value: 3.0,
+                end_value: 0.0,
+              },
+              scale_y: {
+                duration: 5.0,
+                start_value: 3.0,
+                end_value: 0.0,
+              },
+              rotation: {
+                duration: 5,
+                start_value: 3.14,
+                end_value: 0,
+              },
+            }
+          },
+        ],
+        'bigger'
+      ),
       new CompDrawable(1),
       new CompSpritesheet(
         this.context.assetStore!,
@@ -186,10 +248,10 @@ class MyScene extends Scene {
             type: AnimType.Spritesheet,
             base: { 
               key: 'idle',
-              loop: false,
+              loop: true,
               playing: true,
             },
-            type_config: {
+            config: {
               asset_key: 'samurai_idle',
               start_frame: 0,
               num_frames: 10,
@@ -203,7 +265,7 @@ class MyScene extends Scene {
               loop: true,
               playing: true,
             },
-            type_config: {
+            config: {
               asset_key: 'samurai_two',
               start_frame: 0,
               num_frames: 15,
@@ -222,6 +284,7 @@ class MyScene extends Scene {
           const anim_entities = this.ecs.getEntitiesWithArchetype(CompTransform, CompDrawable, CompSpritesheet);
           for (const entity of anim_entities) {
             const spritesheet = this.ecs.getComponent(entity, CompSpritesheet);
+            const transform = this.ecs.getComponent(entity, CompTransform);
             spritesheet?.animate?.switchState('run');
           }
         }
@@ -241,6 +304,7 @@ class MyScene extends Scene {
         }
       },
     );
+
   }
 
   onExit(): void {
@@ -250,7 +314,14 @@ class MyScene extends Scene {
   onUpdate(time: number, delta: number): void {
     console.log('Updating MyScene!');
     this.ecs.getMouseSystem()?.update(this, this.context, time, delta);
+
+    
+  
     this.ecs.getDrawSystem()?.update(this, this.context, time, delta);
+
+    this.ecs.transform_anim_system.update(this, this.context, time, delta);
+
+    
   }
 }
 

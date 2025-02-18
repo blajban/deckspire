@@ -1,3 +1,4 @@
+import TransformAnimationSystem from '../../systems/TransformAnimationSystem';
 import CompChild from '../core_components/CompChild';
 import CompDrawable from '../core_components/CompDrawable';
 import CompFillStyle from '../core_components/CompFillStyle';
@@ -19,6 +20,9 @@ import EntityStore from './EntityStore';
 export default class Ecs {
   private _system_draw: SysDraw | null = null;
   private _system_mouse: SysMouse | null = null;
+  
+  // example, remove later
+  public transform_anim_system: TransformAnimationSystem = new TransformAnimationSystem();
 
   constructor(
     private _entity_store: EntityStore,

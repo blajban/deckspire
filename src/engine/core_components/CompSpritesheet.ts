@@ -1,4 +1,4 @@
-import { Anim, Animate, AnimKey } from '../core/Animations';
+import Animate, { Anim, AnimKey } from '../core/Animations';
 import AssetComponent from '../core/AssetComponent';
 import AssetStore, { AssetKey } from '../core/AssetStore';
 
