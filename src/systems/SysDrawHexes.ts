@@ -69,7 +69,7 @@ export class SysDrawHexGrid extends System {
  * Draws a hex in a hex grid
  */
 export class DrawHex extends System {
-  private _hex_archetype = new Archetype(CompDrawable, CompHex, CompChild);
+  private _archetype = new Archetype(CompDrawable, CompHex, CompChild);
 
   override init(_ecs: EcsManager): void {}
 
@@ -79,32 +79,37 @@ export class DrawHex extends System {
     _time: number,
     _delta: number,
   ): void {
-    const hex_archetype = this._hex_archetype;
-    ecs.getEntitiesWithArchetype(hex_archetype).forEach((entity) => {
-      const drawable = ecs.getComponent(entity, CompDrawable)!;
-      const hex = ecs.getComponent(entity, CompHex)!.coordinates;
-      const line_style = ecs.getComponent(entity, CompLineStyle);
-      const fill_style = ecs.getComponent(entity, CompFillStyle);
-      const parent = ecs.getComponent(entity, CompChild)!.parent;
-      const hex_grid = ecs.getComponent(parent, CompHexGrid)!.hexgrid;
-      const transform = ecs.getComponent(parent, CompTransform);
-      if (!transform) {
-        throw new Error('Parent does not have a transform component');
-      }
+    ecs
+      .getComponentsForEntitiesWithArchetype(this._archetype)
+      .forEach(([drawable, hex, child], entity) => {
+        const line_style = ecs.getComponent(entity, CompLineStyle);
+        const fill_style = ecs.getComponent(entity, CompFillStyle);
+        const hex_grid = ecs.getComponent(child.parent, CompHexGrid)!.hexgrid;
+        const transform = ecs.getComponent(child.parent, CompTransform);
+        if (!transform) {
+          throw new Error('Parent does not have a transform component');
+        }
 
-      const cache = phaser_context.graphics_cache.getComponentCache(drawable);
-      if (!cache.graphics_object) {
-        cache.graphics_object = phaser_context.phaser_scene.add.graphics();
-      }
-      const gfx = cache.graphics_object as Phaser.GameObjects.Graphics;
-      gfx.clear();
-      gfx.setDepth(drawable.depth);
-      if (!drawable.is_visible) {
-        return;
-      }
+        const cache = phaser_context.graphics_cache.getComponentCache(drawable);
+        if (!cache.graphics_object) {
+          cache.graphics_object = phaser_context.phaser_scene.add.graphics();
+        }
+        const gfx = cache.graphics_object as Phaser.GameObjects.Graphics;
+        gfx.clear();
+        gfx.setDepth(drawable.depth);
+        if (!drawable.is_visible) {
+          return;
+        }
 
-      drawHex(gfx, hex, hex_grid, transform, line_style, fill_style);
-    });
+        drawHex(
+          gfx,
+          hex.coordinates,
+          hex_grid,
+          transform,
+          line_style,
+          fill_style,
+        );
+      });
   }
 }
 

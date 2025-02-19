@@ -36,20 +36,16 @@ export class SysPointAtHexInHexgrid extends System {
       CompMouseState,
     )!.mouse_state;
     ecs
-      .getEntitiesWithArchetype(this._hex_grid_archetype)
-      .forEach((hexgrid_entity) => {
-        const hex_grid = ecs.getComponent(hexgrid_entity, CompHexGrid)!.hexgrid;
-        const mouse_sensitive = ecs.getComponent(
-          hexgrid_entity,
-          CompMouseSensitive,
-        )!;
+      .getComponentsForEntitiesWithArchetype(this._hex_grid_archetype)
+      .forEach(([grid_comp, mouse_sensitive], hexgrid_entity) => {
         const transform = ecs.getComponent(hexgrid_entity, CompTransform)!;
         const object_position = transform.getLocalCoordinates(
           mouse_state.position,
         );
         const hex_coordinates =
-          hex_grid.hexCoordinatesFromVector2D(object_position);
-        mouse_sensitive.is_pointed_at = hex_grid.isHexInGrid(hex_coordinates);
+          grid_comp.hexgrid.hexCoordinatesFromVector2D(object_position);
+        mouse_sensitive.is_pointed_at =
+          grid_comp.hexgrid.isHexInGrid(hex_coordinates);
       });
   }
 }

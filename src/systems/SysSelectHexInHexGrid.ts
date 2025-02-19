@@ -38,12 +38,9 @@ export default class SysSelectHexInHexGrid extends System {
     _delta: number,
   ): void {
     ecs
-      .getEntitiesWithArchetype(this._mouse_event_archetype)
-      .forEach((mouse_event) => {
-        const mouse_state = ecs.getComponent(
-          mouse_event,
-          CompMouseState,
-        )!.mouse_state;
+      .getComponentsForEntitiesWithArchetype(this._mouse_event_archetype)
+      .forEach(([_mouse_event, mouse_state_comp], _mouse_event_entity) => {
+        const mouse_state = mouse_state_comp.mouse_state;
         ecs
           .getEntitiesWithArchetype(this._hex_grid_archetype)
           .forEach((hexgrid_entity) => {
