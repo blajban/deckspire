@@ -1,35 +1,9 @@
 import { ClassType } from '../util/ClassType';
 import { setIntersection } from '../util/setUtilityFunctions';
+import Archetype from './Archetype';
 import Component, { ComponentClass } from './Component';
 import ComponentMap from './ComponentMap';
 import { Entity } from './Entity';
-
-export class Archetype implements Iterable<ComponentClass> {
-  private readonly _component_class_array: ComponentClass[];
-
-  constructor(...component_classes: ComponentClass[]) {
-    this._component_class_array = component_classes.sort((a, b) => {
-      if (a.name === b.name) {
-        return 0;
-      }
-      return a.name < b.name ? -1 : 1;
-    });
-  }
-
-  public get length(): number {
-    return this._component_class_array.length;
-  }
-
-  public map<T>(func: (value: ComponentClass) => T): T[] {
-    return this._component_class_array.map(func);
-  }
-
-  *[Symbol.iterator](): Iterator<ComponentClass> {
-    for (const component_class of this._component_class_array) {
-      yield component_class;
-    }
-  }
-}
 
 /**
  * The ComponentStore manages all components.
@@ -52,7 +26,7 @@ export default class ComponentStore {
       !this._component_maps.has(name)
     ) {
       this._component_registry.set(name, component_class);
-      this._component_maps.set(name, new ComponentMap(name));
+      this._component_maps.set(name, new ComponentMap(component_class));
     }
   }
 
@@ -133,7 +107,28 @@ export default class ComponentStore {
   }
 
   /**
-   * Retrieves all entities that have a specific component type.
+   * Retrieves all entities that have a specific archetype together with all the components.
+   * @param component_class - The type of the component to query.
+   * @returns An array of entity IDs that have the specified component type.
+   * @throws Will throw an error if the component type has not been registered.
+   */
+  getComponentsForEntitiesWithArchetype<T extends Component[]>(
+    archetype: Archetype<T>,
+  ): Map<Entity, T> {
+    const result = new Map();
+    this.getEntitiesWithArchetype(archetype).forEach((entity) => {
+      result.set(
+        entity,
+        archetype.component_classes.map((component_class) => {
+          return this.getComponent(entity, component_class);
+        }) as T,
+      );
+    });
+    return result;
+  }
+
+  /**
+   * Retrieves all entities that have a specific component type together with the components.
    * @param component_class - The type of the component to query.
    * @returns An array of entity IDs that have the specified component type.
    * @throws Will throw an error if the component type has not been registered.
@@ -157,14 +152,18 @@ export default class ComponentStore {
    * @returns An array of entities that have all the specified component types.
    * @throws Will throw an error if any of the component types have not been registered.
    */
-  getEntitiesWithArchetype(archetype: Archetype): Set<Entity> {
-    if (archetype.length === 0) {
+  getEntitiesWithArchetype<T extends Component[]>(
+    archetype: Archetype<T>,
+  ): Set<Entity> {
+    if (archetype.component_classes.length === 0) {
       throw new Error('Archetype cannot be empty.');
     }
 
-    const component_types = archetype.map((component_class) => {
-      return component_class.name;
-    });
+    const component_types = archetype.component_classes.map(
+      (component_class) => {
+        return component_class.name;
+      },
+    );
 
     const entity_sets = component_types.map((type) => {
       const component_map = this._component_maps.get(type);
