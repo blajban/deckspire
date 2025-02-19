@@ -179,6 +179,14 @@ class MyScene extends Scene {
       new CompSprite(this.context.assetStore!, 'samurai'),
     );
 
+    const another_test_sprite = this.ecs.newEntity();
+    this.ecs.addComponents(
+      another_test_sprite,
+      new CompTransform(new Vector2D(200, 200), 0, new Vector2D(1.0, 1.0)),
+      new CompDrawable(1),
+      new CompSprite(this.context.assetStore!, 'samurai_idle', 6),
+    );
+
     const test_anim = this.ecs.newEntity();
     this.ecs.addComponents(
       test_anim,

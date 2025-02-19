@@ -20,7 +20,7 @@ export class DrawSprite extends DrawSubSystem {
     entity: Entity,
   ): void {
     const drawable = scene.ecs.getComponent(entity, CompDrawable)!;
-    const sprite = scene.ecs.getComponent(entity, CompSprite);
+    const sprite = scene.ecs.getComponent(entity, CompSprite)!;
     const transform = scene.ecs.getComponent(entity, CompTransform)!;
 
     const image_asset = context.assetStore!.getAsset(sprite?.asset_id!);
@@ -30,6 +30,7 @@ export class DrawSprite extends DrawSubSystem {
         transform.position.x,
         transform.position.y,
         image_asset!,
+        sprite.frame,
       );
     }
 
