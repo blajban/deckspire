@@ -1,24 +1,16 @@
 import CompChild from '../core_components/CompChild';
-import CompDrawable from '../core_components/CompDrawable';
 import CompParent from '../core_components/CompParent';
 import { ClassType } from '../util/ClassType';
-import AssetComponent from './AssetComponent';
 import AssetStore from './AssetStore';
 import Component, { ComponentClass } from './Component';
 import ComponentStore, { Archetype } from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
-import GraphicsCache from './GraphicsCache';
-import PhaserScene from './PhaserScene';
+import PhaserContext from './PhaserContext';
 import { SystemClass } from './System';
 import SystemManager from './SystemManager';
 
 export default class EcsManager {
-  private _graphics_cache = new GraphicsCache();
-  private _phaser_scene = new PhaserScene((time_in_ms, delta_in_ms) => {
-    this.update(0.001 * time_in_ms, 0.001 * delta_in_ms);
-  });
-
   constructor(
     private _entity_store: EntityStore = new EntityStore(),
     private _component_store: ComponentStore = new ComponentStore(),
@@ -34,48 +26,12 @@ export default class EcsManager {
     return this._entity_store.entityExists(entity);
   }
 
-  removeEntity(entity: Entity, should_remove_children: boolean = true): void {
-    // Handle children if entity is a parent.
-    const parent_comp = this.getComponent(entity, CompParent);
-    if (parent_comp) {
-      for (const child of parent_comp.children) {
-        const child_comp = this.getComponent(child, CompChild);
-        if (child_comp && child_comp.parent === entity) {
-          if (should_remove_children) {
-            this.removeEntity(child, true); // Remove the child
-            continue;
-          }
-
-          this.removeComponent(child, CompChild); // Orphan the child.
-        }
-      }
-    }
-
-    // Remove the parent from its own parent's child list if it is a child.
-    const child_comp = this.getComponent(entity, CompChild);
-    if (child_comp) {
-      const parent = child_comp.parent;
-      const parent_comp = this.getComponent(parent, CompParent);
-      if (parent_comp) {
-        parent_comp.children = parent_comp.children.filter((e) => e !== entity);
-      }
-    }
-
-    // Clean up Phaser objects if the Drawable has created any.
-    const drawable = this.getComponent(entity, CompDrawable);
-    if (drawable) {
-      this._cleanUpAfterPhaser(drawable);
-    }
-
+  removeEntity(entity: Entity): void {
     // Remove all components
     const components = this._component_store.getComponentsForEntity(entity);
-
     for (const component of components) {
-      if (component instanceof AssetComponent) {
-        this._asset_store.releaseAsset(this.phaser_scene, component.asset_id);
-      }
       const component_class = component.constructor as ComponentClass;
-      this._component_store.removeComponent(entity, component_class);
+      this.removeComponent(entity, component_class);
     }
 
     this._entity_store.removeEntity(entity);
@@ -125,40 +81,20 @@ export default class EcsManager {
     if (!component) {
       return;
     }
-
-    if (component instanceof AssetComponent) {
-      this._asset_store.releaseAsset(this.phaser_scene, component.asset_id);
-    }
-
-    const component_type = this._component_store.getRegisteredComponentClass(
-      component_class.name,
-    );
-
-    if (component_type === CompParent) {
-      const parent_comp = this.getComponent(entity, CompParent);
-      if (parent_comp) {
-        for (const child of parent_comp.children) {
-          const child_comp = this.getComponent(child, CompChild);
-          if (child_comp && child_comp.parent === entity) {
-            this.removeComponent(child, CompChild); // Orphan the child.
-          }
+    if (component instanceof CompParent) {
+      const parent_comp = component as CompParent;
+      for (const child of parent_comp.children) {
+        const child_comp = this.getComponent(child, CompChild);
+        if (child_comp !== undefined) {
+          this.removeComponent(child, CompChild); // Orphan the child.
         }
       }
+    } else if (component instanceof CompChild) {
+      const child_comp = component as CompChild;
+      const parent = child_comp.parent;
+      const parent_comp = this.getComponent(parent, CompParent)!;
+      parent_comp.children = parent_comp.children.filter((e) => e !== entity);
     }
-
-    if (component_type === CompChild) {
-      const child_comp = this.getComponent(entity, CompChild);
-      if (child_comp) {
-        const parent = child_comp.parent;
-        const parent_comp = this.getComponent(parent, CompParent);
-        if (parent_comp) {
-          parent_comp.children = parent_comp.children.filter(
-            (e) => e !== entity,
-          );
-        }
-      }
-    }
-
     this._component_store.removeComponent(entity, component_class);
   }
 
@@ -272,29 +208,12 @@ export default class EcsManager {
     this._system_manager.activateSystem(this, system_class);
   }
 
-  public get graphics_cache(): GraphicsCache {
-    return this._graphics_cache;
-  }
-
-  /**
-   * Since we are using Phaser the graphics objects need to be
-   *  de-registered from Phaser as the componenet is removed.
-   */
-  private _cleanUpAfterPhaser(drawable: CompDrawable): void {
-    const component_cache = this._graphics_cache.getComponentCache(drawable);
-    if (!component_cache) {
-      return;
-    }
-    component_cache.graphics_object?.destroy();
-    this._graphics_cache.deleteCache(drawable);
-  }
-
-  public update(time: number, delta: number): void {
-    this._system_manager.update(this, time, delta);
-  }
-
-  public get phaser_scene(): PhaserScene {
-    return this._phaser_scene;
+  public update(
+    phaser_context: PhaserContext,
+    time: number,
+    delta: number,
+  ): void {
+    this._system_manager.update(this, phaser_context, time, delta);
   }
 
   public get asset_store(): AssetStore {

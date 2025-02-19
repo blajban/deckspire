@@ -27,6 +27,8 @@ import SysDestroyEntity from '../core_systems/SysDestroyEntity';
 import Scene from './Scene';
 import {
   CompDestroyMe,
+  CompDestroyWithLastChild,
+  CompDestroyWithParent,
   CompDestroyWithScene,
 } from '../core_components/CompDestroy';
 import SysMouseDepth from '../core_systems/SysMouseDepth';
@@ -35,9 +37,13 @@ import CompTransform from '../core_components/CompTransform';
 import CompSprite from '../core_components/CompSprite';
 import CompSpritesheet from '../core_components/CompSpritesheet';
 import CompAnimation from '../core_components/CompAnimation';
+import PhaserContext from './PhaserContext';
 
 export default class CoreScene extends Scene {
-  load(ecs: EcsManager): Promise<void> {
+  override load(
+    ecs: EcsManager,
+    _phaser_context: PhaserContext,
+  ): Promise<void> {
     this._registerCoreComponents(ecs);
     this._registerCoreSystems(ecs);
 
@@ -48,7 +54,7 @@ export default class CoreScene extends Scene {
     return Promise.resolve();
   }
 
-  unload(ecs: EcsManager): void {
+  override unload(ecs: EcsManager, _phaser_context: PhaserContext): void {
     ecs.deactivateSystem(SysMouse);
   }
 
@@ -80,6 +86,8 @@ export default class CoreScene extends Scene {
     ecs.registerComponent(CompAnimation);
     ecs.registerComponent(CompChild);
     ecs.registerComponent(CompDestroyMe);
+    ecs.registerComponent(CompDestroyWithLastChild);
+    ecs.registerComponent(CompDestroyWithParent);
     ecs.registerComponent(CompDestroyWithScene);
     ecs.registerComponent(CompDrawable);
     ecs.registerComponent(CompFillStyle);

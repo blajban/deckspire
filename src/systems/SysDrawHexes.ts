@@ -10,6 +10,7 @@ import CompFillStyle from '../engine/core_components/CompFillStyle';
 import CompLineStyle from '../engine/core_components/CompLineStyle';
 import HexGrid from '../math/hexgrid/HexGrid';
 import { HexCoordinates } from '../math/hexgrid/HexVectors';
+import PhaserContext from '../engine/core/PhaserContext';
 
 /**
  * Draws a hex grid.
@@ -28,7 +29,12 @@ export class SysDrawHexGrid extends System {
    * @param delta
    * @param entity
    */
-  override update(ecs: EcsManager, _time: number, _delta: number): void {
+  override update(
+    ecs: EcsManager,
+    phaser_context: PhaserContext,
+    _time: number,
+    _delta: number,
+  ): void {
     const hex_grid_archetype = this.archetypes[0];
     ecs.getEntitiesWithArchetype(hex_grid_archetype).forEach((entity) => {
       const drawable = ecs.getComponent(entity, CompDrawable)!;
@@ -37,9 +43,9 @@ export class SysDrawHexGrid extends System {
       const line_style = ecs.getComponent(entity, CompLineStyle);
       const fill_style = ecs.getComponent(entity, CompFillStyle);
 
-      const cache = ecs.graphics_cache.getComponentCache(drawable);
+      const cache = phaser_context.graphics_cache.getComponentCache(drawable);
       if (!cache.graphics_object) {
-        cache.graphics_object = ecs.phaser_scene.add.graphics();
+        cache.graphics_object = phaser_context.phaser_scene.add.graphics();
       }
       const gfx = cache.graphics_object as Phaser.GameObjects.Graphics;
       gfx.clear();
@@ -68,7 +74,12 @@ export class DrawHex extends System {
 
   override init(_ecs: EcsManager): void {}
 
-  override update(ecs: EcsManager, _time: number, _delta: number): void {
+  override update(
+    ecs: EcsManager,
+    phaser_context: PhaserContext,
+    _time: number,
+    _delta: number,
+  ): void {
     const hex_archetype = this.archetypes[0];
     ecs.getEntitiesWithArchetype(hex_archetype).forEach((entity) => {
       const drawable = ecs.getComponent(entity, CompDrawable)!;
@@ -82,9 +93,9 @@ export class DrawHex extends System {
         throw new Error('Parent does not have a transform component');
       }
 
-      const cache = ecs.graphics_cache.getComponentCache(drawable);
+      const cache = phaser_context.graphics_cache.getComponentCache(drawable);
       if (!cache.graphics_object) {
-        cache.graphics_object = ecs.phaser_scene.add.graphics();
+        cache.graphics_object = phaser_context.phaser_scene.add.graphics();
       }
       const gfx = cache.graphics_object as Phaser.GameObjects.Graphics;
       gfx.clear();

@@ -1,6 +1,7 @@
 import { Archetype } from '../core/ComponentStore';
 import EcsManager from '../core/EcsManager';
 import { Entity } from '../core/Entity';
+import PhaserContext from '../core/PhaserContext';
 import System from '../core/System';
 import { CompMouseSensitive } from '../core_components/CompMouse';
 
@@ -9,7 +10,12 @@ export default class SysMouseDepth extends System {
     super(new Archetype(CompMouseSensitive));
   }
 
-  override update(ecs: EcsManager, _time: number, _delta: number): void {
+  override update(
+    ecs: EcsManager,
+    _phaser_context: PhaserContext,
+    _time: number,
+    _delta: number,
+  ): void {
     const mouse_sensitive_archetype = this.archetypes[0];
     let min_depth = Number.POSITIVE_INFINITY;
     let top_entity: Entity | undefined = undefined;

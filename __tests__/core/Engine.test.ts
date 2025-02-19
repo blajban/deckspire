@@ -25,7 +25,7 @@ describe('Engine', () => {
   test('should return a promise that resolves after create() is called', async () => {
     const ready_promise = engine.ready();
 
-    engine['_ecs_manager'].phaser_scene.create();
+    engine['_phaser_context'].phaser_scene.create();
 
     await expect(ready_promise).resolves.toBeUndefined();
   });
@@ -34,7 +34,7 @@ describe('Engine', () => {
     const ready_promise1 = engine.ready();
     const ready_promise2 = engine.ready();
 
-    engine['_ecs_manager'].phaser_scene.create();
+    engine['_phaser_context'].phaser_scene.create();
 
     await expect(ready_promise1).resolves.toBeUndefined();
     await expect(ready_promise2).resolves.toBeUndefined();
@@ -43,7 +43,7 @@ describe('Engine', () => {
   test('should call create method and resolve the ready promise', () => {
     const ready_promise = engine.ready();
 
-    engine['_ecs_manager'].phaser_scene.create();
+    engine['_phaser_context'].phaser_scene.create();
 
     return expect(ready_promise).resolves.toBeUndefined();
   });

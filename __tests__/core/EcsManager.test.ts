@@ -9,6 +9,7 @@ import ComponentStore, {
   Archetype,
 } from '../../src/engine/core/ComponentStore';
 import CoreScene from '../../src/engine/core/CoreScene';
+import PhaserContext from '../../src/engine/core/PhaserContext';
 
 class MockComponent extends Component {
   constructor(public value: number) {
@@ -38,7 +39,8 @@ describe('ECS', () => {
     );
 
     const core_scene = new CoreScene();
-    core_scene.load(ecs);
+    const mock_context = {} as unknown as PhaserContext;
+    core_scene.load(ecs, mock_context);
     ecs.registerComponent(MockComponent);
     ecs.registerComponent(AnotherMockComponent);
   });
@@ -93,35 +95,6 @@ describe('ECS', () => {
     expect(() => ecs.addParentChildRelationship(parent2, child)).toThrow(
       'already has a parent',
     );
-  });
-
-  test('removes parent entity and its children when removeChildren is true', () => {
-    const parent_entity = ecs.newEntity();
-    const child_entity1 = ecs.newEntity();
-    const child_entity2 = ecs.newEntity();
-
-    ecs.addParentChildRelationship(parent_entity, child_entity1);
-    ecs.addParentChildRelationship(parent_entity, child_entity2);
-
-    ecs.removeEntity(parent_entity, true);
-
-    expect(ecs.entityExists(parent_entity)).toBe(false);
-    expect(ecs.entityExists(child_entity1)).toBe(false);
-    expect(ecs.entityExists(child_entity2)).toBe(false);
-  });
-
-  test('removes parent entity but orphans children when removeChildren is false', () => {
-    const parent_entity = ecs.newEntity();
-    const child_entity = ecs.newEntity();
-
-    ecs.addParentChildRelationship(parent_entity, child_entity);
-
-    ecs.removeEntity(parent_entity, false);
-
-    expect(ecs.entityExists(parent_entity)).toBe(false);
-    expect(ecs.entityExists(child_entity)).toBe(true);
-    const orphaned_child = ecs.getComponent(child_entity, CompChild);
-    expect(orphaned_child).toBeUndefined();
   });
 
   test('removes child entity and updates parent children list', () => {

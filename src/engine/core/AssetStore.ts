@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import PhaserScene from './PhaserScene';
+import PhaserContext from './PhaserContext';
 
 export type AssetId = number;
 export type AssetKey = string;
@@ -66,7 +66,7 @@ export default class AssetStore {
   }
 
   private async _loadAssetAsync(
-    phaser_scene: PhaserScene,
+    phaser_context: PhaserContext,
     id: AssetId,
   ): Promise<void> {
     if (this.isAssetLoaded(id)) {
@@ -78,7 +78,7 @@ export default class AssetStore {
     }
 
     const asset_data = this._getAssetData(id);
-    const loader = phaser_scene!.load;
+    const loader = phaser_context.phaser_scene!.load;
 
     const promise = new Promise<void>((resolve, reject) => {
       const on_complete = (): void => {
@@ -159,7 +159,7 @@ export default class AssetStore {
   }
 
   public async preloadAssets(
-    phaser_scene: PhaserScene,
+    phaser_scene: PhaserContext,
     keys?: AssetKey[],
   ): Promise<void[]> {
     const asset_ids_to_load = keys
@@ -185,7 +185,7 @@ export default class AssetStore {
     this._asset_usage_count.set(id, (this._asset_usage_count.get(id) || 0) + 1);
   }
 
-  public releaseAsset(phaser_scene: PhaserScene, id: AssetId): void {
+  public releaseAsset(phaser_scene: PhaserContext, id: AssetId): void {
     if (!this._asset_usage_count.has(id)) {
       throw new Error(`Attempted to release non-existent asset ID ${id}`);
     }
@@ -216,7 +216,7 @@ export default class AssetStore {
     return asset_id;
   }
 
-  public unloadAsset(phaser_scene: PhaserScene, id: AssetId): void {
+  public unloadAsset(phaser_context: PhaserContext, id: AssetId): void {
     if (!this.isAssetLoaded(id)) {
       return;
     }
@@ -226,10 +226,10 @@ export default class AssetStore {
     switch (asset_data.type) {
       case AssetType.Image:
       case AssetType.Spritesheet:
-        phaser_scene.textures.remove(asset_data.key);
+        phaser_context.phaser_scene.textures.remove(asset_data.key);
         break;
       case AssetType.Audio:
-        phaser_scene.sound.removeByKey(asset_data.key);
+        phaser_context.phaser_scene.sound.removeByKey(asset_data.key);
         break;
       case AssetType.Font:
         // Font unloading not supported by Phaser

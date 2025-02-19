@@ -1,5 +1,6 @@
 import { setDifferenceInPlace } from '../util/setUtilityFunctions';
 import EcsManager from './EcsManager';
+import PhaserContext from './PhaserContext';
 import System, { SystemClass } from './System';
 
 export default class SystemManager {
@@ -137,9 +138,14 @@ export default class SystemManager {
     );
   }
 
-  public update(ecs: EcsManager, time: number, delta: number): void {
+  public update(
+    ecs: EcsManager,
+    phaser_context: PhaserContext,
+    time: number,
+    delta: number,
+  ): void {
     this._ordered_systems.forEach((system) => {
-      system.update(ecs, time, delta);
+      system.update(ecs, phaser_context, time, delta);
     });
   }
 }

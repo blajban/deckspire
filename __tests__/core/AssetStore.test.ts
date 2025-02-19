@@ -2,15 +2,15 @@ import AssetStore, {
   AssetData,
   AssetType,
 } from '../../src/engine/core/AssetStore';
-import EcsManager from '../../src/engine/core/EcsManager';
+import PhaserContext from '../../src/engine/core/PhaserContext';
 
 // TEST asset counting (increasing, decreasing etc), unload only when no components is using
 
 describe('AssetStore', () => {
   let asset_store: AssetStore;
-  let mock_ecs: EcsManager;
+  let mock_context: PhaserContext;
   beforeEach(() => {
-    mock_ecs = {
+    mock_context = {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       phaser_scene: {
         load: {
@@ -26,7 +26,7 @@ describe('AssetStore', () => {
           removeByKey: jest.fn(),
         },
       },
-    } as unknown as EcsManager;
+    } as unknown as PhaserContext;
 
     asset_store = new AssetStore();
   });
@@ -76,14 +76,14 @@ describe('AssetStore', () => {
 
   test('should throw an error when releasing an asset that was not used', () => {
     const asset_id = asset_store.registerAsset(test_audio_asset);
-    expect(() =>
-      asset_store.releaseAsset(mock_ecs.phaser_scene, asset_id),
-    ).toThrow(`Attempted to release non-existent asset ID ${asset_id}`);
+    expect(() => asset_store.releaseAsset(mock_context, asset_id)).toThrow(
+      `Attempted to release non-existent asset ID ${asset_id}`,
+    );
   });
 
   test('should not unload an asset that is not loaded', () => {
     const asset_id = asset_store.registerAsset(test_image_asset);
-    asset_store.unloadAsset(mock_ecs.phaser_scene, asset_id);
+    asset_store.unloadAsset(mock_context, asset_id);
     expect(asset_store.isAssetLoaded(asset_id)).toBe(false);
   });
 
@@ -105,9 +105,7 @@ describe('AssetStore', () => {
 
   test('should throw an error when releasing an asset that was not used', () => {
     const asset_id = asset_store.registerAsset(test_audio_asset);
-    expect(() =>
-      asset_store.releaseAsset(mock_ecs.phaser_scene, asset_id),
-    ).toThrow();
+    expect(() => asset_store.releaseAsset(mock_context, asset_id)).toThrow();
   });
 
   test('should not allow duplicate asset registrations', () => {
