@@ -4,7 +4,9 @@ import ComponentStore from '../../src/engine/core/ComponentStore';
 import { Entity } from '../../src/engine/core/Entity';
 import EntityStore from '../../src/engine/core/EntityStore';
 
-class CompA extends Component {}
+class CompA extends Component {
+  public readonly unique_to_a = undefined;
+}
 class CompB extends Component {}
 class CompC extends Component {}
 class CompD extends Component {}
@@ -45,5 +47,13 @@ describe('Archetype', () => {
     expect(map2.get(entity_abcd)?.[1]).toBeInstanceOf(CompA);
     expect(map2.get(entity_abcd)?.[2]).toBeInstanceOf(CompD);
     expect(map2.get(entity_abcd)?.[3]).toBeInstanceOf(CompC);
+
+    // Do not know how to test the type inference but these assignments would not work without it.
+    let _a: CompA;
+    let _b: CompB;
+    let _c: CompC;
+    let _d: CompD;
+    [_a, _b, _c, _d] = map1.get(entity_abcd)!;
+    [_b, _a, _d, _c] = map2.get(entity_abcd)!;
   });
 });

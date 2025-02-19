@@ -1,7 +1,8 @@
 import { ClassType } from '../util/ClassType';
 import Component from './Component';
 
-/* keyof T is a union of all properties of T.
+/*
+ * keyof T is a union of all properties of T.
  * K is a property of T.
  * T[K] is the value corresponding to the property K in T.
  */
