@@ -19,6 +19,7 @@ import CompSpritesheet from './engine/core_components/CompSpritesheet';
 import { DrawSpritesheet } from './draw/DrawSpritesheet';
 import { AnimState, AnimType } from './engine/core/Animations';
 import TransformAnimationSystem from './systems/TransformAnimationSystem';
+import CompTransformAnimation from './engine/core_components/CompTransformAnimation';
 
 
 class AssetScene extends Scene {
@@ -107,6 +108,7 @@ class MyScene extends Scene {
     this.ecs.registerComponent(CompHex);
     this.ecs.registerComponent(CompHexGrid);
     this.ecs.registerComponent(CompTransform);
+    this.ecs.registerComponent(CompTransformAnimation);
 
     this.ecs.addMouse();
     this.ecs.getMouseSystem()!.addSubSystem(new SysPointingAtHexgrid());
@@ -184,6 +186,8 @@ class MyScene extends Scene {
         new Vector2D(100, 300),
         0,
         new Vector2D(1.0, 1.0),
+      ),
+      new CompTransformAnimation(
         [
           {
             type: AnimType.Transform,
