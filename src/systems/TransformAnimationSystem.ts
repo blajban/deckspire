@@ -20,8 +20,6 @@ export default class TransformAnimationSystem extends System {
 
       if (!transform?.animate) return;
 
-      console.log('scale: ', transform?.scale);
-
       const current_state = transform.animate.current_state;
       const config = current_state.config as AnimConfigTransform;
 
@@ -30,17 +28,17 @@ export default class TransformAnimationSystem extends System {
       current_state.elapsed += delta;
 
       if (config.rotation) {
-        const progress = Math.min(current_state.elapsed / config.rotation.duration, 1);
+        const progress = this._progress(current_state.elapsed, config.rotation.duration);
         transform.rotation = config.rotation.start_value + (config.rotation.end_value - config.rotation.start_value) * progress;
       }
 
       if (config.scale_x) {
-        const progress = Math.min(current_state.elapsed / config.scale_x.duration, 1);
+        const progress = this._progress(current_state.elapsed, config.scale_x.duration);
         transform.scale.x = config.scale_x.start_value + (config.scale_x.end_value - config.scale_x.start_value) * progress;
       }
 
       if (config.scale_y) {
-        const progress = Math.min(current_state.elapsed / config.scale_y.duration, 1);
+        const progress = this._progress(current_state.elapsed, config.scale_y.duration);
         transform.scale.y = config.scale_y.start_value + (config.scale_y.end_value - config.scale_y.start_value) * progress;
       }
 
@@ -58,5 +56,9 @@ export default class TransformAnimationSystem extends System {
         }
       }
     });
+  }
+
+  _progress(elapsed: number, duration: number): number {
+    return Math.min(elapsed / duration, 1);
   }
 }
