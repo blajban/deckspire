@@ -1,6 +1,5 @@
 import CompHexGrid from '../components/CompHexGrid';
 import CompTransform from '../engine/core_components/CompTransform';
-import { Archetype } from '../engine/core/ComponentStore';
 import EcsManager from '../engine/core/EcsManager';
 import System from '../engine/core/System';
 import {
@@ -9,19 +8,18 @@ import {
   CompMouseState,
 } from '../engine/core_components/CompMouse';
 import PhaserContext from '../engine/core/PhaserContext';
+import Archetype from '../engine/core/Archetype';
 
 export class SysPointAtHexInHexgrid extends System {
-  private _mouse_event_archetype;
-  private _hex_grid_archetype;
-
-  constructor() {
-    super(
-      new Archetype(CompMouseEvent, CompMouseState),
-      new Archetype(CompHexGrid, CompMouseSensitive, CompTransform),
-    );
-    this._mouse_event_archetype = this.archetypes[0];
-    this._hex_grid_archetype = this.archetypes[1];
-  }
+  private _mouse_event_archetype = new Archetype(
+    CompMouseEvent,
+    CompMouseState,
+  );
+  private _hex_grid_archetype = new Archetype(
+    CompHexGrid,
+    CompMouseSensitive,
+    CompTransform,
+  );
 
   override update(
     ecs: EcsManager,

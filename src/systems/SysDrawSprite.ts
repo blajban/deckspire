@@ -1,15 +1,13 @@
 import CompTransform from '../engine/core_components/CompTransform';
-import { Archetype } from '../engine/core/ComponentStore';
 import EcsManager from '../engine/core/EcsManager';
 import System from '../engine/core/System';
 import CompDrawable from '../engine/core_components/CompDrawable';
 import CompSprite from '../engine/core_components/CompSprite';
 import PhaserContext from '../engine/core/PhaserContext';
+import Archetype from '../engine/core/Archetype';
 
 export class SysDrawSprite extends System {
-  constructor() {
-    super(new Archetype(CompDrawable, CompSprite, CompTransform));
-  }
+  private _archetype = new Archetype(CompDrawable, CompSprite, CompTransform);
 
   update(
     ecs: EcsManager,
@@ -17,7 +15,7 @@ export class SysDrawSprite extends System {
     _time: number,
     _delta: number,
   ): void {
-    ecs.getEntitiesWithArchetype(this.archetypes[0]).forEach((entity) => {
+    ecs.getEntitiesWithArchetype(this._archetype).forEach((entity) => {
       const drawable = ecs.getComponent(entity, CompDrawable)!;
       const sprite = ecs.getComponent(entity, CompSprite)!;
       const transform = ecs.getComponent(entity, CompTransform)!;

@@ -1,7 +1,6 @@
 import CompHex from '../components/CompHex';
 import CompHexGrid from '../components/CompHexGrid';
 import CompTransform from '../engine/core_components/CompTransform';
-import { Archetype } from '../engine/core/ComponentStore';
 import EcsManager from '../engine/core/EcsManager';
 import System from '../engine/core/System';
 import CompChild from '../engine/core_components/CompChild';
@@ -11,14 +10,17 @@ import CompLineStyle from '../engine/core_components/CompLineStyle';
 import HexGrid from '../math/hexgrid/HexGrid';
 import { HexCoordinates } from '../math/hexgrid/HexVectors';
 import PhaserContext from '../engine/core/PhaserContext';
+import Archetype from '../engine/core/Archetype';
 
 /**
  * Draws a hex grid.
  */
 export class SysDrawHexGrid extends System {
-  constructor() {
-    super(new Archetype(CompDrawable, CompHexGrid, CompTransform));
-  }
+  private _hex_grid_archetype = new Archetype(
+    CompDrawable,
+    CompHexGrid,
+    CompTransform,
+  );
 
   /**
    * The cached Graphics object must be cleared before drawing to it again.
@@ -35,8 +37,7 @@ export class SysDrawHexGrid extends System {
     _time: number,
     _delta: number,
   ): void {
-    const hex_grid_archetype = this.archetypes[0];
-    ecs.getEntitiesWithArchetype(hex_grid_archetype).forEach((entity) => {
+    ecs.getEntitiesWithArchetype(this._hex_grid_archetype).forEach((entity) => {
       const drawable = ecs.getComponent(entity, CompDrawable)!;
       const hex_grid = ecs.getComponent(entity, CompHexGrid)!.hexgrid;
       const transform = ecs.getComponent(entity, CompTransform)!;
@@ -68,9 +69,7 @@ export class SysDrawHexGrid extends System {
  * Draws a hex in a hex grid
  */
 export class DrawHex extends System {
-  constructor() {
-    super(new Archetype(CompDrawable, CompHex, CompChild));
-  }
+  private _hex_archetype = new Archetype(CompDrawable, CompHex, CompChild);
 
   override init(_ecs: EcsManager): void {}
 
@@ -80,7 +79,7 @@ export class DrawHex extends System {
     _time: number,
     _delta: number,
   ): void {
-    const hex_archetype = this.archetypes[0];
+    const hex_archetype = this._hex_archetype;
     ecs.getEntitiesWithArchetype(hex_archetype).forEach((entity) => {
       const drawable = ecs.getComponent(entity, CompDrawable)!;
       const hex = ecs.getComponent(entity, CompHex)!.coordinates;

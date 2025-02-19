@@ -1,6 +1,6 @@
+import Archetype from '../core/Archetype';
 import AssetComponent from '../core/AssetComponent';
 import { ComponentClass } from '../core/Component';
-import { Archetype } from '../core/ComponentStore';
 import EcsManager from '../core/EcsManager';
 import { Entity } from '../core/Entity';
 import GraphicsCache from '../core/GraphicsCache';
@@ -16,9 +16,7 @@ import CompDrawable from '../core_components/CompDrawable';
 import CompParent from '../core_components/CompParent';
 
 export default class SysDestroyEntity extends System {
-  constructor() {
-    super(new Archetype(CompDestroyMe));
-  }
+  private _archetype = new Archetype(CompDestroyMe);
 
   override update(
     ecs: EcsManager,
@@ -26,7 +24,7 @@ export default class SysDestroyEntity extends System {
     _time: number,
     _delta: number,
   ): void {
-    ecs.getEntitiesWithArchetype(this.archetypes[0]).forEach((entity) => {
+    ecs.getEntitiesWithArchetype(this._archetype).forEach((entity) => {
       destroyEntity(ecs, phaser_context, entity);
     });
   }

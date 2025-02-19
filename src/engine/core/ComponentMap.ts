@@ -31,7 +31,7 @@ export default class ComponentMap<T extends Component> {
 
     if (this.has(entity) && !can_overwrite) {
       throw new Error(
-        `Could not add component to entity ${entity} (entity already has component of type ${this._component_type}).`,
+        `Could not add component to entity ${entity} (entity already has component of type ${this._component_type.name}).`,
       );
     }
     this._components.set(entity, component);
