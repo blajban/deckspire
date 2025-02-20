@@ -19,7 +19,7 @@ export default class TransformAnimationSystem extends System {
       const transform = scene.ecs.getComponent(entity, CompTransform)!;
       const animation = scene.ecs.getComponent(entity, CompTransformAnimation)!;
 
-      const current_state = animation.animate.current_state;
+      const current_state = animation.states.current_state;
       const config = current_state.config as AnimConfigTransform;
 
       if (!current_state.playing) return;

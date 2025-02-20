@@ -1,22 +1,22 @@
-import Animate, { Anim, AnimKey } from '../core/Animations';
+import AnimStates, { Animation, AnimKey } from '../core/Animations';
 import AssetComponent from '../core/AssetComponent';
 import AssetStore, { AssetKey } from '../core/AssetStore';
 
 export default class CompAnimatedSprite extends AssetComponent {
-  public animate: Animate;
+  public states: AnimStates;
 
   constructor(
     asset_store: AssetStore,
-    animations: Anim[],
+    animations: Animation[],
     default_state_key: AnimKey
   ) {
     super(asset_store, null);
-    this.animate = new Animate(asset_store, animations, default_state_key);
+    this.states = new AnimStates(asset_store, animations, default_state_key);
   }
 
   onDestroy(asset_store: AssetStore): void {
-    if (this.animate) {
-      this.animate.releaseAssets(asset_store);
+    if (this.states) {
+      this.states.releaseAssets(asset_store);
     }
   }
 }

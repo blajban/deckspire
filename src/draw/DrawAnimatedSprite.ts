@@ -25,9 +25,9 @@ export class DrawAnimatedSprite extends DrawSubSystem {
     const sprite = scene.ecs.getComponent(entity, CompAnimatedSprite);
     const transform = scene.ecs.getComponent(entity, CompTransform)!;
 
-    const image_asset = context.assetStore!.getAsset(sprite!.animate.current_state.asset_id!);
+    const image_asset = context.assetStore!.getAsset(sprite!.states.current_state.asset_id!);
 
-    const current_state = sprite!.animate.current_state;
+    const current_state = sprite!.states.current_state;
     const config = current_state.config as AnimConfigSpritesheet;
 
     if (!cache.draw_object) {

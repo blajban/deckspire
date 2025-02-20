@@ -38,20 +38,20 @@ export interface AnimBaseData {
   playing: boolean;
 }
 
-export interface Anim {
+export interface Animation {
   type: AnimType,
   base: AnimBaseData,
   config: AnimConfig,
 }
 
 export class AnimState {
-  private _anim: Anim;
+  private _anim: Animation;
   private _asset_id: AssetId | null = null;
   public elapsed: number = 0;
 
   constructor(
     asset_store: AssetStore | null,
-    anim: Anim,
+    anim: Animation,
   ) {
     this._anim = anim;
 
@@ -73,14 +73,17 @@ export class AnimState {
   get config(): AnimConfigSpritesheet | AnimConfigTransform { return this._anim.config; }
 }
 
-export class AnimStates {
+export default class AnimStates {
+  public current_state: AnimState;
   private _states: Map<AnimKey, AnimState> = new Map();
 
-  constructor(asset_store: AssetStore | null, animations: Anim[]) {
+  constructor(asset_store: AssetStore | null, animations: Animation[], default_state: AnimKey) {
     animations.forEach((anim) => {
       const state = new AnimState(asset_store, anim);
       this._states.set(state.anim_key, state);
     })
+
+    this.current_state = this.getState(default_state);
   }
 
   getState(key: AnimKey): AnimState {
@@ -91,6 +94,12 @@ export class AnimStates {
     return this._states.get(key) as AnimState;
   }
 
+  switchState(new_state: AnimKey): void {
+    if (this.current_state.anim_key === new_state) return;
+  
+    this.current_state = this.getState(new_state);
+  }
+
   releaseAssets(asset_store: AssetStore): void {
     this._states.forEach((state) => {
       if (state.asset_id) {
@@ -99,30 +108,3 @@ export class AnimStates {
     );
   }
 }
-
-
-export default class Animate {
-  public current_state: AnimState;
-  private _animation_states: AnimStates;
-  
-  constructor(asset_store: AssetStore | null, animations: Anim[], default_state: AnimKey) {
-    this._animation_states = new AnimStates(asset_store, animations);
-    this.current_state = this._animation_states.getState(default_state);
-  }
-
-  switchState(new_state: AnimKey): void {
-    if (this.current_state.anim_key === new_state) return;
-  
-    this.current_state = this._animation_states.getState(new_state);
-  }
-
-  releaseAssets(asset_store: AssetStore): void {
-    this._animation_states.releaseAssets(asset_store);
-  }
-}
-
-
-
-
-
-

@@ -296,7 +296,7 @@ class MyScene extends Scene {
           for (const entity of anim_entities) {
             const spritesheet = this.ecs.getComponent(entity, CompSpritesheet);
             const transform = this.ecs.getComponent(entity, CompTransform);
-            spritesheet?.animate?.switchState('run');
+            spritesheet?.states?.switchState('run');
           }
         }
       },
@@ -309,8 +309,8 @@ class MyScene extends Scene {
           const anim_entities = this.ecs.getEntitiesWithArchetype(CompTransform, CompDrawable, CompSpritesheet);
           for (const entity of anim_entities) {
             const spritesheet = this.ecs.getComponent(entity, CompSpritesheet);
-            spritesheet?.animate?.switchState('idle');
-            spritesheet!.animate!.current_state.playing = true;
+            spritesheet?.states?.switchState('idle');
+            spritesheet!.states!.current_state.playing = true;
           }
         }
       },
