@@ -7,7 +7,7 @@ import CompMouseSensitive from '../core_components/CompMouseSensitive';
 import CompNamed from '../core_components/CompNamed';
 import CompParent from '../core_components/CompParent';
 import CompSprite from '../core_components/CompSprite';
-import CompSpritesheet from '../core_components/CompSpritesheet';
+import CompSpritesheet from '../core_components/CompAnimatedSprite';
 import SysDraw from '../core_systems/SysDraw';
 import SysMouse from '../core_systems/SysMouse';
 import AssetComponent from './AssetComponent';
@@ -129,7 +129,7 @@ export default class Ecs {
 
     for (const component of components) {
       if (component instanceof AssetComponent) {
-        this._asset_store.releaseAsset(component.asset_id);
+        component.onDestroy(this._asset_store);
       }
 
       const component_class =

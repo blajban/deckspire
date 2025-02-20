@@ -15,11 +15,12 @@ import Vector2D from './math/Vector2D';
 import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
 import CompSprite from './engine/core_components/CompSprite';
 import { DrawSprite } from './draw/DrawSprite';
-import CompSpritesheet from './engine/core_components/CompSpritesheet';
-import { DrawSpritesheet } from './draw/DrawSpritesheet';
+import CompSpritesheet from './engine/core_components/CompAnimatedSprite';
+import { DrawAnimatedSprite } from './draw/DrawAnimatedSprite';
 import { AnimState, AnimType } from './engine/core/Animations';
 import TransformAnimationSystem from './systems/TransformAnimationSystem';
 import CompTransformAnimation from './engine/core_components/CompTransformAnimation';
+import CompAnimatedSprite from './engine/core_components/CompAnimatedSprite';
 
 
 class AssetScene extends Scene {
@@ -57,7 +58,7 @@ class AnotherScene extends Scene {
 
     this.ecs.addDraw();
     this.ecs.getDrawSystem()!.addSubSystem(new DrawSprite());
-    this.ecs.getDrawSystem()!.addSubSystem(new DrawSpritesheet());
+    this.ecs.getDrawSystem()!.addSubSystem(new DrawAnimatedSprite());
   }
 
   async onPreload(): Promise<void> {
@@ -75,7 +76,7 @@ class AnotherScene extends Scene {
         test_spritesheet,
         new CompTransform(new Vector2D(100, 500), 0, new Vector2D(1.0, 1.0)),
         new CompDrawable(1),
-        new CompSpritesheet(this.context.assetStore!, 'samurai_three', 1),
+        new CompSprite(this.context.assetStore!, 'samurai_three', 1),
       );
 
       this.context.phaserContext!.input.keyboard!.on(
@@ -118,7 +119,7 @@ class MyScene extends Scene {
     this.ecs.getDrawSystem()!.addSubSystem(new DrawHex());
 
     this.ecs.getDrawSystem()!.addSubSystem(new DrawSprite());
-    this.ecs.getDrawSystem()!.addSubSystem(new DrawSpritesheet());
+    this.ecs.getDrawSystem()!.addSubSystem(new DrawAnimatedSprite());
 
     
 
@@ -251,10 +252,8 @@ class MyScene extends Scene {
         'bigger'
       ),
       new CompDrawable(1),
-      new CompSpritesheet(
+      new CompAnimatedSprite(
         this.context.assetStore!,
-        'samurai_idle',
-        0,
         [
           {
             type: AnimType.Spritesheet,
