@@ -1,6 +1,5 @@
 import CompHexGrid from '../components/CompHexGrid';
 import CompTransform from '../engine/core_components/CompTransform';
-import { Archetype } from '../engine/core/ComponentStore';
 import EcsManager from '../engine/core/EcsManager';
 import System from '../engine/core/System';
 import {
@@ -9,19 +8,18 @@ import {
   CompMouseState,
 } from '../engine/core_components/CompMouse';
 import PhaserContext from '../engine/core/PhaserContext';
+import Archetype from '../engine/core/Archetype';
 
 export class SysPointAtHexInHexgrid extends System {
-  private _mouse_event_archetype;
-  private _hex_grid_archetype;
-
-  constructor() {
-    super(
-      new Archetype(CompMouseEvent, CompMouseState),
-      new Archetype(CompHexGrid, CompMouseSensitive, CompTransform),
-    );
-    this._mouse_event_archetype = this.archetypes[0];
-    this._hex_grid_archetype = this.archetypes[1];
-  }
+  private _mouse_event_archetype = new Archetype(
+    CompMouseEvent,
+    CompMouseState,
+  );
+  private _hex_grid_archetype = new Archetype(
+    CompHexGrid,
+    CompMouseSensitive,
+    CompTransform,
+  );
 
   override update(
     ecs: EcsManager,
@@ -38,20 +36,16 @@ export class SysPointAtHexInHexgrid extends System {
       CompMouseState,
     )!.mouse_state;
     ecs
-      .getEntitiesWithArchetype(this._hex_grid_archetype)
-      .forEach((hexgrid_entity) => {
-        const hex_grid = ecs.getComponent(hexgrid_entity, CompHexGrid)!.hexgrid;
-        const mouse_sensitive = ecs.getComponent(
-          hexgrid_entity,
-          CompMouseSensitive,
-        )!;
+      .getComponentsForEntitiesWithArchetype(this._hex_grid_archetype)
+      .forEach(([grid_comp, mouse_sensitive], hexgrid_entity) => {
         const transform = ecs.getComponent(hexgrid_entity, CompTransform)!;
         const object_position = transform.getLocalCoordinates(
           mouse_state.position,
         );
         const hex_coordinates =
-          hex_grid.hexCoordinatesFromVector2D(object_position);
-        mouse_sensitive.is_pointed_at = hex_grid.isHexInGrid(hex_coordinates);
+          grid_comp.hexgrid.hexCoordinatesFromVector2D(object_position);
+        mouse_sensitive.is_pointed_at =
+          grid_comp.hexgrid.isHexInGrid(hex_coordinates);
       });
   }
 }

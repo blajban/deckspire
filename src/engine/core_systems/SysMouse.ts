@@ -1,4 +1,4 @@
-import { Archetype } from '../core/ComponentStore';
+import Archetype from '../core/Archetype';
 import EcsManager from '../core/EcsManager';
 import PhaserContext from '../core/PhaserContext';
 import System from '../core/System';
@@ -14,9 +14,7 @@ export default class SysMouse extends System {
   // This event object is updated each call to update, if needed.
   private _mouse_state = new MouseState();
 
-  constructor() {
-    super(new Archetype(CompIsMouse, CompMouseState));
-  }
+  private _archetype = new Archetype(CompIsMouse, CompMouseState);
 
   override init(ecs: EcsManager): void {
     ecs.addComponents(ecs.newEntity(), new CompIsMouse(), new CompMouseState());
@@ -32,7 +30,7 @@ export default class SysMouse extends System {
     const [has_moved, has_clicked] =
       this._mouse_state.updateMouseStatus(phaser_context);
     // Find mouse entity
-    const entity = ecs.getEntityWithArchetype(this.archetypes[0])!;
+    const entity = ecs.getEntityWithArchetype(this._archetype)!;
     // Find mouse state component
     const comp_mouse_state = ecs.getComponent(entity, CompMouseState)!;
     comp_mouse_state.mouse_state = this._mouse_state.clone();
@@ -50,7 +48,7 @@ export default class SysMouse extends System {
   }
 
   public terminate(ecs: EcsManager): void {
-    const entities = ecs.getEntitiesWithArchetype(this.archetypes[0]);
+    const entities = ecs.getEntitiesWithArchetype(this._archetype);
     for (const entity of entities) {
       ecs.removeEntity(entity);
     }

@@ -1,3 +1,4 @@
+import { ClassType } from '../util/ClassType';
 import Component from './Component';
 import { Entity } from './Entity';
 
@@ -6,10 +7,10 @@ import { Entity } from './Entity';
  */
 export default class ComponentMap<T extends Component> {
   private _components: Map<Entity, T> = new Map();
-  private _component_type: string;
+  private _component_type: ClassType<T>;
   private _cached_entities: Set<Entity> | null = null;
 
-  constructor(component_type: string) {
+  constructor(component_type: ClassType<T>) {
     if (!component_type) {
       throw new Error('Component type must be defined.');
     }
@@ -30,7 +31,7 @@ export default class ComponentMap<T extends Component> {
 
     if (this.has(entity) && !can_overwrite) {
       throw new Error(
-        `Could not add component to entity ${entity} (entity already has component of type ${this._component_type}).`,
+        `Could not add component to entity ${entity} (entity already has component of type ${this._component_type.name}).`,
       );
     }
     this._components.set(entity, component);

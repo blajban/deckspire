@@ -12,11 +12,11 @@ describe('ComponentMap', () => {
   let component_map: ComponentMap<MockComponent>;
 
   beforeEach(() => {
-    component_map = new ComponentMap<MockComponent>(MockComponent.name);
+    component_map = new ComponentMap<MockComponent>(MockComponent);
   });
 
   it('should throw an error if an invalid component is added', () => {
-    const component_map = new ComponentMap<MockComponent>('MockComponent');
+    const component_map = new ComponentMap<MockComponent>(MockComponent);
     const invalid_component = null as unknown as MockComponent;
 
     expect(() => {

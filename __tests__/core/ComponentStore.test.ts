@@ -1,7 +1,6 @@
+import Archetype from '../../src/engine/core/Archetype';
 import Component from '../../src/engine/core/Component';
-import ComponentStore, {
-  Archetype,
-} from '../../src/engine/core/ComponentStore';
+import ComponentStore from '../../src/engine/core/ComponentStore';
 import { Entity } from '../../src/engine/core/Entity';
 
 class MockComponent extends Component {

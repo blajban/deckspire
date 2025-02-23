@@ -1,9 +1,10 @@
 import CompChild from '../core_components/CompChild';
 import CompParent from '../core_components/CompParent';
 import { ClassType } from '../util/ClassType';
+import Archetype from './Archetype';
 import AssetStore from './AssetStore';
 import Component, { ComponentClass } from './Component';
-import ComponentStore, { Archetype } from './ComponentStore';
+import ComponentStore from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
 import PhaserContext from './PhaserContext';
@@ -98,17 +99,29 @@ export default class EcsManager {
     this._component_store.removeComponent(entity, component_class);
   }
 
+  getComponentsForEntitiesWithArchetype<T extends Component[]>(
+    archetype: Archetype<T>,
+  ): Map<Entity, T> {
+    return this._component_store.getComponentsForEntitiesWithArchetype(
+      archetype,
+    );
+  }
+
   getEntitiesAndComponents<T extends Component>(
     component_class: ClassType<T>,
   ): Map<Entity, T> {
     return this._component_store.getEntitiesAndComponents(component_class);
   }
 
-  getEntitiesWithArchetype(archetype: Archetype): Set<Entity> {
+  getEntitiesWithArchetype<T extends Component[]>(
+    archetype: Archetype<T>,
+  ): Set<Entity> {
     return this._component_store.getEntitiesWithArchetype(archetype);
   }
 
-  getEntityWithArchetype(archetype: Archetype): Entity | undefined {
+  getEntityWithArchetype<T extends Component[]>(
+    archetype: Archetype<T>,
+  ): Entity | undefined {
     return this._component_store
       .getEntitiesWithArchetype(archetype)
       .keys()

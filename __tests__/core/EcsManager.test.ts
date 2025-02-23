@@ -5,11 +5,10 @@ import EcsManager from '../../src/engine/core/EcsManager';
 import EntityStore from '../../src/engine/core/EntityStore';
 import AssetStore from '../../src/engine/core/AssetStore';
 import SystemManager from '../../src/engine/core/SystemManager';
-import ComponentStore, {
-  Archetype,
-} from '../../src/engine/core/ComponentStore';
+import ComponentStore from '../../src/engine/core/ComponentStore';
 import CoreScene from '../../src/engine/core/CoreScene';
 import PhaserContext from '../../src/engine/core/PhaserContext';
+import Archetype from '../../src/engine/core/Archetype';
 
 class MockComponent extends Component {
   constructor(public value: number) {

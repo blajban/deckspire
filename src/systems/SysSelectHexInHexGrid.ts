@@ -2,7 +2,6 @@ import CompHex from '../components/CompHex';
 import CompHexGrid from '../components/CompHexGrid';
 import CompSelectorHex from '../components/CompSelectorHex';
 import CompTransform from '../engine/core_components/CompTransform';
-import { Archetype } from '../engine/core/ComponentStore';
 import EcsManager from '../engine/core/EcsManager';
 import { Entity } from '../engine/core/Entity';
 import System from '../engine/core/System';
@@ -18,22 +17,19 @@ import CompParent from '../engine/core_components/CompParent';
 import { MouseButtonStatus } from '../engine/input/MouseState';
 import { HexCoordinates } from '../math/hexgrid/HexVectors';
 import PhaserContext from '../engine/core/PhaserContext';
+import Archetype from '../engine/core/Archetype';
 
 export default class SysSelectHexInHexGrid extends System {
-  private readonly _mouse_event_archetype: Archetype;
-  private readonly _hex_grid_archetype: Archetype;
-  constructor() {
-    const hex_grid_archetype = new Archetype(
-      CompHexGrid,
-      CompSelectorHex,
-      CompMouseSensitive,
-      CompTransform,
-    );
-    const mouse_event_archetype = new Archetype(CompMouseEvent, CompMouseState);
-    super(hex_grid_archetype, mouse_event_archetype);
-    this._hex_grid_archetype = hex_grid_archetype;
-    this._mouse_event_archetype = mouse_event_archetype;
-  }
+  private readonly _mouse_event_archetype = new Archetype(
+    CompMouseEvent,
+    CompMouseState,
+  );
+  private readonly _hex_grid_archetype = new Archetype(
+    CompHexGrid,
+    CompSelectorHex,
+    CompMouseSensitive,
+    CompTransform,
+  );
 
   update(
     ecs: EcsManager,
@@ -42,12 +38,9 @@ export default class SysSelectHexInHexGrid extends System {
     _delta: number,
   ): void {
     ecs
-      .getEntitiesWithArchetype(this._mouse_event_archetype)
-      .forEach((mouse_event) => {
-        const mouse_state = ecs.getComponent(
-          mouse_event,
-          CompMouseState,
-        )!.mouse_state;
+      .getComponentsForEntitiesWithArchetype(this._mouse_event_archetype)
+      .forEach(([_mouse_event, mouse_state_comp], _mouse_event_entity) => {
+        const mouse_state = mouse_state_comp.mouse_state;
         ecs
           .getEntitiesWithArchetype(this._hex_grid_archetype)
           .forEach((hexgrid_entity) => {
