@@ -1,11 +1,6 @@
-
-
 import AssetStore, { AssetId, AssetKey } from '../core/AssetStore';
 
-
-
 export type AnimKey = string;
-
 
 export interface AnimConfig {
   key: AnimKey;
@@ -33,16 +28,15 @@ export class AnimState {
 
   }
 
-  get asset_id(): AssetId | null { return this._asset_id; }
-  get anim_key(): AnimKey { return this._anim.key; }
-
+  get key(): AnimKey { return this._anim.key; }
   get loop(): boolean { return this._anim.loop; }
   set loop(new_val: boolean) { this._anim.loop = new_val; }
-  
   get playing(): boolean { return this._anim.playing; }
   set playing(new_val: boolean) { this._anim.playing = new_val; }
-
-  get config(): AnimConfig { return this._anim; }
+  get asset_id(): AssetId | null { return this._asset_id; }
+  get start_frame(): number { return this._anim.start_frame; }
+  get num_frames(): number { return this._anim.num_frames; }
+  get frame_rate(): number { return this._anim.frame_rate; }
 }
 
 export default class AnimStates {
@@ -52,7 +46,7 @@ export default class AnimStates {
   constructor(asset_store: AssetStore, animations: AnimConfig[], default_state: AnimKey) {
     animations.forEach((anim) => {
       const state = new AnimState(asset_store, anim);
-      this._states.set(state.anim_key, state);
+      this._states.set(state.key, state);
     })
 
     this.current_state = this.getState(default_state);
@@ -67,7 +61,7 @@ export default class AnimStates {
   }
 
   switchState(new_state: AnimKey): void {
-    if (this.current_state.anim_key === new_state) return;
+    if (this.current_state.key === new_state) return;
   
     this.current_state = this.getState(new_state);
   }
