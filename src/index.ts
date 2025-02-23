@@ -17,8 +17,6 @@ import CompSprite from './engine/core_components/CompSprite';
 import { DrawSprite } from './draw/DrawSprite';
 import CompSpritesheet from './engine/core_components/CompAnimatedSprite';
 import { DrawAnimatedSprite } from './draw/DrawAnimatedSprite';
-import { AnimState, AnimType } from './engine/core/Animations';
-import CompTransformAnimation from './engine/core_components/CompTransformAnimation';
 import CompAnimatedSprite from './engine/core_components/CompAnimatedSprite';
 import CompRotate from './engine/core_components/CompRotate';
 import CompScaleChange from './engine/core_components/CompScaleChange';
@@ -110,7 +108,6 @@ class MyScene extends Scene {
     this.ecs.registerComponent(CompHex);
     this.ecs.registerComponent(CompHexGrid);
     this.ecs.registerComponent(CompTransform);
-    this.ecs.registerComponent(CompTransformAnimation);
     this.ecs.registerComponent(CompRotate);
     this.ecs.registerComponent(CompScaleChange);
 
@@ -225,32 +222,22 @@ class MyScene extends Scene {
         this.context.assetStore!,
         [
           {
-            type: AnimType.Spritesheet,
-            base: { 
-              key: 'idle',
-              loop: true,
-              playing: true,
-            },
-            config: {
-              asset_key: 'samurai_idle',
-              start_frame: 0,
-              num_frames: 10,
-              frame_rate: 10,
-            },
+            key: 'idle',
+            loop: true,
+            playing: true,
+            asset_key: 'samurai_idle',
+            start_frame: 0,
+            num_frames: 10,
+            frame_rate: 10,
           },
           {
-            type: AnimType.Spritesheet,
-            base: { 
-              key: 'run',
-              loop: true,
-              playing: true,
-            },
-            config: {
-              asset_key: 'samurai_two',
-              start_frame: 0,
-              num_frames: 15,
-              frame_rate: 15,
-            },
+            key: 'run',
+            loop: true,
+            playing: true,
+            asset_key: 'samurai_two',
+            start_frame: 0,
+            num_frames: 15,
+            frame_rate: 15,
           }
         ], 
         'idle'

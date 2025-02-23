@@ -1,10 +1,7 @@
-import CompParent from '../engine/core_components/CompParent';
 import System from '../engine/core/System';
 import { Context } from '../engine/core/Engine';
 import Scene from '../engine/core/Scene';
 import CompTransform from '../components/CompTransform';
-import { AnimConfigTransformOld } from '../engine/core/Animations';
-import CompTransformAnimation from '../engine/core_components/CompTransformAnimation';
 import CompScaleChange from '../engine/core_components/CompScaleChange';
 
 export default class SysScaleChange extends System {

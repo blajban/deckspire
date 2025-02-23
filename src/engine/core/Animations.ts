@@ -2,90 +2,54 @@
 
 import AssetStore, { AssetId, AssetKey } from '../core/AssetStore';
 
-export interface AnimConfigTransform {
-  duration: number,
-  start_value: number,
-  end_value: number,
-  loop: boolean;
-  playing: boolean;
-}
+
 
 export type AnimKey = string;
 
-export enum AnimType {
-  Spritesheet = 'spritesheet',
-  Transform = 'transform',
-}
 
-export interface AnimConfigSpritesheet {
+export interface AnimConfig {
+  key: AnimKey;
+  loop: boolean;
+  playing: boolean;
   asset_key: AssetKey;
   start_frame: number;
   num_frames: number;
   frame_rate: number;
 }
 
-export interface AnimConfigTransformData {
-  duration: number,
-  start_value: number,
-  end_value: number,
-}
-
-export interface AnimConfigTransformOld {
-  scale_x: AnimConfigTransformData | null,
-  scale_y: AnimConfigTransformData | null,
-  rotation: AnimConfigTransformData | null,
-}
-
-export type AnimConfig =
-  | AnimConfigSpritesheet
-  | AnimConfigTransformOld;
-
-export interface AnimBaseData {
-  key: AnimKey;
-  loop: boolean;
-  playing: boolean;
-}
-
-export interface Animation {
-  type: AnimType,
-  base: AnimBaseData,
-  config: AnimConfig,
-}
-
 export class AnimState {
-  private _anim: Animation;
+  private _anim: AnimConfig;
   private _asset_id: AssetId | null = null;
   public elapsed: number = 0;
 
   constructor(
-    asset_store: AssetStore | null,
-    anim: Animation,
+    asset_store: AssetStore,
+    anim: AnimConfig,
   ) {
     this._anim = anim;
 
-    if (asset_store && this._anim.type === AnimType.Spritesheet) {
-      this._asset_id = asset_store.getAssetId((this._anim.config as AnimConfigSpritesheet).asset_key);
-      asset_store.useAsset(this._asset_id);
-    }
+    this._asset_id = asset_store.getAssetId(this._anim.asset_key);
+    asset_store.useAsset(this._asset_id);
+
   }
 
   get asset_id(): AssetId | null { return this._asset_id; }
-  get anim_key(): AnimKey { return this._anim.base.key; }
+  get anim_key(): AnimKey { return this._anim.key; }
 
-  get loop(): boolean { return this._anim.base.loop; }
-  set loop(new_val: boolean) { this._anim.base.loop = new_val; }
+  get loop(): boolean { return this._anim.loop; }
+  set loop(new_val: boolean) { this._anim.loop = new_val; }
   
-  get playing(): boolean { return this._anim.base.playing; }
-  set playing(new_val: boolean) { this._anim.base.playing = new_val; }
+  get playing(): boolean { return this._anim.playing; }
+  set playing(new_val: boolean) { this._anim.playing = new_val; }
 
-  get config(): AnimConfigSpritesheet | AnimConfigTransformOld { return this._anim.config; }
+  get config(): AnimConfig { return this._anim; }
 }
 
 export default class AnimStates {
   public current_state: AnimState;
   private _states: Map<AnimKey, AnimState> = new Map();
 
-  constructor(asset_store: AssetStore | null, animations: Animation[], default_state: AnimKey) {
+  constructor(asset_store: AssetStore, animations: AnimConfig[], default_state: AnimKey) {
     animations.forEach((anim) => {
       const state = new AnimState(asset_store, anim);
       this._states.set(state.anim_key, state);

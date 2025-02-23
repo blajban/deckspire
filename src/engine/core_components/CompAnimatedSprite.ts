@@ -1,4 +1,4 @@
-import AnimStates, { Animation, AnimKey } from '../core/Animations';
+import AnimStates, { AnimConfig, AnimKey } from '../core/Animations';
 import AssetComponent from '../core/AssetComponent';
 import AssetStore, { AssetKey } from '../core/AssetStore';
 
@@ -7,7 +7,7 @@ export default class CompAnimatedSprite extends AssetComponent {
 
   constructor(
     asset_store: AssetStore,
-    animations: Animation[],
+    animations: AnimConfig[],
     default_state_key: AnimKey
   ) {
     super(asset_store, null);
