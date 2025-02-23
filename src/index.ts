@@ -18,9 +18,10 @@ import { DrawSprite } from './draw/DrawSprite';
 import CompSpritesheet from './engine/core_components/CompAnimatedSprite';
 import { DrawAnimatedSprite } from './draw/DrawAnimatedSprite';
 import { AnimState, AnimType } from './engine/core/Animations';
-import TransformAnimationSystem from './systems/TransformAnimationSystem';
 import CompTransformAnimation from './engine/core_components/CompTransformAnimation';
 import CompAnimatedSprite from './engine/core_components/CompAnimatedSprite';
+import CompRotate from './engine/core_components/CompRotate';
+import CompScaleChange from './engine/core_components/CompScaleChange';
 
 
 class AssetScene extends Scene {
@@ -110,6 +111,8 @@ class MyScene extends Scene {
     this.ecs.registerComponent(CompHexGrid);
     this.ecs.registerComponent(CompTransform);
     this.ecs.registerComponent(CompTransformAnimation);
+    this.ecs.registerComponent(CompRotate);
+    this.ecs.registerComponent(CompScaleChange);
 
     this.ecs.addMouse();
     this.ecs.getMouseSystem()!.addSubSystem(new SysPointingAtHexgrid());
@@ -186,6 +189,20 @@ class MyScene extends Scene {
       new CompTransform(new Vector2D(200, 200), 0, new Vector2D(1.0, 1.0)),
       new CompDrawable(1),
       new CompSprite(this.context.assetStore!, 'samurai_idle', 6),
+      new CompRotate(
+        3000.0,
+        0,
+        3.14,
+        true,
+        true,
+      ),
+      new CompScaleChange(
+        3000.0,
+        new Vector2D(1.0, 1.0),
+        new Vector2D(3.0, 3.0),
+        false,
+        true,
+      )
     );
 
     const test_anim = this.ecs.newEntity();
@@ -196,60 +213,12 @@ class MyScene extends Scene {
         0,
         new Vector2D(1.0, 1.0),
       ),
-      new CompTransformAnimation(
-        [
-          {
-            type: AnimType.Transform,
-            base: {
-              key: 'bigger',
-              loop: false,
-              playing: true,
-            },
-            config: {
-              scale_x: {
-                duration: 3000.0,
-                start_value: 0.0,
-                end_value: 1.0,
-              },
-              scale_y: {
-                duration: 3000.0,
-                start_value: 0.0,
-                end_value: 1.0,
-              },
-              rotation: {
-                duration: 3000.0,
-                start_value: 0,
-                end_value: 3.14,
-              }
-            }
-          },
-          {
-            type: AnimType.Transform,
-            base: {
-              key: 'smaller',
-              loop: false,
-              playing: true,
-            },
-            config: {
-              scale_x: {
-                duration: 5.0,
-                start_value: 3.0,
-                end_value: 0.0,
-              },
-              scale_y: {
-                duration: 5.0,
-                start_value: 3.0,
-                end_value: 0.0,
-              },
-              rotation: {
-                duration: 5,
-                start_value: 3.14,
-                end_value: 0,
-              },
-            }
-          },
-        ],
-        'bigger'
+      new CompRotate(
+        4000,
+        0,
+        -(2 * 3.14),
+        true,
+        true,
       ),
       new CompDrawable(1),
       new CompAnimatedSprite(
@@ -330,7 +299,11 @@ class MyScene extends Scene {
   
     this.ecs.getDrawSystem()?.update(this, this.context, time, delta);
 
-    this.ecs.transform_anim_system.update(this, this.context, time, delta);
+
+
+    this.ecs.rotate_system.update(this, this.context, time, delta);
+
+    this.ecs.scale_change_system.update(this, this.context, time, delta);
 
     
   }

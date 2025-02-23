@@ -2,6 +2,14 @@
 
 import AssetStore, { AssetId, AssetKey } from '../core/AssetStore';
 
+export interface AnimConfigTransform {
+  duration: number,
+  start_value: number,
+  end_value: number,
+  loop: boolean;
+  playing: boolean;
+}
+
 export type AnimKey = string;
 
 export enum AnimType {
@@ -22,7 +30,7 @@ export interface AnimConfigTransformData {
   end_value: number,
 }
 
-export interface AnimConfigTransform {
+export interface AnimConfigTransformOld {
   scale_x: AnimConfigTransformData | null,
   scale_y: AnimConfigTransformData | null,
   rotation: AnimConfigTransformData | null,
@@ -30,7 +38,7 @@ export interface AnimConfigTransform {
 
 export type AnimConfig =
   | AnimConfigSpritesheet
-  | AnimConfigTransform;
+  | AnimConfigTransformOld;
 
 export interface AnimBaseData {
   key: AnimKey;
@@ -70,7 +78,7 @@ export class AnimState {
   get playing(): boolean { return this._anim.base.playing; }
   set playing(new_val: boolean) { this._anim.base.playing = new_val; }
 
-  get config(): AnimConfigSpritesheet | AnimConfigTransform { return this._anim.config; }
+  get config(): AnimConfigSpritesheet | AnimConfigTransformOld { return this._anim.config; }
 }
 
 export default class AnimStates {

@@ -1,4 +1,3 @@
-import TransformAnimationSystem from '../../systems/TransformAnimationSystem';
 import CompChild from '../core_components/CompChild';
 import CompDrawable from '../core_components/CompDrawable';
 import CompFillStyle from '../core_components/CompFillStyle';
@@ -16,13 +15,16 @@ import Component, { ComponentClass } from './Component';
 import ComponentStore, { Archetype } from './ComponentStore';
 import { Entity } from './Entity';
 import EntityStore from './EntityStore';
+import SysRotate from '../../systems/SysRotate';
+import SysScaleChange from '../../systems/SysScaleChange';
 
 export default class Ecs {
   private _system_draw: SysDraw | null = null;
   private _system_mouse: SysMouse | null = null;
   
   // example, remove later
-  public transform_anim_system: TransformAnimationSystem = new TransformAnimationSystem();
+  public rotate_system: SysRotate = new SysRotate();
+  public scale_change_system: SysScaleChange = new SysScaleChange();
 
   constructor(
     private _entity_store: EntityStore,
