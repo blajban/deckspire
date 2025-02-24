@@ -1,16 +1,22 @@
-import AssetStore, { AssetId, AssetKey } from '../../src/engine/core/AssetStore';
-import AnimStates, { AnimConfig, AnimState } from '../../src/engine/core/SpriteAnimations';
+import AssetStore, {
+  AssetId,
+  AssetKey,
+} from '../../src/engine/core/AssetStore';
+import AnimStates, {
+  AnimConfig,
+  AnimState,
+} from '../../src/engine/core/SpriteAnimations';
 import PhaserContext from '../../src/engine/core/PhaserContext';
 
 // Mock AssetStore
 class MockAssetStore extends AssetStore {
-  private _mockAssetId = 1;
+  private _mock_asset_id = 1;
 
-  override getAssetId(key: AssetKey): AssetId {
-    return this._mockAssetId++;
+  override getAssetId(_key: AssetKey): AssetId {
+    return this._mock_asset_id++;
   }
 
-  override useAsset(id: AssetId): void {}
+  override useAsset(_id: AssetId): void {}
 
   override releaseAsset(_phaser_scene: PhaserContext, _id: AssetId): void {}
 }
@@ -111,12 +117,12 @@ describe('AnimStates', () => {
     );
   });
 
-   test('should release assets correctly', () => {
-    const mockPhaserContext = {} as PhaserContext;
-    const mockReleaseAsset = jest.spyOn(asset_store, 'releaseAsset');
+  test('should release assets correctly', () => {
+    const mock_phaser_context = {} as PhaserContext;
+    const mock_release_asset = jest.spyOn(asset_store, 'releaseAsset');
 
-    anim_states.releaseAssets(mockPhaserContext, asset_store);
+    anim_states.releaseAssets(mock_phaser_context, asset_store);
 
-    expect(mockReleaseAsset).toHaveBeenCalledTimes(2);
+    expect(mock_release_asset).toHaveBeenCalledTimes(2);
   });
 });

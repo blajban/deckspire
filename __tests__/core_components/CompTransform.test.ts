@@ -13,7 +13,11 @@ describe('CompTransform', () => {
   });
 
   test('should initialize with custom values', () => {
-    const transform = new CompTransform(new Vector2D(10, 20), Math.PI / 4, new Vector2D(2, 3));
+    const transform = new CompTransform(
+      new Vector2D(10, 20),
+      Math.PI / 4,
+      new Vector2D(2, 3),
+    );
 
     expect(transform.position.x).toBe(10);
     expect(transform.position.y).toBe(20);

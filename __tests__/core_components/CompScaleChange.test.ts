@@ -10,7 +10,7 @@ describe('CompScaleChange', () => {
       new Vector2D(1.0, 1.0),
       new Vector2D(2.0, 2.0),
       true,
-      true
+      true,
     );
   });
 

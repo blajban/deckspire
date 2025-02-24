@@ -1,7 +1,16 @@
 import CompAnimatedSprite from '../../src/engine/core_components/CompAnimatedSprite';
-import AnimStates, { AnimConfig, AnimKey } from '../../src/engine/core/SpriteAnimations';
-import AssetStore, { AssetKey, AssetId } from '../../src/engine/core/AssetStore';
-import PhaserContext from '../../src/engine/core/PhaserContext';
+import AnimStates, {
+  AnimConfig,
+  AnimKey,
+} from '../../src/engine/core/SpriteAnimations';
+import AssetStore, {
+  AssetKey,
+  AssetId,
+} from '../../src/engine/core/AssetStore';
+import PhaserContext, {
+  PhaserScene,
+} from '../../src/engine/core/PhaserContext';
+import GraphicsCache from '../../src/engine/core/GraphicsCache';
 
 describe('CompAnimatedSprite', () => {
   let mock_asset_store: AssetStore;
@@ -12,12 +21,15 @@ describe('CompAnimatedSprite', () => {
 
   beforeEach(() => {
     mock_asset_store = {
-      getAssetId: jest.fn((key: AssetKey) => 1 as AssetId),
+      getAssetId: jest.fn((_key: AssetKey) => 1 as AssetId),
       useAsset: jest.fn(),
       releaseAsset: jest.fn(),
     } as unknown as AssetStore;
 
-    phaser_context = new PhaserContext(jest.fn() as any, jest.fn() as any);
+    phaser_context = new PhaserContext(
+      jest.fn() as unknown as PhaserScene,
+      jest.fn() as unknown as GraphicsCache,
+    );
 
     animations = [
       {
@@ -39,9 +51,13 @@ describe('CompAnimatedSprite', () => {
         frameRate: 15,
       },
     ];
-    
+
     default_state_key = 'idle';
-    animated_sprite = new CompAnimatedSprite(mock_asset_store, animations, default_state_key);
+    animated_sprite = new CompAnimatedSprite(
+      mock_asset_store,
+      animations,
+      default_state_key,
+    );
   });
 
   test('should initialize with correct default state', () => {
@@ -64,10 +80,16 @@ describe('CompAnimatedSprite', () => {
   });
 
   test('should release assets on destroy', () => {
-    const releaseAssetsSpy = jest.spyOn(animated_sprite.states, 'releaseAssets');
-    
+    const release_assets_spy = jest.spyOn(
+      animated_sprite.states,
+      'releaseAssets',
+    );
+
     animated_sprite.onDestroy(phaser_context, mock_asset_store);
-    
-    expect(releaseAssetsSpy).toHaveBeenCalledWith(phaser_context, mock_asset_store);
+
+    expect(release_assets_spy).toHaveBeenCalledWith(
+      phaser_context,
+      mock_asset_store,
+    );
   });
 });
