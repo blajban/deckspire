@@ -50,7 +50,7 @@ export default class AssetStore {
   private _key_to_id: Map<AssetKey, AssetId> = new Map();
   private _loaded_assets: Set<AssetId> = new Set();
   private _asset_usage_count: Map<AssetId, number> = new Map();
-  private _current_id: AssetId = 0;
+  private _current_id: AssetId = 1;
   private _loading_promises: Map<AssetId, Promise<void>> = new Map();
 
   private _nextId(): AssetId {
