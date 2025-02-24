@@ -110,7 +110,7 @@ function destroyEntity(
     }
     if (component instanceof AssetComponent) {
       if (component instanceof CompAnimatedSprite) {
-        component.states.getAssetIDsUsed().forEach((id) => {
+        component.states.getAssetIdsUsed().forEach((id) => {
           ecs.asset_store.releaseAsset(phaser_context, id);
         });
       }
@@ -118,7 +118,6 @@ function destroyEntity(
       if (component.asset_id) {
         ecs.asset_store.releaseAsset(phaser_context, component.asset_id);
       }
-      
     }
     ecs.removeComponent(entity, component.constructor as ComponentClass);
   }

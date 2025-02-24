@@ -19,8 +19,6 @@ import {
   SysDrawBegin,
   SysDrawEnd,
   SysInputEnd,
-  SysUpdateBegin,
-  SysUpdateEnd,
 } from './engine/core_systems/SysSentinels';
 import CompSelectorHex from './components/CompSelectorHex';
 import SysSelectHexInHexGrid from './systems/SysSelectHexInHexGrid';
@@ -29,8 +27,6 @@ import EcsManager from './engine/core/EcsManager';
 import CompSprite from './engine/core_components/CompSprite';
 import PhaserContext from './engine/core/PhaserContext';
 import CompAnimatedSprite from './engine/core_components/CompAnimatedSprite';
-import SysRotate from './engine/core_systems/SysRotate';
-import SysScaleChange from './engine/core_systems/SysScaleChange';
 import CompRotate from './engine/core_components/CompRotate';
 import CompScaleChange from './engine/core_components/CompScaleChange';
 

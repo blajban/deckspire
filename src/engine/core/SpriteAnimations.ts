@@ -14,7 +14,7 @@ export interface AnimationConfig {
 
 export class AnimationState {
   private _anim: AnimationConfig;
-  private _asset_id: AssetId | null = null;
+  private _asset_id: AssetId;
   public elapsed: number = 0;
 
   constructor(asset_store: AssetStore, anim: AnimationConfig) {
@@ -86,13 +86,13 @@ export default class AnimationStates {
     this.current_state = this.getState(new_state);
   }
 
-  getAssetIDsUsed(): AssetId[] {
-    let asset_ids: AssetId[] = [];
+  getAssetIdsUsed(): AssetId[] {
+    const asset_ids: AssetId[] = [];
     this._states.forEach((state) => {
       if (state.asset_id) {
         asset_ids.push(state.asset_id);
       }
-    })
+    });
 
     return asset_ids;
   }

@@ -7,14 +7,9 @@ import AssetStore, {
   AssetKey,
   AssetId,
 } from '../../src/engine/core/AssetStore';
-import PhaserContext, {
-  PhaserScene,
-} from '../../src/engine/core/PhaserContext';
-import GraphicsCache from '../../src/engine/core/GraphicsCache';
 
 describe('CompAnimatedSprite', () => {
   let mock_asset_store: AssetStore;
-  let phaser_context: PhaserContext;
   let animations: AnimationConfig[];
   let default_state_key: AnimationKey;
   let animated_sprite: CompAnimatedSprite;
@@ -25,11 +20,6 @@ describe('CompAnimatedSprite', () => {
       useAsset: jest.fn(),
       releaseAsset: jest.fn(),
     } as unknown as AssetStore;
-
-    phaser_context = new PhaserContext(
-      jest.fn() as unknown as PhaserScene,
-      jest.fn() as unknown as GraphicsCache,
-    );
 
     animations = [
       {
