@@ -1,3 +1,4 @@
+import Archetype from '../../src/engine/core/Archetype';
 import Component from '../../src/engine/core/Component';
 import ComponentStore from '../../src/engine/core/ComponentStore';
 import { Entity } from '../../src/engine/core/Entity';
@@ -118,15 +119,19 @@ describe('ComponentStore', () => {
   test('getEntitiesWithComponent should return entities with a specific component type', () => {
     const entity1: Entity = 1;
     const entity2: Entity = 2;
+    const component1 = new MockComponent(10);
+    const component2 = new MockComponent(30);
 
     store.registerComponent(MockComponent);
 
-    store.addComponent(entity1, new MockComponent(10));
-    store.addComponent(entity2, new MockComponent(30));
+    store.addComponent(entity1, component1);
+    store.addComponent(entity2, component2);
 
-    const entities = store.getEntitiesWithComponent(MockComponent);
-    expect(entities).toContain(entity1);
-    expect(entities).toContain(entity2);
+    const entities = store.getEntitiesAndComponents(MockComponent);
+    expect(entities.keys()).toContain(entity1);
+    expect(entities.keys()).toContain(entity2);
+    expect(entities.values()).toContain(component1);
+    expect(entities.values()).toContain(component2);
   });
 
   test('getEntitiesWithArchetype should return entities with all specified component types', () => {
@@ -141,8 +146,7 @@ describe('ComponentStore', () => {
     store.addComponent(entity2, new MockComponent(30));
 
     const archetype_entities = store.getEntitiesWithArchetype(
-      MockComponent,
-      AnotherMockComponent,
+      new Archetype(MockComponent, AnotherMockComponent),
     );
     expect(archetype_entities).toContain(entity1);
     expect(archetype_entities).not.toContain(entity2);
@@ -155,7 +159,9 @@ describe('ComponentStore', () => {
     store.addComponent(entity, new MockComponent(10));
 
     expect(() =>
-      store.getEntitiesWithArchetype(MockComponent, AnotherMockComponent),
+      store.getEntitiesWithArchetype(
+        new Archetype(MockComponent, AnotherMockComponent),
+      ),
     ).toThrow(
       'Component type AnotherMockComponent must be registered first (get entities with archetype)',
     );
@@ -179,7 +185,7 @@ describe('ComponentStore', () => {
   });
 
   test('getEntitiesWithArchetype should return an empty array for no component types', () => {
-    expect(() => store.getEntitiesWithArchetype()).toThrow(
+    expect(() => store.getEntitiesWithArchetype(new Archetype())).toThrow(
       'Archetype cannot be empty',
     );
   });
@@ -196,7 +202,7 @@ describe('ComponentStore', () => {
       'Component type MockComponent must be registered first (get component)',
     );
 
-    expect(() => store.getEntitiesWithComponent(MockComponent)).toThrow(
+    expect(() => store.getEntitiesAndComponents(MockComponent)).toThrow(
       'Component type MockComponent must be registered first (get entities with component)',
     );
   });

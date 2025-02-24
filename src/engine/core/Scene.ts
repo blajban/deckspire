@@ -1,31 +1,21 @@
-import Ecs from './Ecs';
-import EntityStore from './EntityStore';
-import ComponentStore from './ComponentStore';
-import { Context } from './Engine';
+import EcsManager from './EcsManager';
+import PhaserContext from './PhaserContext';
 
 export default abstract class Scene {
-  private _ecs!: Ecs;
-
-  protected context!: Context;
-
-  initialize(context: Context): void {
-    this.context = context;
-    this._ecs = new Ecs(
-      new EntityStore(),
-      new ComponentStore(),
-      context.assetStore!,
-    );
+  private _preload_promise: Promise<void[]> = Promise.resolve([]);
+  public preload(
+    _ecs: EcsManager,
+    _phaser_context: PhaserContext,
+  ): Promise<void> {
+    return Promise.resolve();
   }
-
-  get ecs(): Ecs {
-    return this._ecs;
+  async makePreloadPromise(promise: Promise<void[]>): Promise<void> {
+    this._preload_promise = promise;
+    return Promise.resolve();
   }
-
-  onRegister(): void {}
-  async onPreload(): Promise<void> {}
-  onStart(): void {}
-  abstract onUpdate(time: number, delta: number): void;
-  onExit(): void {}
-  onPause(): void {}
-  onResume(): void {}
+  public readyPreload(): Promise<void[]> {
+    return this._preload_promise!;
+  }
+  abstract load(ecs: EcsManager, phaser_context: PhaserContext): Promise<void>;
+  abstract unload(ecs: EcsManager, phaser_context: PhaserContext): void;
 }

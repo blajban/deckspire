@@ -1,41 +1,43 @@
 import System from '../engine/core/System';
-import { Context } from '../engine/core/Engine';
-import Scene from '../engine/core/Scene';
-import CompTransform from '../components/CompTransform';
+import EcsManager from '../engine/core/EcsManager';
+import PhaserContext from '../engine/core/PhaserContext';
+import Archetype from '../engine/core/Archetype';
+import CompTransform from '../engine/core_components/CompTransform';
 import CompRotate from '../engine/core_components/CompRotate';
 
+
+
 export default class SysRotate extends System {
-  constructor() {
-    super([[CompTransform, CompRotate]]);
-  }
+  private _archetype = new Archetype(CompTransform, CompRotate);
 
-  update(scene: Scene, context: Context, time: number, delta: number): void {
+  override update(
+    ecs: EcsManager,
+    _phaser_context: PhaserContext,
+    _time: number,
+    delta: number,
+  ): void {
+    ecs
+      .getComponentsForEntitiesWithArchetype(this._archetype)
+      .forEach(([transform, rotate], _entity) => {     
+        if (!rotate.playing) return;
 
-    const entities = this.allMatchingEntities(scene);
+        rotate.elapsed += delta;
 
-    entities.forEach((entity) => {
-      const transform = scene.ecs.getComponent(entity, CompTransform)!;
-      const rotation = scene.ecs.getComponent(entity, CompRotate)!;
-
-      if (!rotation.playing) return;
-
-      rotation.elapsed += delta;
-
-      const progress = this._progress(rotation.elapsed, rotation.duration);
-      transform.rotation = rotation.start_value + (rotation.end_value - rotation.start_value) * progress;
+        const progress = this._progress(rotate.elapsed, rotate.duration);
+        transform.rotation = rotate.start_value + (rotate.end_value - rotate.start_value) * progress;
 
 
-      const maxDuration = Math.max(
-        rotation.duration || 0
-      );
+        const maxDuration = Math.max(
+          rotate.duration || 0
+        );
 
-      if (rotation.elapsed >= maxDuration) {
-        if (!rotation.loop) {
-          rotation.playing = false;
-        } else {
-          rotation.elapsed = 0;
+        if (rotate.elapsed >= maxDuration) {
+          if (!rotate.loop) {
+            rotate.playing = false;
+          } else {
+            rotate.elapsed = 0;
+          }
         }
-      }
     });
   }
 

@@ -1,11 +1,14 @@
 import CompChild from '../../src/engine/core_components/CompChild';
 import CompParent from '../../src/engine/core_components/CompParent';
 import Component from '../../src/engine/core/Component';
-import ComponentStore from '../../src/engine/core/ComponentStore';
+import EcsManager from '../../src/engine/core/EcsManager';
 import EntityStore from '../../src/engine/core/EntityStore';
-import Ecs from '../../src/engine/core/Ecs';
 import AssetStore from '../../src/engine/core/AssetStore';
-import Engine from '../../src/engine/core/Engine';
+import SystemManager from '../../src/engine/core/SystemManager';
+import ComponentStore from '../../src/engine/core/ComponentStore';
+import CoreScene from '../../src/engine/core/CoreScene';
+import PhaserContext from '../../src/engine/core/PhaserContext';
+import Archetype from '../../src/engine/core/Archetype';
 
 class MockComponent extends Component {
   constructor(public value: number) {
@@ -20,18 +23,23 @@ class AnotherMockComponent extends Component {
 }
 
 describe('ECS', () => {
-  let ecs: Ecs;
+  let ecs: EcsManager;
 
   beforeEach(() => {
     const entity_store = new EntityStore();
     const component_store = new ComponentStore();
-    const engine = new Engine(800, 600);
-    const context = engine.getContext();
-    const asset_store = new AssetStore(context);
-    ecs = new Ecs(entity_store, component_store, asset_store);
+    const asset_store = new AssetStore();
+    const system_manager = new SystemManager();
+    ecs = new EcsManager(
+      entity_store,
+      component_store,
+      system_manager,
+      asset_store,
+    );
 
-    ecs.registerComponent(CompParent);
-    ecs.registerComponent(CompChild);
+    const core_scene = new CoreScene();
+    const mock_context = {} as unknown as PhaserContext;
+    core_scene.load(ecs, mock_context);
     ecs.registerComponent(MockComponent);
     ecs.registerComponent(AnotherMockComponent);
   });
@@ -86,35 +94,6 @@ describe('ECS', () => {
     expect(() => ecs.addParentChildRelationship(parent2, child)).toThrow(
       'already has a parent',
     );
-  });
-
-  test('removes parent entity and its children when removeChildren is true', () => {
-    const parent_entity = ecs.newEntity();
-    const child_entity1 = ecs.newEntity();
-    const child_entity2 = ecs.newEntity();
-
-    ecs.addParentChildRelationship(parent_entity, child_entity1);
-    ecs.addParentChildRelationship(parent_entity, child_entity2);
-
-    ecs.removeEntity(parent_entity, true);
-
-    expect(ecs.entityExists(parent_entity)).toBe(false);
-    expect(ecs.entityExists(child_entity1)).toBe(false);
-    expect(ecs.entityExists(child_entity2)).toBe(false);
-  });
-
-  test('removes parent entity but orphans children when removeChildren is false', () => {
-    const parent_entity = ecs.newEntity();
-    const child_entity = ecs.newEntity();
-
-    ecs.addParentChildRelationship(parent_entity, child_entity);
-
-    ecs.removeEntity(parent_entity, false);
-
-    expect(ecs.entityExists(parent_entity)).toBe(false);
-    expect(ecs.entityExists(child_entity)).toBe(true);
-    const orphaned_child = ecs.getComponent(child_entity, CompChild);
-    expect(orphaned_child).toBeUndefined();
   });
 
   test('removes child entity and updates parent children list', () => {
@@ -205,9 +184,9 @@ describe('ECS', () => {
     ecs.addComponent(entity1, new MockComponent(10));
     ecs.addComponent(entity2, new AnotherMockComponent(5));
 
-    const entities_with_position = ecs.getEntitiesWithComponent(MockComponent);
-    expect(entities_with_position).toContain(entity1);
-    expect(entities_with_position).not.toContain(entity2);
+    const entities_with_position = ecs.getEntitiesAndComponents(MockComponent);
+    expect(entities_with_position.keys()).toContain(entity1);
+    expect(entities_with_position.keys()).not.toContain(entity2);
   });
 
   test('should retrieve all entities matching an archetype', () => {
@@ -223,8 +202,7 @@ describe('ECS', () => {
     ecs.addComponent(entity3, new AnotherMockComponent(10));
 
     const entities_with_archetype = ecs.getEntitiesWithArchetype(
-      MockComponent,
-      AnotherMockComponent,
+      new Archetype(MockComponent, AnotherMockComponent),
     );
     expect(entities_with_archetype).toContain(entity1);
     expect(entities_with_archetype).not.toContain(entity2);
@@ -265,11 +243,12 @@ describe('ECS', () => {
   });
 
   test('should clear all entities and components', () => {
+    const old_length = ecs.getAllEntities().length;
     const entity = ecs.newEntity();
     ecs.addComponent(entity, new MockComponent(10));
     ecs.addComponent(entity, new AnotherMockComponent(5));
 
     ecs.removeEntity(entity);
-    expect(ecs.getAllEntities()).toHaveLength(0);
+    expect(ecs.getAllEntities()).toHaveLength(old_length);
   });
 });

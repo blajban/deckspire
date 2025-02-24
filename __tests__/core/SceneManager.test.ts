@@ -1,136 +1,59 @@
-import Engine from '../../src/engine/core/Engine';
+import EcsManager from '../../src/engine/core/EcsManager';
+import Theater from '../../src/engine/core/Theater';
 import Scene from '../../src/engine/core/Scene';
 import SceneManager from '../../src/engine/core/SceneManager';
+import PhaserContext from '../../src/engine/core/PhaserContext';
 
 class MockScene extends Scene {
   public events: string[] = [];
 
-  onRegister(): void {
-    this.events.push('onRegister');
+  preload(): Promise<void> {
+    this.events.push('preload');
+    return Promise.resolve();
   }
 
-  onStart(): void {
-    this.events.push('onStart');
+  load(): Promise<void> {
+    this.events.push('load');
+    return Promise.resolve();
   }
 
-  onExit(): void {
-    this.events.push('onExit');
-  }
-
-  onPause(): void {
-    this.events.push('onPause');
-  }
-
-  onResume(): void {
-    this.events.push('onResume');
-  }
-
-  onUpdate(time: number, delta: number): void {
-    this.events.push(`onUpdate(${time}, ${delta})`);
+  unload(): void {
+    this.events.push('unload');
   }
 }
 
 describe('SceneManager', () => {
-  let engine: Engine;
+  let engine: Theater;
   let scene_manager: SceneManager;
-  let mock_scene1: MockScene;
-  let mock_scene2: MockScene;
+  let ecs: EcsManager;
+  let mock_scene: MockScene;
+  const mock_context = {} as unknown as PhaserContext;
 
   beforeEach(() => {
-    engine = new Engine(800, 600);
-    scene_manager = engine.getContext().sceneManager!;
-    mock_scene1 = new MockScene();
-    mock_scene2 = new MockScene();
+    engine = new Theater(800, 600);
+    scene_manager = engine['_scene_manager'];
+    ecs = engine['_ecs_manager'];
+    mock_scene = new MockScene();
   });
 
-  test('should register a scene', () => {
-    scene_manager.registerScene('Scene1', mock_scene1);
-    expect(mock_scene1.events).toContain('onRegister');
+  test('should load a registered scene', () => {
+    scene_manager.registerScene('Scene1', mock_scene);
+    scene_manager.loadScene(ecs, mock_context, 'Scene1');
+    expect(mock_scene.events).toContain('load');
+  });
+
+  test('should not load an unregistered scene', () => {
     expect(() =>
-      scene_manager.registerScene('Scene1', mock_scene1),
-    ).not.toThrow();
+      scene_manager.loadScene(ecs, mock_context, 'UnknownScene'),
+    ).toThrow('Cannot load scene UnknownScene, it is not registered.');
   });
 
-  test('should start a registered scene', () => {
-    scene_manager.registerScene('Scene1', mock_scene1);
-    scene_manager.startScene('Scene1');
-    expect(mock_scene1.events).toContain('onStart');
-  });
+  test('should not load an already loaded scene', () => {
+    scene_manager.registerScene('Scene1', mock_scene);
+    scene_manager.loadScene(ecs, mock_context, 'Scene1');
 
-  test('should not start an unregistered scene', () => {
-    expect(() => scene_manager.startScene('UnknownScene')).toThrow(
-      'Cannot start scene UnknownScene, it is not registered.',
+    expect(() => scene_manager.loadScene(ecs, mock_context, 'Scene1')).toThrow(
+      'Scene Scene1 is already loaded.',
     );
-  });
-
-  test('should not start an already active scene', () => {
-    scene_manager.registerScene('Scene1', mock_scene1);
-    scene_manager.startScene('Scene1');
-
-    expect(() => scene_manager.startScene('Scene1')).toThrow(
-      'Scene Scene1 is already active.',
-    );
-  });
-
-  test('should stop an active scene', () => {
-    scene_manager.registerScene('Scene1', mock_scene1);
-    scene_manager.startScene('Scene1');
-    scene_manager.stopScene('Scene1');
-    expect(mock_scene1.events).toContain('onExit');
-  });
-
-  test('should not stop an inactive scene', () => {
-    scene_manager.registerScene('Scene1', mock_scene1);
-    expect(() => scene_manager.stopScene('Scene1')).toThrowError(
-      'Scene Scene1 is not active.',
-    );
-  });
-
-  test('should pause an active scene', () => {
-    scene_manager.registerScene('Scene1', mock_scene1);
-    scene_manager.startScene('Scene1');
-    scene_manager.pauseScene('Scene1');
-    expect(mock_scene1.events).toContain('onPause');
-  });
-
-  test('should not pause an inactive scene', () => {
-    scene_manager.registerScene('Scene1', mock_scene1);
-    expect(() => scene_manager.pauseScene('Scene1')).toThrowError(
-      'Scene Scene1 is not active and cannot be paused.',
-    );
-  });
-
-  test('should resume a paused scene', () => {
-    scene_manager.registerScene('Scene1', mock_scene1);
-    scene_manager.startScene('Scene1');
-    scene_manager.pauseScene('Scene1');
-    scene_manager.resumeScene('Scene1');
-    expect(mock_scene1.events).toContain('onResume');
-  });
-
-  test('should not resume an already active scene', () => {
-    scene_manager.registerScene('Scene1', mock_scene1);
-    scene_manager.startScene('Scene1');
-    expect(() => scene_manager.resumeScene('Scene1')).toThrowError(
-      'Scene Scene1 is already active.',
-    );
-  });
-
-  test('should not resume an unregistered scene', () => {
-    expect(() => scene_manager.resumeScene('UnknownScene')).toThrowError(
-      'Cannot resume scene UnknownScene, it is not registered.',
-    );
-  });
-
-  test('should update active scenes', () => {
-    scene_manager.registerScene('Scene1', mock_scene1);
-    scene_manager.registerScene('Scene2', mock_scene2);
-    scene_manager.startScene('Scene1');
-    scene_manager.startScene('Scene2');
-
-    scene_manager.updateActiveScenes(100, 16);
-
-    expect(mock_scene1.events).toContain('onUpdate(100, 16)');
-    expect(mock_scene2.events).toContain('onUpdate(100, 16)');
   });
 });

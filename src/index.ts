@@ -1,32 +1,58 @@
 import CompHex from './components/CompHex';
 import CompHexGrid from './components/CompHexGrid';
-import CompTransform from './components/CompTransform';
-import { DrawHex, DrawHexGrid } from './draw/DrawHexes';
+import CompTransform from './engine/core_components/CompTransform';
+import { DrawHex, SysDrawHexGrid } from './systems/SysDrawHexes';
 import { AssetType } from './engine/core/AssetStore';
-import Engine from './engine/core/Engine';
+import Theater from './engine/core/Theater';
 import Scene from './engine/core/Scene';
+import { CompDestroyWithScene } from './engine/core_components/CompDestroy';
 import CompDrawable from './engine/core_components/CompDrawable';
 import CompFillStyle from './engine/core_components/CompFillStyle';
 import CompLineStyle from './engine/core_components/CompLineStyle';
-import CompMouseSensitive from './engine/core_components/CompMouseSensitive';
 import CompNamed from './engine/core_components/CompNamed';
 import HexGrid, { HorizontalLayout } from './math/hexgrid/HexGrid';
 import Vector2D from './math/Vector2D';
-import { SysPointingAtHexgrid } from './systems/SysPointingAtHexgrid';
+import { CompMouseSensitive } from './engine/core_components/CompMouse';
+import { SysPointAtHexInHexgrid } from './systems/SysPointAtHexInHexgrid';
+import SysMouse from './engine/core_systems/SysMouse';
+import {
+  SysDrawBegin,
+  SysDrawEnd,
+  SysInputEnd,
+  SysUpdateBegin,
+  SysUpdateEnd,
+} from './engine/core_systems/SysSentinels';
+import CompSelectorHex from './components/CompSelectorHex';
+import SysSelectHexInHexGrid from './systems/SysSelectHexInHexGrid';
+import SysMouseDepth from './engine/core_systems/SysMouseDepth';
+import EcsManager from './engine/core/EcsManager';
 import CompSprite from './engine/core_components/CompSprite';
-import { DrawSprite } from './draw/DrawSprite';
-import CompSpritesheet from './engine/core_components/CompAnimatedSprite';
-import { DrawAnimatedSprite } from './draw/DrawAnimatedSprite';
+import { SysDrawSprite } from './systems/SysDrawSprite';
+import PhaserContext from './engine/core/PhaserContext';
 import CompAnimatedSprite from './engine/core_components/CompAnimatedSprite';
+import { SysDrawAnimatedSprite } from './systems/SysDrawAnimatedSprite';
+import SysRotate from './systems/SysRotate';
+import SysScaleChange from './systems/SysScaleChange';
 import CompRotate from './engine/core_components/CompRotate';
 import CompScaleChange from './engine/core_components/CompScaleChange';
 
+function main(): void {
+  const theater = new Theater(800, 600);
 
-class AssetScene extends Scene {
-  onRegister(): void {
-    const asset_store = this.context.assetStore!;
+  theater.ready().then(() => {
+    theater.registerScene('HexScene', new HexScene());
+    theater.registerScene('SamuraiScene', new SamuraiScene());
+    theater.preloadScenes(['HexScene', 'SamuraiScene']);
+    theater.buildScenes(['HexScene', 'SamuraiScene']);
+  });
+}
 
-    asset_store.registerAssets([
+class SamuraiScene extends Scene {
+  override async preload(
+    ecs: EcsManager,
+    phaser_context: PhaserContext,
+  ): Promise<void> {
+    ecs.asset_store.registerAssets([
       { key: 'samurai', path: 'assets/IDLE.png', type: AssetType.Image },
       {
         key: 'samurai_idle',
@@ -40,161 +66,61 @@ class AssetScene extends Scene {
         type: AssetType.Spritesheet,
         frameConfig: { frameWidth: 96, frameHeight: 96 },
       },
-      { key: 'samurai_three', path: 'assets/HURT.png', type: AssetType.Spritesheet, frameConfig: { frameWidth: 96, frameHeight: 96 } },
-    ]);
-  }
-
-  onStart(): void {}
-
-  onExit(): void {}
-
-  onUpdate(_time: number, _delta: number): void {}
-}
-
-class AnotherScene extends Scene {
-  onRegister(): void {
-    this.ecs.registerComponent(CompTransform);
-
-    this.ecs.addDraw();
-    this.ecs.getDrawSystem()!.addSubSystem(new DrawSprite());
-    this.ecs.getDrawSystem()!.addSubSystem(new DrawAnimatedSprite());
-  }
-
-  async onPreload(): Promise<void> {
-    console.log('PRELOADING!!');
-    await this.context.assetStore!.preloadAssets([
-      'samurai_three'
-    ]);
-  }
-
-  onStart(): void {
-    this.onPreload().then(() => {
-      console.log('Starting AnotherScene!');
-      const test_spritesheet = this.ecs.newEntity();
-      this.ecs.addComponents(
-        test_spritesheet,
-        new CompTransform(new Vector2D(100, 500), 0, new Vector2D(1.0, 1.0)),
-        new CompDrawable(1),
-        new CompSprite(this.context.assetStore!, 'samurai_three', 1),
-      );
-
-      this.context.phaserContext!.input.keyboard!.on(
-        'keydown',
-        (event: KeyboardEvent) => {
-          if (event.code === 'ArrowDown') {
-            console.log('Arrow Up key was pressed!');
-            this.context.sceneManager!.resumeScene('MyScene');
-            this.context.sceneManager!.pauseScene('AnotherScene');
-          }
-        },
-      );
-    }) 
-    
-  }
-
-  onExit(): void {
-    console.log('Exiting AnotherScene!');
-  }
-
-  onUpdate(time: number, delta: number): void {
-    this.ecs.getDrawSystem()?.update(this, this.context, time, delta);
-  }
-}
-
-class MyScene extends Scene {
-  onRegister(): void {
-    console.log('Registering MyScene!');
-
-    this.ecs.registerComponent(CompHex);
-    this.ecs.registerComponent(CompHexGrid);
-    this.ecs.registerComponent(CompTransform);
-    this.ecs.registerComponent(CompRotate);
-    this.ecs.registerComponent(CompScaleChange);
-
-    this.ecs.addMouse();
-    this.ecs.getMouseSystem()!.addSubSystem(new SysPointingAtHexgrid());
-
-    this.ecs.addDraw();
-    this.ecs.getDrawSystem()!.addSubSystem(new DrawHexGrid());
-    this.ecs.getDrawSystem()!.addSubSystem(new DrawHex());
-
-    this.ecs.getDrawSystem()!.addSubSystem(new DrawSprite());
-    this.ecs.getDrawSystem()!.addSubSystem(new DrawAnimatedSprite());
-
-    
-
-    
-   
-  }
-
-  async onPreload(): Promise<void> {
-    console.log('PRELOADING!!');
-    await this.context.assetStore!.preloadAssets([
-      'samurai',
-      'samurai_two',
-      'samurai_idle'
-    ]);
-  }
-
-  onStart(): void {
-    console.log('Starting MyScene!');
-
-    // Scene transition example (will get some errors due to using phaser input, this is just as an example)
-    this.context.phaserContext!.input.keyboard!.on(
-      'keydown',
-      (event: KeyboardEvent) => {
-        if (event.code === 'ArrowUp') {
-          this.context.sceneManager!.pauseScene('MyScene');
-          this.context.sceneManager!.startScene('AnotherScene');
-        }
+      {
+        key: 'samurai_three',
+        path: 'assets/HURT.png',
+        type: AssetType.Spritesheet,
+        frameConfig: { frameWidth: 96, frameHeight: 96 },
       },
+    ]);
+    this.makePreloadPromise(
+      ecs.asset_store.preloadAssets(phaser_context, [
+        'samurai',
+        'samurai_idle',
+        'samurai_two',
+        'samurai_three',
+      ]),
     );
+  }
 
-    const hex_grid = this.ecs.newEntity();
-    this.ecs.addComponents(
-      hex_grid,
-      new CompNamed('The Hex Grid'),
-      new CompHexGrid(new HexGrid(3, 50, HorizontalLayout)),
-      new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
-      new CompDrawable(0),
-      new CompLineStyle(5, 0x000000, 1),
-      new CompFillStyle(0x888888, 1),
-      new CompMouseSensitive(0, true, false, true, true),
-    );
-    // This grid blocks the mouse events from reaching the other hex grid due to being higher up
-    const partly_blocking_grid = this.ecs.newEntity();
-    this.ecs.addComponents(
-      partly_blocking_grid,
-      new CompNamed('The Blocking Grid'),
-      new CompHexGrid(new HexGrid(2, 50, HorizontalLayout)),
-      new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
-      new CompMouseSensitive(1, false),
-    );
+  override async load(
+    ecs: EcsManager,
+    _phaser_context: PhaserContext,
+  ): Promise<void> {
+    await this.readyPreload();
+
+
+    ecs.registerSystem(SysDrawSprite, [SysDrawBegin], [SysDrawEnd]);
+    ecs.registerSystem(SysDrawAnimatedSprite, [SysDrawBegin], [SysDrawEnd]);
+    ecs.registerSystem(SysRotate, [SysUpdateBegin], [SysUpdateEnd]);
+    ecs.registerSystem(SysScaleChange, [SysUpdateBegin], [SysUpdateEnd]);
+
+    ecs.activateSystem(SysDrawSprite);
+    ecs.activateSystem(SysDrawAnimatedSprite);
+    ecs.activateSystem(SysRotate);
+    ecs.activateSystem(SysScaleChange);
 
     // Draw sprite example
-    const test_sprite = this.ecs.newEntity();
-    this.ecs.addComponents(
-      test_sprite,
+    ecs.addComponents(
+      ecs.newEntity(),
       new CompTransform(new Vector2D(100, 100), 0, new Vector2D(1.0, 1.0)),
       new CompDrawable(1),
-      new CompSprite(this.context.assetStore!, 'samurai'),
+      new CompSprite(ecs.asset_store, 'samurai'),
     );
-
-    const another_test_sprite = this.ecs.newEntity();
-    this.ecs.addComponents(
-      another_test_sprite,
-      new CompTransform(new Vector2D(200, 200), 0, new Vector2D(1.0, 1.0)),
+    ecs.addComponents(
+      ecs.newEntity(),
+      new CompTransform(new Vector2D(100, 300), 0, new Vector2D(1.0, 1.0)),
       new CompDrawable(1),
-      new CompSprite(this.context.assetStore!, 'samurai_idle', 6),
+      new CompSprite(ecs.asset_store, 'samurai_two', 8),
       new CompRotate(
-        3000.0,
+        3,
         0,
         3.14,
         true,
         true,
       ),
       new CompScaleChange(
-        3000.0,
+        3,
         new Vector2D(1.0, 1.0),
         new Vector2D(3.0, 3.0),
         false,
@@ -202,116 +128,94 @@ class MyScene extends Scene {
       )
     );
 
-    const test_anim = this.ecs.newEntity();
-    this.ecs.addComponents(
-      test_anim,
-      new CompTransform(
-        new Vector2D(100, 300),
-        0,
-        new Vector2D(1.0, 1.0),
-      ),
-      new CompRotate(
-        4000,
-        0,
-        -(2 * 3.14),
-        true,
-        true,
-      ),
+    const animated_sprite_entity = ecs.newEntity();
+    ecs.addComponents(
+      animated_sprite_entity,
+      new CompTransform(new Vector2D(100, 500), 0, new Vector2D(1.0, 1.0)),
       new CompDrawable(1),
-      new CompAnimatedSprite(
-        this.context.assetStore!,
-        [
-          {
-            key: 'idle',
-            loop: true,
-            playing: true,
-            asset_key: 'samurai_idle',
-            start_frame: 0,
-            num_frames: 10,
-            frame_rate: 10,
-          },
-          {
-            key: 'run',
-            loop: true,
-            playing: true,
-            asset_key: 'samurai_two',
-            start_frame: 0,
-            num_frames: 15,
-            frame_rate: 15,
-          }
-        ], 
-        'idle'
-      )
-    );
-
-    this.context.phaserContext!.input.keyboard!.on(
-      'keydown',
-      (event: KeyboardEvent) => {
-        if (event.code === 'ArrowRight') {
-          const anim_entities = this.ecs.getEntitiesWithArchetype(CompTransform, CompDrawable, CompSpritesheet);
-          for (const entity of anim_entities) {
-            const spritesheet = this.ecs.getComponent(entity, CompSpritesheet);
-            const transform = this.ecs.getComponent(entity, CompTransform);
-            spritesheet?.states?.switchState('run');
-          }
+      new CompAnimatedSprite(ecs.asset_store, [
+        {
+          key: 'idle',
+          loop: true,
+          playing: true,
+          asset_key: 'samurai_idle',
+          start_frame: 0,
+          num_frames: 10,
+          frame_rate: 10,
+        },
+        {
+          key: 'run',
+          loop: true,
+          playing: true,
+          asset_key: 'samurai_two',
+          start_frame: 0,
+          num_frames: 15,
+          frame_rate: 15,
         }
-      },
+      ], 
+      'idle'),
     );
 
-    this.context.phaserContext!.input.keyboard!.on(
-      'keydown',
-      (event: KeyboardEvent) => {
-        if (event.code === 'ArrowLeft') {
-          const anim_entities = this.ecs.getEntitiesWithArchetype(CompTransform, CompDrawable, CompSpritesheet);
-          for (const entity of anim_entities) {
-            const spritesheet = this.ecs.getComponent(entity, CompSpritesheet);
-            spritesheet?.states?.switchState('idle');
-            spritesheet!.states!.current_state.playing = true;
-          }
-        }
-      },
-    );
-
+    const animated_sprite = ecs.getComponent(animated_sprite_entity, CompAnimatedSprite);
+    animated_sprite?.states.switchState('run');
   }
 
-  onExit(): void {
-    console.log('Exiting MyScene!');
-  }
-
-  onUpdate(time: number, delta: number): void {
-    console.log('Updating MyScene!');
-    this.ecs.getMouseSystem()?.update(this, this.context, time, delta);
-
-    
-  
-    this.ecs.getDrawSystem()?.update(this, this.context, time, delta);
-
-
-
-    this.ecs.rotate_system.update(this, this.context, time, delta);
-
-    this.ecs.scale_change_system.update(this, this.context, time, delta);
-
-    
-  }
+  public unload(_ecs: EcsManager, _phaser_context: PhaserContext): void {}
 }
 
-const game = new Engine(800, 600);
+class HexScene extends Scene {
+  override async preload(
+    _ecs: EcsManager,
+    _phaser_context: PhaserContext,
+  ): Promise<void> {}
 
-async function startGame() {
-  await game.ready();
+  override load(
+    ecs: EcsManager,
+    _phaser_context: PhaserContext,
+  ): Promise<void> {
+    ecs.registerComponent(CompHex);
+    ecs.registerComponent(CompHexGrid);
+    ecs.registerComponent(CompSelectorHex);
+    ecs.registerComponent(CompTransform);
 
-  const scene_manager = game.getContext().sceneManager!;
+    ecs.registerSystem(SysPointAtHexInHexgrid, [SysMouse], [SysInputEnd]);
+    ecs.registerSystem(SysSelectHexInHexGrid, [SysMouseDepth], [SysDrawBegin]);
+    ecs.registerSystem(SysDrawHexGrid, [SysDrawBegin], [SysDrawEnd]);
+    ecs.registerSystem(DrawHex, [SysDrawBegin, SysDrawHexGrid], [SysDrawEnd]);
 
-  scene_manager.registerScene('AssetScene', new AssetScene());
-  scene_manager.registerScene('MyScene', new MyScene());
-  scene_manager.registerScene('AnotherScene', new AnotherScene());
+    ecs.activateSystem(SysPointAtHexInHexgrid);
+    ecs.activateSystem(SysSelectHexInHexGrid);
+    ecs.activateSystem(SysDrawHexGrid);
+    ecs.activateSystem(DrawHex);
 
-  console.log('Before preloading!!');
-  await scene_manager.preloadScene('MyScene');
-  console.log('After preloading!!');
+    const hex_grid = ecs.newEntity();
+    ecs.addComponents(
+      hex_grid,
+      new CompNamed('The Hex Grid'),
+      new CompHexGrid(new HexGrid(3, 50, HorizontalLayout)),
+      new CompSelectorHex(),
+      new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
+      new CompDrawable(0),
+      new CompLineStyle(5, 0x000000, 1),
+      new CompFillStyle(0x888888, 1),
+      new CompMouseSensitive(1),
+      new CompDestroyWithScene(this),
+    );
+    // This grid blocks the mouse events from reaching the other hex grid due to being higher up
+    const partially_blocking_grid = ecs.newEntity();
+    ecs.addComponents(
+      partially_blocking_grid,
+      new CompNamed('The Blocking Grid'),
+      new CompHexGrid(new HexGrid(2, 50, HorizontalLayout)),
+      new CompTransform(new Vector2D(400, 300), 0, new Vector2D(1.1, 0.9)),
+      new CompMouseSensitive(0),
+      new CompDestroyWithScene(this),
+    );
 
-  scene_manager.startScene('MyScene');
+    return Promise.resolve();
+  }
+
+  override unload(_ecs: EcsManager, _phaser_context: PhaserContext): void {}
 }
 
-startGame();
+main();

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Context } from './Engine';
+import PhaserContext from './PhaserContext';
 
 export type AssetId = number;
 export type AssetKey = string;
@@ -50,13 +50,8 @@ export default class AssetStore {
   private _key_to_id: Map<AssetKey, AssetId> = new Map();
   private _loaded_assets: Set<AssetId> = new Set();
   private _asset_usage_count: Map<AssetId, number> = new Map();
-  private _context: Context;
   private _current_id: AssetId = 0;
   private _loading_promises: Map<AssetId, Promise<void>> = new Map();
-
-  constructor(context: Context) {
-    this._context = context;
-  }
 
   private _nextId(): AssetId {
     return this._current_id++;
@@ -70,45 +65,52 @@ export default class AssetStore {
     return asset_data;
   }
 
-  private async _loadAssetAsync(id: AssetId): Promise<void> {
+  private async _loadAssetAsync(
+    phaser_context: PhaserContext,
+    id: AssetId,
+  ): Promise<void> {
     if (this.isAssetLoaded(id)) {
       return Promise.resolve();
     }
-  
+
     if (this._loading_promises.has(id)) {
       return this._loading_promises.get(id)!;
     }
-  
+
     const asset_data = this._getAssetData(id);
-    const loader = this._context.phaserContext!.load;
-  
+    const loader = phaser_context.phaser_scene!.load;
+
     const promise = new Promise<void>((resolve, reject) => {
-      const onComplete = () => {
-        loader.off(Phaser.Loader.Events.COMPLETE, onComplete);
-        loader.off(Phaser.Loader.Events.FILE_LOAD_ERROR, onFileError);
+      const on_complete = (): void => {
+        loader.off(Phaser.Loader.Events.COMPLETE, on_complete);
+        loader.off(Phaser.Loader.Events.FILE_LOAD_ERROR, on_file_error);
         this._loaded_assets.add(id);
         this._loading_promises.delete(id);
         resolve();
       };
-  
-      const onFileError = (fileKey: string) => {
-        if (fileKey === asset_data.key) {
-          console.error(`Error loading asset: ${fileKey}`);
-          loader.off(Phaser.Loader.Events.FILE_LOAD_ERROR, onFileError);
+
+      const on_file_error = (file_key: string): void => {
+        if (file_key === asset_data.key) {
+          console.error(`Error loading asset: ${file_key}`);
+          loader.off(Phaser.Loader.Events.FILE_LOAD_ERROR, on_file_error);
           this._loading_promises.delete(id);
           reject(new Error(`Failed to load asset with key ${asset_data.key}`));
         }
       };
-  
-      loader.once(Phaser.Loader.Events.COMPLETE, onComplete);
-      loader.once(Phaser.Loader.Events.FILE_LOAD_ERROR, onFileError);
-  
+
+      loader.once(Phaser.Loader.Events.COMPLETE, on_complete);
+      loader.once(Phaser.Loader.Events.FILE_LOAD_ERROR, on_file_error);
+
       switch (asset_data.type) {
         case AssetType.Image:
           loader.image(asset_data.key, asset_data.path);
           break;
         case AssetType.Spritesheet:
-          loader.spritesheet(asset_data.key, asset_data.path, asset_data.frameConfig);
+          loader.spritesheet(
+            asset_data.key,
+            asset_data.path,
+            asset_data.frameConfig,
+          );
           break;
         case AssetType.Audio:
           loader.audio(asset_data.key, asset_data.path);
@@ -117,15 +119,17 @@ export default class AssetStore {
           loader.bitmapFont(asset_data.key, asset_data.path);
           break;
         default:
-          reject(new Error(`Unknown asset type: ${(asset_data as AssetData).type}`));
+          reject(
+            new Error(`Unknown asset type: ${(asset_data as AssetData).type}`),
+          );
           return;
       }
-  
+
       if (!loader.isLoading()) {
         loader.start();
       }
     });
-  
+
     this._loading_promises.set(id, promise);
     return promise;
   }
@@ -154,16 +158,24 @@ export default class AssetStore {
     });
   }
 
-  public async preloadAssets(keys?: AssetKey[]): Promise<void> {
+  public async preloadAssets(
+    phaser_scene: PhaserContext,
+    keys?: AssetKey[],
+  ): Promise<void[]> {
     const asset_ids_to_load = keys
-      ? keys.map((key) => this.getAssetId(key)).filter((id) => !this.isAssetLoaded(id))
-      : Array.from(this._key_to_id.values()).filter((id) => !this.isAssetLoaded(id));
-  
-    await Promise.all(asset_ids_to_load.map(async (id) => {
-      await this._loadAssetAsync(id);
-    }));
+      ? keys
+          .map((key) => this.getAssetId(key))
+          .filter((id) => !this.isAssetLoaded(id))
+      : Array.from(this._key_to_id.values()).filter(
+          (id) => !this.isAssetLoaded(id),
+        );
+
+    return Promise.all(
+      asset_ids_to_load.map(async (id) => {
+        await this._loadAssetAsync(phaser_scene, id);
+      }),
+    );
   }
-  
 
   public isAssetLoaded(id: AssetId): boolean {
     return this._loaded_assets.has(id);
@@ -173,14 +185,14 @@ export default class AssetStore {
     this._asset_usage_count.set(id, (this._asset_usage_count.get(id) || 0) + 1);
   }
 
-  public releaseAsset(id: AssetId): void {
+  public releaseAsset(phaser_scene: PhaserContext, id: AssetId): void {
     if (!this._asset_usage_count.has(id)) {
       throw new Error(`Attempted to release non-existent asset ID ${id}`);
     }
 
-    const count = this._asset_usage_count.get(id) || 0;
+    const count = this._asset_usage_count.get(id) ?? 0;
     if (count <= 1) {
-      this.unloadAsset(id);
+      this.unloadAsset(phaser_scene, id);
       this._asset_usage_count.delete(id);
     } else {
       this._asset_usage_count.set(id, count - 1);
@@ -204,7 +216,7 @@ export default class AssetStore {
     return asset_id;
   }
 
-  public unloadAsset(id: AssetId): void {
+  public unloadAsset(phaser_context: PhaserContext, id: AssetId): void {
     if (!this.isAssetLoaded(id)) {
       return;
     }
@@ -214,10 +226,10 @@ export default class AssetStore {
     switch (asset_data.type) {
       case AssetType.Image:
       case AssetType.Spritesheet:
-        this._context.phaserContext!.textures.remove(asset_data.key);
+        phaser_context.phaser_scene.textures.remove(asset_data.key);
         break;
       case AssetType.Audio:
-        this._context.phaserContext!.sound.removeByKey(asset_data.key);
+        phaser_context.phaser_scene.sound.removeByKey(asset_data.key);
         break;
       case AssetType.Font:
         // Font unloading not supported by Phaser

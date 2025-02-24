@@ -1,5 +1,6 @@
 import AssetStore, { AssetId, AssetKey } from './AssetStore';
 import Component from './Component';
+import PhaserContext from './PhaserContext';
 
 export default abstract class AssetComponent extends Component {
   private _asset_id: AssetId | null = null;
@@ -17,9 +18,9 @@ export default abstract class AssetComponent extends Component {
     return this._asset_id;
   }
 
-  onDestroy(asset_store: AssetStore): void {
+  onDestroy(phaser_scene: PhaserContext, asset_store: AssetStore): void {
     if (this.asset_id) {
-      asset_store.releaseAsset(this._asset_id!);
+      asset_store.releaseAsset(phaser_scene, this._asset_id!);
     }
     
   }

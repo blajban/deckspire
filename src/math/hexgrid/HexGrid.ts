@@ -7,24 +7,29 @@ export type HexGridConstraint = (hex: HexCoordinates) => boolean;
 
 /** One step in all possible directions in a horizontal hex grid. */
 export class HorizontalLayout {
+  /* eslint-disable @typescript-eslint/naming-convention */
   public static readonly NE = new HexDistance(1, 0);
   public static readonly N = new HexDistance(0, 1);
   public static readonly NW = new HexDistance(-1, 1);
   public static readonly SW = new HexDistance(-1, 0);
   public static readonly S = new HexDistance(0, -1);
   public static readonly SE = new HexDistance(1, -1);
+  /* eslint-enable @typescript-eslint/naming-convention */
 }
 /** One step in all possible directions in a vertical hex grid. */
 export class VerticalLayout {
+  /* eslint-disable @typescript-eslint/naming-convention */
   public static readonly E = new HexDistance(1, -1);
   public static readonly NE = new HexDistance(1, 0);
   public static readonly NW = new HexDistance(0, 1);
   public static readonly S = new HexDistance(-1, 1);
   public static readonly SW = new HexDistance(-1, 0);
   public static readonly SE = new HexDistance(0, -1);
+  /* eslint-enable @typescript-eslint/naming-convention */
 }
 
 export default class HexGrid {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   public readonly ALL_UNIT_DISTANCES = [
     HorizontalLayout.NE,
     HorizontalLayout.N,

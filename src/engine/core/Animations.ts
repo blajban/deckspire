@@ -1,4 +1,5 @@
 import AssetStore, { AssetId, AssetKey } from '../core/AssetStore';
+import PhaserContext from './PhaserContext';
 
 export type AnimKey = string;
 
@@ -66,10 +67,10 @@ export default class AnimStates {
     this.current_state = this.getState(new_state);
   }
 
-  releaseAssets(asset_store: AssetStore): void {
+  releaseAssets(phaser_scene: PhaserContext, asset_store: AssetStore): void {
     this._states.forEach((state) => {
       if (state.asset_id) {
-        asset_store.releaseAsset(state.asset_id)}
+        asset_store.releaseAsset(phaser_scene, state.asset_id)}
       }
     );
   }

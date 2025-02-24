@@ -4,8 +4,8 @@
   "main": "webpack.config.js",
   "scripts": {
     "start": "npx webpack serve",
-    "test": "jest --coverage",
-    "test:watch": "jest --watch",
+    "test": "jest --coverage --max-workers=1",
+    "test:watch": "jest --watch --max-workers=1",
     "open-coverage": "open coverage/lcov-report/index.html",
     "docs": "npx typedoc && open docs/index.html",
     "generate-docs": "npx typedoc",
