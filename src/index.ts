@@ -89,7 +89,6 @@ class SamuraiScene extends Scene {
   ): Promise<void> {
     await this.readyPreload();
 
-
     ecs.registerSystem(SysDrawSprite, [SysDrawBegin], [SysDrawEnd]);
     ecs.registerSystem(SysDrawAnimatedSprite, [SysDrawBegin], [SysDrawEnd]);
     ecs.registerSystem(SysRotate, [SysUpdateBegin], [SysUpdateEnd]);
@@ -112,20 +111,14 @@ class SamuraiScene extends Scene {
       new CompTransform(new Vector2D(100, 300), 0, new Vector2D(1.0, 1.0)),
       new CompDrawable(1),
       new CompSprite(ecs.asset_store, 'samurai_two', 8),
-      new CompRotate(
-        3,
-        0,
-        3.14,
-        true,
-        true,
-      ),
+      new CompRotate(3, 0, 3.14, true, true),
       new CompScaleChange(
         3,
         new Vector2D(1.0, 1.0),
         new Vector2D(3.0, 3.0),
         false,
         true,
-      )
+      ),
     );
 
     const animated_sprite_entity = ecs.newEntity();
@@ -133,30 +126,36 @@ class SamuraiScene extends Scene {
       animated_sprite_entity,
       new CompTransform(new Vector2D(100, 500), 0, new Vector2D(1.0, 1.0)),
       new CompDrawable(1),
-      new CompAnimatedSprite(ecs.asset_store, [
-        {
-          key: 'idle',
-          loop: true,
-          playing: true,
-          asset_key: 'samurai_idle',
-          start_frame: 0,
-          num_frames: 10,
-          frame_rate: 10,
-        },
-        {
-          key: 'run',
-          loop: true,
-          playing: true,
-          asset_key: 'samurai_two',
-          start_frame: 0,
-          num_frames: 15,
-          frame_rate: 15,
-        }
-      ], 
-      'idle'),
+      new CompAnimatedSprite(
+        ecs.asset_store,
+        [
+          {
+            key: 'idle',
+            shouldLoop: true,
+            isPlaying: true,
+            assetKey: 'samurai_idle',
+            startFrame: 0,
+            numFrames: 10,
+            frameRate: 10,
+          },
+          {
+            key: 'run',
+            shouldLoop: true,
+            isPlaying: true,
+            assetKey: 'samurai_two',
+            startFrame: 0,
+            numFrames: 15,
+            frameRate: 15,
+          },
+        ],
+        'idle',
+      ),
     );
 
-    const animated_sprite = ecs.getComponent(animated_sprite_entity, CompAnimatedSprite);
+    const animated_sprite = ecs.getComponent(
+      animated_sprite_entity,
+      CompAnimatedSprite,
+    );
     animated_sprite?.states.switchState('run');
   }
 

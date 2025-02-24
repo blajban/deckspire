@@ -5,8 +5,6 @@ import Archetype from '../engine/core/Archetype';
 import CompTransform from '../engine/core_components/CompTransform';
 import CompRotate from '../engine/core_components/CompRotate';
 
-
-
 export default class SysRotate extends System {
   private _archetype = new Archetype(CompTransform, CompRotate);
 
@@ -18,30 +16,31 @@ export default class SysRotate extends System {
   ): void {
     ecs
       .getComponentsForEntitiesWithArchetype(this._archetype)
-      .forEach(([transform, rotate], _entity) => {     
-        if (!rotate.playing) return;
+      .forEach(([transform, rotate], _entity) => {
+        if (!rotate.is_playing) {
+          return;
+        }
 
         rotate.elapsed += delta;
 
         const progress = this._progress(rotate.elapsed, rotate.duration);
-        transform.rotation = rotate.start_value + (rotate.end_value - rotate.start_value) * progress;
+        transform.rotation =
+          rotate.start_value +
+          (rotate.end_value - rotate.start_value) * progress;
 
+        const max_duration = Math.max(rotate.duration || 0);
 
-        const maxDuration = Math.max(
-          rotate.duration || 0
-        );
-
-        if (rotate.elapsed >= maxDuration) {
-          if (!rotate.loop) {
-            rotate.playing = false;
+        if (rotate.elapsed >= max_duration) {
+          if (!rotate.should_loop) {
+            rotate.is_playing = false;
           } else {
             rotate.elapsed = 0;
           }
         }
-    });
+      });
   }
 
-  _progress(elapsed: number, duration: number): number {
+  private _progress(elapsed: number, duration: number): number {
     return Math.min(elapsed / duration, 1);
   }
 }

@@ -7,10 +7,9 @@ export default class CompRotate extends Component {
     public duration: number,
     public start_value: number,
     public end_value: number,
-    public loop: boolean,
-    public playing: boolean,
+    public should_loop: boolean,
+    public is_playing: boolean,
   ) {
     super();
   }
 }
-

@@ -11,7 +11,6 @@ export default abstract class AssetComponent extends Component {
       this._asset_id = asset_store.getAssetId(asset_key);
       asset_store.useAsset(this._asset_id);
     }
-    
   }
 
   get asset_id(): AssetId | null {
@@ -22,6 +21,5 @@ export default abstract class AssetComponent extends Component {
     if (this.asset_id) {
       asset_store.releaseAsset(phaser_scene, this._asset_id!);
     }
-    
   }
 }
