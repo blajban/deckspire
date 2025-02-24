@@ -14,10 +14,4 @@ export default class CompAnimatedSprite extends AssetComponent {
     super(asset_store, null);
     this.states = new AnimStates(asset_store, animations, default_state_key);
   }
-
-  onDestroy(phaser_scene: PhaserContext, asset_store: AssetStore): void {
-    if (this.states) {
-      this.states.releaseAssets(phaser_scene, asset_store);
-    }
-  }
 }

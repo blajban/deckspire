@@ -10,7 +10,6 @@ describe('CompScaleChange', () => {
       new Vector2D(1.0, 1.0),
       new Vector2D(2.0, 2.0),
       true,
-      true,
     );
   });
 
@@ -21,7 +20,6 @@ describe('CompScaleChange', () => {
     expect(comp_scale_change.end_value.x).toBe(2.0);
     expect(comp_scale_change.end_value.x).toBe(2.0);
     expect(comp_scale_change.should_loop).toBe(true);
-    expect(comp_scale_change.is_playing).toBe(true);
     expect(comp_scale_change.elapsed).toBe(0);
   });
 });

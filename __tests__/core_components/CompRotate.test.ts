@@ -4,7 +4,7 @@ describe('CompRotate', () => {
   let comp_rotate: CompRotate;
 
   beforeEach(() => {
-    comp_rotate = new CompRotate(3000, 0, Math.PI, true, true);
+    comp_rotate = new CompRotate(3000, 0, Math.PI, true);
   });
 
   test('should initialize with correct values', () => {
@@ -12,7 +12,6 @@ describe('CompRotate', () => {
     expect(comp_rotate.start_value).toBe(0);
     expect(comp_rotate.end_value).toBe(Math.PI);
     expect(comp_rotate.should_loop).toBe(true);
-    expect(comp_rotate.is_playing).toBe(true);
     expect(comp_rotate.elapsed).toBe(0);
   });
 });

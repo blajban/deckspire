@@ -9,7 +9,6 @@ export default class CompScaleChange extends Component {
     public start_value: Vector2D,
     public end_value: Vector2D,
     public should_loop: boolean,
-    public is_playing: boolean,
   ) {
     super();
   }

@@ -16,11 +16,7 @@ export default class SysScaleChange extends System {
   ): void {
     ecs
       .getComponentsForEntitiesWithArchetype(this._archetype)
-      .forEach(([transform, scale_change], _entity) => {
-        if (!scale_change.is_playing) {
-          return;
-        }
-
+      .forEach(([transform, scale_change], entity) => {
         scale_change.elapsed += delta;
 
         const progress_x = this._progress(
@@ -45,7 +41,7 @@ export default class SysScaleChange extends System {
 
         if (scale_change.elapsed >= max_duration) {
           if (!scale_change.should_loop) {
-            scale_change.is_playing = false;
+            ecs.removeComponent(entity, CompScaleChange);
           } else {
             scale_change.elapsed = 0;
           }

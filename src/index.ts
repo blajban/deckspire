@@ -111,13 +111,12 @@ class SamuraiScene extends Scene {
       new CompTransform(new Vector2D(100, 300), 0, new Vector2D(1.0, 1.0)),
       new CompDrawable(1),
       new CompSprite(ecs.asset_store, 'samurai_two', 8),
-      new CompRotate(3, 0, -(2 * 3.14), true, true),
+      new CompRotate(3, 0, -(2 * 3.14), false),
       new CompScaleChange(
         3,
         new Vector2D(1.0, 1.0),
         new Vector2D(3.0, 3.0),
         false,
-        true,
       ),
       new CompAnimatedSprite(
         ecs.asset_store,

@@ -16,11 +16,7 @@ export default class SysRotate extends System {
   ): void {
     ecs
       .getComponentsForEntitiesWithArchetype(this._archetype)
-      .forEach(([transform, rotate], _entity) => {
-        if (!rotate.is_playing) {
-          return;
-        }
-
+      .forEach(([transform, rotate], entity) => {
         rotate.elapsed += delta;
 
         const progress = this._progress(rotate.elapsed, rotate.duration);
@@ -32,7 +28,7 @@ export default class SysRotate extends System {
 
         if (rotate.elapsed >= max_duration) {
           if (!rotate.should_loop) {
-            rotate.is_playing = false;
+            ecs.removeComponent(entity, CompRotate);
           } else {
             rotate.elapsed = 0;
           }
