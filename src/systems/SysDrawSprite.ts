@@ -6,7 +6,7 @@ import CompSprite from '../engine/core_components/CompSprite';
 import PhaserContext from '../engine/core/PhaserContext';
 import Archetype from '../engine/core/Archetype';
 
-export class SysDrawSprite extends System {
+export default class SysDrawSprite extends System {
   private _archetype = new Archetype(CompDrawable, CompSprite, CompTransform);
 
   update(
