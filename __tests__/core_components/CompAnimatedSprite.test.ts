@@ -1,7 +1,7 @@
 import CompAnimatedSprite from '../../src/engine/core_components/CompAnimatedSprite';
 import AnimStates, {
-  AnimConfig,
-  AnimKey,
+  AnimationConfig,
+  AnimationKey,
 } from '../../src/engine/core/SpriteAnimations';
 import AssetStore, {
   AssetKey,
@@ -15,8 +15,8 @@ import GraphicsCache from '../../src/engine/core/GraphicsCache';
 describe('CompAnimatedSprite', () => {
   let mock_asset_store: AssetStore;
   let phaser_context: PhaserContext;
-  let animations: AnimConfig[];
-  let default_state_key: AnimKey;
+  let animations: AnimationConfig[];
+  let default_state_key: AnimationKey;
   let animated_sprite: CompAnimatedSprite;
 
   beforeEach(() => {

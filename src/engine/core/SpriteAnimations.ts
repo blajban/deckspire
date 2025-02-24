@@ -1,10 +1,9 @@
 import AssetStore, { AssetId, AssetKey } from './AssetStore';
-import PhaserContext from './PhaserContext';
 
-export type AnimKey = string;
+export type AnimationKey = string;
 
-export interface AnimConfig {
-  key: AnimKey;
+export interface AnimationConfig {
+  key: AnimationKey;
   shouldLoop: boolean;
   isPlaying: boolean;
   assetKey: AssetKey;
@@ -13,19 +12,19 @@ export interface AnimConfig {
   frameRate: number;
 }
 
-export class AnimState {
-  private _anim: AnimConfig;
+export class AnimationState {
+  private _anim: AnimationConfig;
   private _asset_id: AssetId | null = null;
   public elapsed: number = 0;
 
-  constructor(asset_store: AssetStore, anim: AnimConfig) {
+  constructor(asset_store: AssetStore, anim: AnimationConfig) {
     this._anim = anim;
 
     this._asset_id = asset_store.getAssetId(this._anim.assetKey);
     asset_store.useAsset(this._asset_id);
   }
 
-  get key(): AnimKey {
+  get key(): AnimationKey {
     return this._anim.key;
   }
   get should_loop(): boolean {
@@ -54,32 +53,32 @@ export class AnimState {
   }
 }
 
-export default class AnimStates {
-  public current_state: AnimState;
-  private _states: Map<AnimKey, AnimState> = new Map();
+export default class AnimationStates {
+  public current_state: AnimationState;
+  private _states: Map<AnimationKey, AnimationState> = new Map();
 
   constructor(
     asset_store: AssetStore,
-    animations: AnimConfig[],
-    default_state: AnimKey,
+    animations: AnimationConfig[],
+    default_state: AnimationKey,
   ) {
     animations.forEach((anim) => {
-      const state = new AnimState(asset_store, anim);
+      const state = new AnimationState(asset_store, anim);
       this._states.set(state.key, state);
     });
 
     this.current_state = this.getState(default_state);
   }
 
-  getState(key: AnimKey): AnimState {
+  getState(key: AnimationKey): AnimationState {
     if (!this._states.has(key)) {
       throw new Error(`Animation state ${key} does not exist.`);
     }
 
-    return this._states.get(key) as AnimState;
+    return this._states.get(key) as AnimationState;
   }
 
-  switchState(new_state: AnimKey): void {
+  switchState(new_state: AnimationKey): void {
     if (this.current_state.key === new_state) {
       return;
     }

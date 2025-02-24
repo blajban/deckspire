@@ -2,9 +2,9 @@ import AssetStore, {
   AssetId,
   AssetKey,
 } from '../../src/engine/core/AssetStore';
-import AnimStates, {
-  AnimConfig,
-  AnimState,
+import AnimationStates, {
+  AnimationConfig,
+  AnimationState,
 } from '../../src/engine/core/SpriteAnimations';
 import PhaserContext from '../../src/engine/core/PhaserContext';
 
@@ -23,8 +23,8 @@ class MockAssetStore extends AssetStore {
 
 describe('AnimState', () => {
   let asset_store: AssetStore;
-  let anim_config: AnimConfig;
-  let anim_state: AnimState;
+  let anim_config: AnimationConfig;
+  let anim_state: AnimationState;
 
   beforeEach(() => {
     asset_store = new MockAssetStore();
@@ -37,7 +37,7 @@ describe('AnimState', () => {
       numFrames: 10,
       frameRate: 15,
     };
-    anim_state = new AnimState(asset_store, anim_config);
+    anim_state = new AnimationState(asset_store, anim_config);
   });
 
   test('should initialize with correct values', () => {
@@ -69,8 +69,8 @@ describe('AnimState', () => {
 
 describe('AnimStates', () => {
   let asset_store: AssetStore;
-  let animations: AnimConfig[];
-  let anim_states: AnimStates;
+  let animations: AnimationConfig[];
+  let anim_states: AnimationStates;
 
   beforeEach(() => {
     asset_store = new MockAssetStore();
@@ -94,7 +94,7 @@ describe('AnimStates', () => {
         frameRate: 20,
       },
     ];
-    anim_states = new AnimStates(asset_store, animations, 'idle');
+    anim_states = new AnimationStates(asset_store, animations, 'idle');
   });
 
   test('should initialize with correct default state', () => {

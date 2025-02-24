@@ -1,17 +1,16 @@
-import AnimStates, { AnimConfig, AnimKey } from '../core/SpriteAnimations';
+import AnimationStates, { AnimationConfig, AnimationKey } from '../core/SpriteAnimations';
 import AssetComponent from '../core/AssetComponent';
 import AssetStore from '../core/AssetStore';
-import PhaserContext from '../core/PhaserContext';
 
 export default class CompAnimatedSprite extends AssetComponent {
-  public states: AnimStates;
+  public states: AnimationStates;
 
   constructor(
     asset_store: AssetStore,
-    animations: AnimConfig[],
-    default_state_key: AnimKey,
+    animations: AnimationConfig[],
+    default_state_key: AnimationKey,
   ) {
     super(asset_store, null);
-    this.states = new AnimStates(asset_store, animations, default_state_key);
+    this.states = new AnimationStates(asset_store, animations, default_state_key);
   }
 }
