@@ -78,18 +78,4 @@ describe('CompAnimatedSprite', () => {
     animated_sprite.states.switchState('idle');
     expect(animated_sprite.states.current_state.key).toBe('idle');
   });
-
-  test('should release assets on destroy', () => {
-    const release_assets_spy = jest.spyOn(
-      animated_sprite.states,
-      'releaseAssets',
-    );
-
-    animated_sprite.onDestroy(phaser_context, mock_asset_store);
-
-    expect(release_assets_spy).toHaveBeenCalledWith(
-      phaser_context,
-      mock_asset_store,
-    );
-  });
 });

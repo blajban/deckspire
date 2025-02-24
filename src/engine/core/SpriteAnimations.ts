@@ -87,11 +87,14 @@ export default class AnimStates {
     this.current_state = this.getState(new_state);
   }
 
-  releaseAssets(phaser_scene: PhaserContext, asset_store: AssetStore): void {
+  getAssetIDsUsed(): AssetId[] {
+    let asset_ids: AssetId[] = [];
     this._states.forEach((state) => {
       if (state.asset_id) {
-        asset_store.releaseAsset(phaser_scene, state.asset_id);
+        asset_ids.push(state.asset_id);
       }
-    });
+    })
+
+    return asset_ids;
   }
 }

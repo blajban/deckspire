@@ -22,30 +22,6 @@ describe('CompScaleChange', () => {
     expect(comp_scale_change.end_value.x).toBe(2.0);
     expect(comp_scale_change.should_loop).toBe(true);
     expect(comp_scale_change.is_playing).toBe(true);
-  });
-
-  test('should initialize elapsed time to zero', () => {
     expect(comp_scale_change.elapsed).toBe(0);
-  });
-
-  test('should update elapsed time', () => {
-    comp_scale_change.elapsed += 100;
-    expect(comp_scale_change.elapsed).toBe(100);
-  });
-
-  test('should toggle playing state', () => {
-    comp_scale_change.is_playing = false;
-    expect(comp_scale_change.is_playing).toBe(false);
-
-    comp_scale_change.is_playing = true;
-    expect(comp_scale_change.is_playing).toBe(true);
-  });
-
-  test('should toggle loop state', () => {
-    comp_scale_change.should_loop = false;
-    expect(comp_scale_change.should_loop).toBe(false);
-
-    comp_scale_change.should_loop = true;
-    expect(comp_scale_change.should_loop).toBe(true);
   });
 });

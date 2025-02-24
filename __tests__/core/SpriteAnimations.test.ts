@@ -116,13 +116,4 @@ describe('AnimStates', () => {
       'Animation state jump does not exist.',
     );
   });
-
-  test('should release assets correctly', () => {
-    const mock_phaser_context = {} as PhaserContext;
-    const mock_release_asset = jest.spyOn(asset_store, 'releaseAsset');
-
-    anim_states.releaseAssets(mock_phaser_context, asset_store);
-
-    expect(mock_release_asset).toHaveBeenCalledTimes(2);
-  });
 });

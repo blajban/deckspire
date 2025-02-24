@@ -6,6 +6,7 @@ import { Entity } from '../core/Entity';
 import GraphicsCache from '../core/GraphicsCache';
 import PhaserContext from '../core/PhaserContext';
 import System from '../core/System';
+import CompAnimatedSprite from '../core_components/CompAnimatedSprite';
 import CompChild from '../core_components/CompChild';
 import {
   CompDestroyMe,
@@ -107,8 +108,17 @@ function destroyEntity(
     if (component instanceof CompDrawable) {
       cleanupGraphicsCache(phaser_context.graphics_cache, component);
     }
-    if (component instanceof AssetComponent && component.asset_id) {
-      ecs.asset_store.releaseAsset(phaser_context, component.asset_id);
+    if (component instanceof AssetComponent) {
+      if (component instanceof CompAnimatedSprite) {
+        component.states.getAssetIDsUsed().forEach((id) => {
+          ecs.asset_store.releaseAsset(phaser_context, id);
+        });
+      }
+
+      if (component.asset_id) {
+        ecs.asset_store.releaseAsset(phaser_context, component.asset_id);
+      }
+      
     }
     ecs.removeComponent(entity, component.constructor as ComponentClass);
   }
