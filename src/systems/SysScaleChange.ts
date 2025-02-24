@@ -37,7 +37,7 @@ export default class SysScaleChange extends System {
           scale_change.start_value.y +
           (scale_change.end_value.y - scale_change.start_value.y) * progress_y;
 
-        const max_duration = Math.max(scale_change.duration || 0);
+        const max_duration = Math.max(scale_change.duration);
 
         if (scale_change.elapsed >= max_duration) {
           if (!scale_change.should_loop) {

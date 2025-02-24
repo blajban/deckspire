@@ -24,7 +24,7 @@ export default class SysRotate extends System {
           rotate.start_value +
           (rotate.end_value - rotate.start_value) * progress;
 
-        const max_duration = Math.max(rotate.duration || 0);
+        const max_duration = Math.max(rotate.duration);
 
         if (rotate.elapsed >= max_duration) {
           if (!rotate.should_loop) {
