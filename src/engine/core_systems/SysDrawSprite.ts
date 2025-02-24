@@ -1,10 +1,10 @@
-import CompTransform from '../engine/core_components/CompTransform';
-import EcsManager from '../engine/core/EcsManager';
-import System from '../engine/core/System';
-import CompDrawable from '../engine/core_components/CompDrawable';
-import CompSprite from '../engine/core_components/CompSprite';
-import PhaserContext from '../engine/core/PhaserContext';
-import Archetype from '../engine/core/Archetype';
+import CompTransform from '../core_components/CompTransform';
+import EcsManager from '../core/EcsManager';
+import System from '../core/System';
+import CompDrawable from '../core_components/CompDrawable';
+import CompSprite from '../core_components/CompSprite';
+import PhaserContext from '../core/PhaserContext';
+import Archetype from '../core/Archetype';
 
 export default class SysDrawSprite extends System {
   private _archetype = new Archetype(CompDrawable, CompSprite, CompTransform);

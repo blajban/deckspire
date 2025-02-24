@@ -39,6 +39,10 @@ import PhaserContext from './PhaserContext';
 import CompAnimatedSprite from '../core_components/CompAnimatedSprite';
 import CompRotate from '../core_components/CompRotate';
 import CompScaleChange from '../core_components/CompScaleChange';
+import SysDrawSprite from '../core_systems/SysDrawSprite';
+import SysDrawAnimatedSprite from '../core_systems/SysDrawAnimatedSprite';
+import SysRotate from '../core_systems/SysRotate';
+import SysScaleChange from '../core_systems/SysScaleChange';
 
 export default class CoreScene extends Scene {
   override load(
@@ -51,6 +55,10 @@ export default class CoreScene extends Scene {
     ecs.activateSystem(SysMouse);
     ecs.activateSystem(SysMouseDepth);
     ecs.activateSystem(SysDestroyEntity);
+    ecs.activateSystem(SysDrawSprite);
+    ecs.activateSystem(SysDrawAnimatedSprite);
+    ecs.activateSystem(SysRotate);
+    ecs.activateSystem(SysScaleChange);
 
     return Promise.resolve();
   }
@@ -77,6 +85,10 @@ export default class CoreScene extends Scene {
     // Register actual systems
     ecs.registerSystem(SysMouse, [SysInputBegin], [SysInputEnd]);
     ecs.registerSystem(SysMouseDepth, [SysInputEnd], [SysDrawBegin]);
+    ecs.registerSystem(SysRotate, [SysUpdateBegin], [SysUpdateEnd]);
+    ecs.registerSystem(SysScaleChange, [SysUpdateBegin], [SysUpdateEnd]);
+    ecs.registerSystem(SysDrawSprite, [SysDrawBegin], [SysDrawEnd]);
+    ecs.registerSystem(SysDrawAnimatedSprite, [SysDrawBegin], [SysDrawEnd]);
     ecs.registerSystem(SysDestroyEntity, [SysCleanupBegin], [SysCleanupEnd]);
   }
 

@@ -1,9 +1,9 @@
-import System from '../engine/core/System';
-import EcsManager from '../engine/core/EcsManager';
-import PhaserContext from '../engine/core/PhaserContext';
-import Archetype from '../engine/core/Archetype';
-import CompTransform from '../engine/core_components/CompTransform';
-import CompScaleChange from '../engine/core_components/CompScaleChange';
+import System from '../core/System';
+import EcsManager from '../core/EcsManager';
+import PhaserContext from '../core/PhaserContext';
+import Archetype from '../core/Archetype';
+import CompTransform from '../core_components/CompTransform';
+import CompScaleChange from '../core_components/CompScaleChange';
 
 export default class SysScaleChange extends System {
   private _archetype = new Archetype(CompTransform, CompScaleChange);

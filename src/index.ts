@@ -27,12 +27,10 @@ import SysSelectHexInHexGrid from './systems/SysSelectHexInHexGrid';
 import SysMouseDepth from './engine/core_systems/SysMouseDepth';
 import EcsManager from './engine/core/EcsManager';
 import CompSprite from './engine/core_components/CompSprite';
-import SysDrawSprite from './systems/SysDrawSprite';
 import PhaserContext from './engine/core/PhaserContext';
 import CompAnimatedSprite from './engine/core_components/CompAnimatedSprite';
-import SysDrawAnimatedSprite from './systems/SysDrawAnimatedSprite';
-import SysRotate from './systems/SysRotate';
-import SysScaleChange from './systems/SysScaleChange';
+import SysRotate from './engine/core_systems/SysRotate';
+import SysScaleChange from './engine/core_systems/SysScaleChange';
 import CompRotate from './engine/core_components/CompRotate';
 import CompScaleChange from './engine/core_components/CompScaleChange';
 
@@ -88,16 +86,6 @@ class SamuraiScene extends Scene {
     _phaser_context: PhaserContext,
   ): Promise<void> {
     await this.readyPreload();
-
-    ecs.registerSystem(SysDrawSprite, [SysDrawBegin], [SysDrawEnd]);
-    ecs.registerSystem(SysDrawAnimatedSprite, [SysDrawBegin], [SysDrawEnd]);
-    ecs.registerSystem(SysRotate, [SysUpdateBegin], [SysUpdateEnd]);
-    ecs.registerSystem(SysScaleChange, [SysUpdateBegin], [SysUpdateEnd]);
-
-    ecs.activateSystem(SysDrawSprite);
-    ecs.activateSystem(SysDrawAnimatedSprite);
-    ecs.activateSystem(SysRotate);
-    ecs.activateSystem(SysScaleChange);
 
     // Draw sprite example
     ecs.addComponents(
