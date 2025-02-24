@@ -1,4 +1,4 @@
-import AnimStates, { AnimConfig, AnimKey } from '../core/Animations';
+import AnimStates, { AnimConfig, AnimKey } from '../core/SpriteAnimations';
 import AssetComponent from '../core/AssetComponent';
 import AssetStore from '../core/AssetStore';
 import PhaserContext from '../core/PhaserContext';

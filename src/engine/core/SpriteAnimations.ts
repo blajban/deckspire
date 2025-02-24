@@ -1,4 +1,4 @@
-import AssetStore, { AssetId, AssetKey } from '../core/AssetStore';
+import AssetStore, { AssetId, AssetKey } from './AssetStore';
 import PhaserContext from './PhaserContext';
 
 export type AnimKey = string;
