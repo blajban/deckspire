@@ -4,8 +4,9 @@ import AnimationStates, {
 } from '../core/SpriteAnimations';
 import AssetComponent from '../core/AssetComponent';
 import AssetStore from '../core/AssetStore';
+import Component from '../core/Component';
 
-export default class CompAnimatedSprite extends AssetComponent {
+export default class CompAnimatedSprite extends Component {
   public states: AnimationStates;
 
   constructor(
@@ -13,7 +14,7 @@ export default class CompAnimatedSprite extends AssetComponent {
     animations: AnimationConfig[],
     default_state_key: AnimationKey,
   ) {
-    super(asset_store, null);
+    super();
     this.states = new AnimationStates(
       asset_store,
       animations,

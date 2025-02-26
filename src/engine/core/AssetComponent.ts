@@ -3,17 +3,15 @@ import Component from './Component';
 import PhaserContext from './PhaserContext';
 
 export default abstract class AssetComponent extends Component {
-  private _asset_id: AssetId | null = null;
+  private _asset_id: AssetId;
 
-  constructor(asset_store: AssetStore, asset_key: AssetKey | null) {
+  constructor(asset_store: AssetStore, asset_key: AssetKey) {
     super();
-    if (asset_key) {
-      this._asset_id = asset_store.getAssetId(asset_key);
-      asset_store.useAsset(this._asset_id);
-    }
+    this._asset_id = asset_store.getAssetId(asset_key);
+    asset_store.useAsset(this._asset_id);
   }
 
-  get asset_id(): AssetId | null {
+  get asset_id(): AssetId {
     return this._asset_id;
   }
 
