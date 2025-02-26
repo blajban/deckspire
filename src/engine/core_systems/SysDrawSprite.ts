@@ -1,17 +1,13 @@
-import CompTransform from '../engine/core_components/CompTransform';
-import EcsManager from '../engine/core/EcsManager';
-import System from '../engine/core/System';
-import CompDrawable from '../engine/core_components/CompDrawable';
-import CompSpritesheet from '../engine/core_components/CompSpritesheet';
-import PhaserContext from '../engine/core/PhaserContext';
-import Archetype from '../engine/core/Archetype';
+import CompTransform from '../core_components/CompTransform';
+import EcsManager from '../core/EcsManager';
+import System from '../core/System';
+import CompDrawable from '../core_components/CompDrawable';
+import CompSprite from '../core_components/CompSprite';
+import PhaserContext from '../core/PhaserContext';
+import Archetype from '../core/Archetype';
 
-export class SysDrawSpritesheet extends System {
-  private _archetype = new Archetype(
-    CompDrawable,
-    CompSpritesheet,
-    CompTransform,
-  );
+export default class SysDrawSprite extends System {
+  private _archetype = new Archetype(CompDrawable, CompSprite, CompTransform);
 
   update(
     ecs: EcsManager,
@@ -21,8 +17,8 @@ export class SysDrawSpritesheet extends System {
   ): void {
     ecs
       .getComponentsForEntitiesWithArchetype(this._archetype)
-      .forEach(([drawable, spritesheet, transform], _entity) => {
-        const image_asset = ecs.asset_store.getAsset(spritesheet.asset_id);
+      .forEach(([drawable, sprite, transform], _entity) => {
+        const image_asset = ecs.asset_store.getAsset(sprite.asset_id!);
 
         const cache = phaser_context.graphics_cache.getComponentCache(drawable);
         if (!cache.graphics_object) {
@@ -30,14 +26,12 @@ export class SysDrawSpritesheet extends System {
             transform.position.x,
             transform.position.y,
             image_asset,
-            spritesheet.current_frame,
+            sprite.frame,
           );
         }
-
         const phaser_sprite =
           cache.graphics_object as Phaser.GameObjects.Sprite;
 
-        phaser_sprite.setFrame(spritesheet.current_frame);
         phaser_sprite.setDepth(drawable.depth);
         phaser_sprite.setPosition(transform.position.x, transform.position.y);
         phaser_sprite.setRotation(transform.rotation);
