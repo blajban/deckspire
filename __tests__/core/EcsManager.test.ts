@@ -184,7 +184,8 @@ describe('ECS', () => {
     ecs.addComponent(entity1, new MockComponent(10));
     ecs.addComponent(entity2, new AnotherMockComponent(5));
 
-    const entities_with_position = ecs.getEntitiesAndComponents(MockComponent);
+    const entities_with_position =
+      ecs.getComponentsForEntitiesWithComponent(MockComponent);
     expect(entities_with_position.keys()).toContain(entity1);
     expect(entities_with_position.keys()).not.toContain(entity2);
   });
@@ -243,12 +244,12 @@ describe('ECS', () => {
   });
 
   test('should clear all entities and components', () => {
-    const old_length = ecs.getAllEntities().length;
+    const old_length = ecs.getAllEntities().size;
     const entity = ecs.newEntity();
     ecs.addComponent(entity, new MockComponent(10));
     ecs.addComponent(entity, new AnotherMockComponent(5));
 
     ecs.removeEntity(entity);
-    expect(ecs.getAllEntities()).toHaveLength(old_length);
+    expect(ecs.getAllEntities().size).toBe(old_length);
   });
 });

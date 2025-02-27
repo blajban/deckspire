@@ -127,7 +127,7 @@ describe('ComponentStore', () => {
     store.addComponent(entity1, component1);
     store.addComponent(entity2, component2);
 
-    const entities = store.getEntitiesAndComponents(MockComponent);
+    const entities = store.getComponentsForEntitiesWithComponent(MockComponent);
     expect(entities.keys()).toContain(entity1);
     expect(entities.keys()).toContain(entity2);
     expect(entities.values()).toContain(component1);
@@ -162,9 +162,7 @@ describe('ComponentStore', () => {
       store.getEntitiesWithArchetype(
         new Archetype(MockComponent, AnotherMockComponent),
       ),
-    ).toThrow(
-      'Component type AnotherMockComponent must be registered first (get entities with archetype)',
-    );
+    ).toThrow('Component type AnotherMockComponent must be registered first');
   });
 
   test('getComponentsForEntity should return all components for an entity', () => {
@@ -202,8 +200,8 @@ describe('ComponentStore', () => {
       'Component type MockComponent must be registered first (get component)',
     );
 
-    expect(() => store.getEntitiesAndComponents(MockComponent)).toThrow(
-      'Component type MockComponent must be registered first (get entities with component)',
-    );
+    expect(() =>
+      store.getComponentsForEntitiesWithComponent(MockComponent),
+    ).toThrow('Component type MockComponent must be registered first');
   });
 });

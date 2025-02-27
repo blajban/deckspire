@@ -1,7 +1,7 @@
-import CompAnimatedSprite from '../core_components/CompAnimatedSprite';
 import CompChild from '../core_components/CompChild';
 import CompParent from '../core_components/CompParent';
 import { ClassType } from '../util/ClassType';
+import { setDifferenceInPlace } from '../util/setUtilityFunctions';
 import Archetype from './Archetype';
 import AssetStore from './AssetStore';
 import Component, { ComponentClass } from './Component';
@@ -39,7 +39,7 @@ export default class EcsManager {
     this._entity_store.removeEntity(entity);
   }
 
-  getAllEntities(): Entity[] {
+  getAllEntities(): Set<Entity> {
     return this._entity_store.getAllEntities();
   }
 
@@ -109,15 +109,23 @@ export default class EcsManager {
     );
   }
 
-  getEntitiesAndComponents<T extends Component>(
+  getComponentsForEntitiesWithComponent<T extends Component>(
     component_class: ClassType<T>,
   ): Map<Entity, T> {
-    return this._component_store.getEntitiesAndComponents(component_class);
+    return this._component_store.getComponentsForEntitiesWithComponent(
+      component_class,
+    );
   }
 
   getEntitiesWithArchetype<T extends Component[]>(
     archetype: Archetype<T>,
   ): Set<Entity> {
+    if (archetype.component_classes.length === 0) {
+      return setDifferenceInPlace(
+        this._entity_store.getAllEntities(),
+        this._component_store.getAllEntities(),
+      );
+    }
     return this._component_store.getEntitiesWithArchetype(archetype);
   }
 
@@ -236,7 +244,7 @@ export default class EcsManager {
   }
 
   serialize(): string {
-    const serialized_ecs = this.getAllEntities().map((entity) => {
+    const serialized_ecs = [...this.getAllEntities()].map((entity) => {
       const components = this.getComponentsForEntity(entity).map(
         (component) => {
           return {

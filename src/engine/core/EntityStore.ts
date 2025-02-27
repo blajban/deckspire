@@ -52,7 +52,7 @@ export default class EntityStore {
    * Retrieves all entities in the store.
    * @returns An array of all entities currently in the store.
    */
-  getAllEntities(): Entity[] {
-    return Array.from(this._entities);
+  getAllEntities(): Set<Entity> {
+    return this._entities;
   }
 }

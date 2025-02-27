@@ -16,7 +16,7 @@ describe('EntityStore', () => {
     const entity1 = store.newEntity();
     const entity2 = store.newEntity();
     expect(entity1).not.toBe(entity2);
-    expect(store.getAllEntities()).toEqual([entity1, entity2]);
+    expect(store.getAllEntities()).toEqual(new Set([entity1, entity2]));
   });
 
   test('should validate an existing entity', () => {
@@ -39,10 +39,10 @@ describe('EntityStore', () => {
   test('should get all entities', () => {
     const entity1 = store.newEntity();
     const entity2 = store.newEntity();
-    expect(store.getAllEntities()).toEqual([entity1, entity2]);
+    expect(store.getAllEntities()).toEqual(new Set([entity1, entity2]));
   });
 
   test('should handle an empty entity store', () => {
-    expect(store.getAllEntities()).toEqual([]);
+    expect(store.getAllEntities()).toEqual(new Set());
   });
 });

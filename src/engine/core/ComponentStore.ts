@@ -1,5 +1,5 @@
 import { ClassType } from '../util/ClassType';
-import { setIntersection } from '../util/setUtilityFunctions';
+import { setIntersection, setUnion } from '../util/setUtilityFunctions';
 import Archetype from './Archetype';
 import Component, { ComponentClass } from './Component';
 import ComponentMap from './ComponentMap';
@@ -107,9 +107,21 @@ export default class ComponentStore {
   }
 
   /**
+   * Retrieves all entities that has any component.
+   * @returns A set of entity IDs that have the specified component type.
+   */
+  public getAllEntities(): Set<Entity> {
+    return setUnion(
+      ...[...this._component_maps].map(([_, component_map]) => {
+        return component_map.entities;
+      }),
+    );
+  }
+
+  /**
    * Retrieves all entities that have a specific archetype together with all the components.
    * @param component_class - The type of the component to query.
-   * @returns An array of entity IDs that have the specified component type.
+   * @returns A map of entities and the instances of the components specified in the archetype.
    * @throws Will throw an error if the component type has not been registered.
    */
   getComponentsForEntitiesWithArchetype<T extends Component[]>(
@@ -130,20 +142,32 @@ export default class ComponentStore {
   /**
    * Retrieves all entities that have a specific component type together with the components.
    * @param component_class - The type of the component to query.
-   * @returns An array of entity IDs that have the specified component type.
+   * @returns A map of entities and the instances of the specified component type.
    * @throws Will throw an error if the component type has not been registered.
    */
-  getEntitiesAndComponents<T extends Component>(
+  getComponentsForEntitiesWithComponent<T extends Component>(
     component_class: ClassType<T>,
   ): Map<Entity, T> {
     const component_type = component_class.name;
     const component_map = this._component_maps.get(component_type);
     if (!component_map) {
       throw new Error(
-        `Component type ${component_type} must be registered first (get entities with component)`,
+        `Component type ${component_type} must be registered first.`,
       );
     }
     return component_map.map as Map<Entity, T>;
+  }
+
+  public getEntitiesWithComponent(
+    component_class: ComponentClass,
+  ): Set<Entity> {
+    const component_map = this._component_maps.get(component_class.name);
+    if (!component_map) {
+      throw new Error(
+        `Component type ${component_class} must be registered first.`,
+      );
+    }
+    return component_map!.entities;
   }
 
   /**
@@ -168,9 +192,7 @@ export default class ComponentStore {
     const entity_sets = component_types.map((type) => {
       const component_map = this._component_maps.get(type);
       if (!component_map) {
-        throw new Error(
-          `Component type ${type} must be registered first (get entities with archetype)`,
-        );
+        throw new Error(`Component type ${type} must be registered first.`);
       }
       return new Set(component_map.entities);
     });

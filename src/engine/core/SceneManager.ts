@@ -61,7 +61,7 @@ export default class SceneManager {
     scene.unload(ecs, phaser_context);
 
     ecs
-      .getEntitiesAndComponents(CompDestroyWithScene)
+      .getComponentsForEntitiesWithComponent(CompDestroyWithScene)
       .forEach((component, entity) => {
         if (component.scene === scene) {
           ecs.removeEntity(entity);
