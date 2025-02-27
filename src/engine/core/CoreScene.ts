@@ -26,6 +26,7 @@ import {
 import SysDestroyEntity from '../core_systems/SysDestroyEntity';
 import Scene from './Scene';
 import {
+  CompDestroyComp,
   CompDestroyMe,
   CompDestroyWithLastChild,
   CompDestroyWithParent,
@@ -43,6 +44,7 @@ import SysDrawSprite from '../core_systems/SysDrawSprite';
 import SysDrawAnimatedSprite from '../core_systems/SysDrawAnimatedSprite';
 import SysRotate from '../core_systems/SysRotate';
 import SysScaleChange from '../core_systems/SysScaleChange';
+import SysDestroyComp from '../core_systems/SysDestroyComp';
 
 export default class CoreScene extends Scene {
   override load(
@@ -55,6 +57,7 @@ export default class CoreScene extends Scene {
     ecs.activateSystem(SysMouse);
     ecs.activateSystem(SysMouseDepth);
     ecs.activateSystem(SysDestroyEntity);
+    ecs.activateSystem(SysDestroyComp);
     ecs.activateSystem(SysDrawSprite);
     ecs.activateSystem(SysDrawAnimatedSprite);
     ecs.activateSystem(SysRotate);
@@ -89,6 +92,7 @@ export default class CoreScene extends Scene {
     ecs.registerSystem(SysScaleChange, [SysUpdateBegin], [SysUpdateEnd]);
     ecs.registerSystem(SysDrawSprite, [SysDrawBegin], [SysDrawEnd]);
     ecs.registerSystem(SysDrawAnimatedSprite, [SysDrawBegin], [SysDrawEnd]);
+    ecs.registerSystem(SysDestroyComp, [SysCleanupBegin], [SysCleanupEnd]);
     ecs.registerSystem(SysDestroyEntity, [SysCleanupBegin], [SysCleanupEnd]);
   }
 
@@ -115,5 +119,6 @@ export default class CoreScene extends Scene {
     ecs.registerComponent(CompAnimatedSprite);
     ecs.registerComponent(CompRotate);
     ecs.registerComponent(CompScaleChange);
+    ecs.registerComponent(CompDestroyComp);
   }
 }

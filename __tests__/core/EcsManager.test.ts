@@ -85,30 +85,6 @@ describe('ECS', () => {
     expect(ecs.getComponent(entity, AnotherMockComponent)).toBeUndefined();
   });
 
-  it('should not add a parent to a child that already has one.', () => {
-    const parent1 = ecs.newEntity();
-    const parent2 = ecs.newEntity();
-    const child = ecs.newEntity();
-
-    ecs.addParentChildRelationship(parent1, child);
-    expect(() => ecs.addParentChildRelationship(parent2, child)).toThrow(
-      'already has a parent',
-    );
-  });
-
-  test('removes child entity and updates parent children list', () => {
-    const parent_entity = ecs.newEntity();
-    const child_entity = ecs.newEntity();
-
-    ecs.addParentChildRelationship(parent_entity, child_entity);
-
-    ecs.removeEntity(child_entity);
-
-    expect(ecs.entityExists(child_entity)).toBe(false);
-    const parent_comp = ecs.getComponent(parent_entity, CompParent);
-    expect(parent_comp?.children).not.toContain(child_entity);
-  });
-
   test('should add and retrieve components for an entity', () => {
     const entity = ecs.newEntity();
     const position = new MockComponent(10);
@@ -129,52 +105,6 @@ describe('ECS', () => {
 
     ecs.removeComponent(entity, MockComponent);
     expect(ecs.getComponent(entity, MockComponent)).toBeUndefined();
-  });
-
-  test('should throw when adding a parent or child component directly', () => {
-    const entity = ecs.newEntity();
-
-    expect(() => {
-      ecs.addComponent(entity, new CompParent([1]));
-    }).toThrow(
-      'Add CompParent through the addParentChildRelationship() function.',
-    );
-
-    expect(() => {
-      ecs.addComponent(entity, new CompChild(1));
-    }).toThrow(
-      'Add CompChild through the addParentChildRelationship() function.',
-    );
-  });
-
-  test('removes parent component and orphans its children', () => {
-    const parent_entity = ecs.newEntity();
-    const child_entity = ecs.newEntity();
-
-    ecs.addParentChildRelationship(parent_entity, child_entity);
-
-    ecs.removeComponent(parent_entity, CompParent);
-
-    const parent_comp = ecs.getComponent(parent_entity, CompParent);
-    expect(parent_comp).toBeUndefined();
-    const orphaned_child = ecs.getComponent(child_entity, CompChild);
-    expect(orphaned_child).toBeUndefined();
-    expect(ecs.entityExists(child_entity)).toBeTruthy();
-  });
-
-  test('removes child component but keeps child entity intact', () => {
-    const parent_entity = ecs.newEntity();
-    const child_entity = ecs.newEntity();
-
-    ecs.addParentChildRelationship(parent_entity, child_entity);
-
-    ecs.removeComponent(child_entity, CompChild);
-
-    const parent_comp = ecs.getComponent(parent_entity, CompParent);
-    expect(parent_comp?.children).toHaveLength(0);
-    const child_comp = ecs.getComponent(child_entity, CompChild);
-    expect(child_comp).toBeUndefined();
-    expect(ecs.entityExists(child_entity)).toBeTruthy();
   });
 
   test('should retrieve all entities with a specific component', () => {

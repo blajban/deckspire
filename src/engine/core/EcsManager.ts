@@ -83,20 +83,6 @@ export default class EcsManager {
     if (!component) {
       return;
     }
-    if (component instanceof CompParent) {
-      const parent_comp = component as CompParent;
-      for (const child of parent_comp.children) {
-        const child_comp = this.getComponent(child, CompChild);
-        if (child_comp !== undefined) {
-          this.removeComponent(child, CompChild); // Orphan the child.
-        }
-      }
-    } else if (component instanceof CompChild) {
-      const child_comp = component as CompChild;
-      const parent = child_comp.parent;
-      const parent_comp = this.getComponent(parent, CompParent)!;
-      parent_comp.children = parent_comp.children.filter((e) => e !== entity);
-    }
 
     this._component_store.removeComponent(entity, component_class);
   }
