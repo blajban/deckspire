@@ -5,7 +5,10 @@ import { DrawHex, SysDrawHexGrid } from './systems/SysDrawHexes';
 import { AssetType } from './engine/core/AssetStore';
 import Theater from './engine/core/Theater';
 import Scene from './engine/core/Scene';
-import { CompDestroyWithScene } from './engine/core_components/CompDestroy';
+import {
+  CompDestroyComp,
+  CompDestroyWithScene,
+} from './engine/core_components/CompDestroy';
 import CompDrawable from './engine/core_components/CompDrawable';
 import CompFillStyle from './engine/core_components/CompFillStyle';
 import CompLineStyle from './engine/core_components/CompLineStyle';
@@ -36,8 +39,9 @@ function main(): void {
   theater.ready().then(() => {
     theater.registerScene('HexScene', new HexScene());
     theater.registerScene('SamuraiScene', new SamuraiScene());
-    theater.preloadScenes(['HexScene', 'SamuraiScene']);
-    theater.buildScenes(['HexScene', 'SamuraiScene']);
+    theater.registerScene('DestroyCompScene', new DestroyCompScene());
+    theater.preloadScenes(['HexScene', 'SamuraiScene', 'DestroyCompScene']);
+    theater.buildScenes(['HexScene', 'SamuraiScene', 'DestroyCompScene']);
   });
 }
 
@@ -217,6 +221,36 @@ class HexScene extends Scene {
       new CompMouseSensitive(0),
       new CompDestroyWithScene(this),
     );
+
+    return Promise.resolve();
+  }
+
+  override unload(_ecs: EcsManager, _phaser_context: PhaserContext): void {}
+}
+
+class DestroyCompScene extends Scene {
+  override async preload(
+    _ecs: EcsManager,
+    _phaser_context: PhaserContext,
+  ): Promise<void> {}
+
+  override load(
+    ecs: EcsManager,
+    _phaser_context: PhaserContext,
+  ): Promise<void> {
+    const entity = ecs.newEntity();
+    ecs.addComponents(
+      entity,
+      new CompNamed('A test entity'),
+      new CompTransform(new Vector2D(100, 200), 0, new Vector2D(1.0, 1.0)),
+    );
+
+    ecs.addComponent(entity, new CompDestroyComp([CompTransform]));
+
+    const destroy = ecs.getComponent(entity, CompDestroyComp);
+    destroy?.components.push(CompNamed);
+
+    destroy?.components.push(CompDrawable);
 
     return Promise.resolve();
   }

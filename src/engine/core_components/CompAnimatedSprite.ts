@@ -2,7 +2,6 @@ import AnimationStates, {
   AnimationConfig,
   AnimationKey,
 } from '../core/SpriteAnimations';
-import AssetComponent from '../core/AssetComponent';
 import AssetStore from '../core/AssetStore';
 import Component from '../core/Component';
 
