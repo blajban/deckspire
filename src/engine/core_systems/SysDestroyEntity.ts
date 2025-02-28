@@ -5,7 +5,6 @@ import System from '../core/System';
 import { CompDestroyMe } from '../core_components/CompDestroy';
 import { destroyEntity } from '../util/cleanup';
 
-
 export default class SysDestroyEntity extends System {
   private _archetype = new Archetype(CompDestroyMe);
 

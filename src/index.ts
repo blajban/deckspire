@@ -5,7 +5,10 @@ import { DrawHex, SysDrawHexGrid } from './systems/SysDrawHexes';
 import { AssetType } from './engine/core/AssetStore';
 import Theater from './engine/core/Theater';
 import Scene from './engine/core/Scene';
-import { CompDestroyComp, CompDestroyWithScene } from './engine/core_components/CompDestroy';
+import {
+  CompDestroyComp,
+  CompDestroyWithScene,
+} from './engine/core_components/CompDestroy';
 import CompDrawable from './engine/core_components/CompDrawable';
 import CompFillStyle from './engine/core_components/CompFillStyle';
 import CompLineStyle from './engine/core_components/CompLineStyle';
@@ -235,16 +238,11 @@ class DestroyCompScene extends Scene {
     ecs: EcsManager,
     _phaser_context: PhaserContext,
   ): Promise<void> {
-    
     const entity = ecs.newEntity();
     ecs.addComponents(
       entity,
       new CompNamed('A test entity'),
-      new CompTransform(
-        new Vector2D(100, 200),
-        0,
-        new Vector2D(1.0, 1.0)
-      )
+      new CompTransform(new Vector2D(100, 200), 0, new Vector2D(1.0, 1.0)),
     );
 
     ecs.addComponent(entity, new CompDestroyComp([CompTransform]));
@@ -253,8 +251,6 @@ class DestroyCompScene extends Scene {
     destroy?.components.push(CompNamed);
 
     destroy?.components.push(CompDrawable);
-
-
 
     return Promise.resolve();
   }

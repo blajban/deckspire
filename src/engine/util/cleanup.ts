@@ -6,11 +6,13 @@ import GraphicsCache from '../core/GraphicsCache';
 import PhaserContext from '../core/PhaserContext';
 import CompAnimatedSprite from '../core_components/CompAnimatedSprite';
 import CompChild from '../core_components/CompChild';
-import { CompDestroyMe, CompDestroyWithLastChild, CompDestroyWithParent } from '../core_components/CompDestroy';
+import {
+  CompDestroyMe,
+  CompDestroyWithLastChild,
+  CompDestroyWithParent,
+} from '../core_components/CompDestroy';
 import CompDrawable from '../core_components/CompDrawable';
 import CompParent from '../core_components/CompParent';
-
-
 
 /**
  * Since we are using Phaser the graphics objects need to be
@@ -94,7 +96,6 @@ export function destroyComponent(
   }
   if (component instanceof AssetComponent) {
     ecs.asset_store.releaseAsset(phaser_context, component.asset_id);
-
   }
   ecs.removeComponent(entity, component.constructor as ComponentClass);
 }

@@ -1,4 +1,3 @@
-import CompAnimatedSprite from '../core_components/CompAnimatedSprite';
 import CompChild from '../core_components/CompChild';
 import CompParent from '../core_components/CompParent';
 import { ClassType } from '../util/ClassType';

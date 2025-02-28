@@ -1,5 +1,3 @@
-import CompChild from '../../src/engine/core_components/CompChild';
-import CompParent from '../../src/engine/core_components/CompParent';
 import Component from '../../src/engine/core/Component';
 import EcsManager from '../../src/engine/core/EcsManager';
 import EntityStore from '../../src/engine/core/EntityStore';
