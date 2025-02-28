@@ -71,6 +71,24 @@ export function cleanupAfterChild(
   }
 }
 
+export function cleanupAfterAssetComponent(
+  ecs: EcsManager,
+  phaser_context: PhaserContext,
+  component: AssetComponent,
+): void {
+  ecs.asset_store.releaseAsset(phaser_context, component.asset_id);
+}
+
+export function cleanupAfterAnimatedSprite(
+  ecs: EcsManager,
+  phaser_context: PhaserContext,
+  component: CompAnimatedSprite,
+): void {
+  component.states.getAssetIdsUsed().forEach((id) => {
+    ecs.asset_store.releaseAsset(phaser_context, id);
+  });
+}
+
 export function destroyComponent(
   ecs: EcsManager,
   phaser_context: PhaserContext,
@@ -90,12 +108,18 @@ export function destroyComponent(
     cleanupGraphicsCache(phaser_context.graphics_cache, component);
   }
   if (component instanceof CompAnimatedSprite) {
-    component.states.getAssetIdsUsed().forEach((id) => {
-      ecs.asset_store.releaseAsset(phaser_context, id);
-    });
+    cleanupAfterAnimatedSprite(
+      ecs,
+      phaser_context,
+      component as CompAnimatedSprite,
+    );
   }
   if (component instanceof AssetComponent) {
-    ecs.asset_store.releaseAsset(phaser_context, component.asset_id);
+    cleanupAfterAssetComponent(
+      ecs,
+      phaser_context,
+      component as AssetComponent,
+    );
   }
   ecs.removeComponent(entity, component.constructor as ComponentClass);
 }
